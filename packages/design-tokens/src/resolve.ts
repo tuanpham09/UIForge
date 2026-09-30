@@ -17,13 +17,17 @@ export function resolveToken(name: string, set: TokenSet): TokenResolution {
   const token = lookupToken(name, set);
   if (!token) throw new UnknownTokenError(name);
 
-  const resolveValue = (value: string | number, seen: Set<string>): string | number => {
+  const resolveValue = (
+    value: string | number,
+    seen: Set<string>,
+  ): string | number => {
     if (typeof value !== "string") return value;
     const match = referencePattern.exec(value);
     if (!match) return value;
     const ref = match[1];
     if (!ref) throw new UnknownTokenError(value);
-    if (seen.has(ref)) throw new Error(["Circular token reference: ", ref].join(""));
+    if (seen.has(ref))
+      throw new Error(["Circular token reference: ", ref].join(""));
     const target = lookupToken(ref, set);
     if (!target) throw new UnknownTokenError(ref);
     return resolveValue(target.value, new Set([...seen, ref]));
@@ -33,8 +37,14 @@ export function resolveToken(name: string, set: TokenSet): TokenResolution {
   const themes = token.themes
     ? Object.fromEntries(
         Object.entries(token.themes)
-          .filter((entry): entry is [string, string | number] => entry[1] !== undefined)
-          .map(([theme, themeValue]) => [theme, resolveValue(themeValue, new Set([name]))]),
+          .filter(
+            (entry): entry is [string, string | number] =>
+              entry[1] !== undefined,
+          )
+          .map(([theme, themeValue]) => [
+            theme,
+            resolveValue(themeValue, new Set([name])),
+          ]),
       )
     : undefined;
 
@@ -51,6 +61,9 @@ export function resolveToken(name: string, set: TokenSet): TokenResolution {
 export function toCssVariable(name: string): string {
   return [
     "--ui-",
-    name.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase(),
+    name
+      .replace(/[^a-zA-Z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .toLowerCase(),
   ].join("");
 }
