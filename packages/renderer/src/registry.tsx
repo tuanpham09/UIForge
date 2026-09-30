@@ -1,3 +1,4 @@
+import { componentRegistry } from "@uiforge/component-registry";
 import type { UINode } from "@uiforge/ui-schema";
 import React, { type ReactNode } from "react";
 import type { RendererComponentRegistry, RendererContext } from "./types";
@@ -97,13 +98,12 @@ function select(node: UINode): ReactNode {
 
 function dialog(node: UINode): ReactNode {
   return (
-    <div
-      role="dialog"
+    <dialog
       data-node-id={node.id}
       aria-label={node.accessibility?.accessibleName}
     >
       {text(node)}
-    </div>
+    </dialog>
   );
 }
 
