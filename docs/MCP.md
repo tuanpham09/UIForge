@@ -32,6 +32,10 @@ Current project-wide Color Strategy: primary/secondary/accent roles, semantic su
 
 Scoped index of design skills relevant to the project/strategy. Do not expose the entire registry by default.
 
+### `ui://component-rules`
+
+Scoped semantic component decision rules: when-to-use, when-not-to-use, variants/states, accessibility, responsive and composition constraints.
+
 ### `ui://screens`
 
 Screen index with IDs, names, viewport metadata and short summaries.
@@ -85,6 +89,10 @@ Returns the validated project-wide Color Strategy and semantic palette roles.
 ### get_design_skills
 
 Returns scoped skill definitions or summaries needed for the requested design/code task.
+
+### get_component_rules
+
+Returns the semantic decision rules for one or more components in the current project/design-system context.
 
 ### get_screen
 
