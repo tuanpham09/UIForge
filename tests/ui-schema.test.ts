@@ -181,16 +181,15 @@ describe("typed command model", () => {
       schemaVersion: "uiforge.schema/v0",
     } as unknown;
     const migrated = migrateToCurrent(legacy, [
-        {
-          from: "uiforge.schema/v0",
-          to: UI_SCHEMA_VERSION,
-          migrate: (document) => ({
-            ...(document as object),
-            schemaVersion: UI_SCHEMA_VERSION,
-          }),
-        },
-      ],
-    );
+      {
+        from: "uiforge.schema/v0",
+        to: UI_SCHEMA_VERSION,
+        migrate: (document) => ({
+          ...(document as object),
+          schemaVersion: UI_SCHEMA_VERSION,
+        }),
+      },
+    ]);
     expect(migrated.schemaVersion).toBe(UI_SCHEMA_VERSION);
   });
 });
