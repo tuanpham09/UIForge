@@ -1,5 +1,5 @@
 import type { UIDocument, UINode } from "@uiforge/ui-schema";
-import { createShapeId, toRichText } from "tldraw";
+import { createShapeId } from "tldraw";
 import type { EditorProjection, ProjectedShape } from "./types.js";
 import { EDITOR_PROJECTION_VERSION } from "./types.js";
 
@@ -46,8 +46,8 @@ export function projectNode(
       w: size.width,
       h: size.height,
       geo: "rectangle",
-      richText: toRichText(nodeLabel(node)),
     },
+    label: nodeLabel(node),
     meta: {
       source: "uiforge",
       projectionVersion: EDITOR_PROJECTION_VERSION,
