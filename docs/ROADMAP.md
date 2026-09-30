@@ -5,7 +5,7 @@
 ~~~mermaid
 flowchart TB
     P0["P0 Foundation<br/>#1"]
-    P1["P1 Semantic UI Core<br/>#2 #3 #4 #5 #6"]
+    P1["P1 Semantic Product Core<br/>#2 #3 #21 #4 #5 #6"]
     P2["P2 AI Design<br/>#7 #8 #9"]
     P3["P3 Agent Bridge<br/>#10 #11 #12"]
     P4["P4 Design-to-Code<br/>#13 #14"]
@@ -30,17 +30,18 @@ Outputs:
 - Playwright skeleton;
 - package boundary rules.
 
-## Phase 1 — Semantic UI Core
+## Phase 1 — Semantic Product Core
 
-**Issues #2–#6**
+**Issues #2–#6 + #21**
 
-Goal: establish the canonical design language.
+Goal: establish the canonical design language **and product-flow model**. A screen is only one part of the product specification; user journeys and transitions are first-class.
 
 Outputs:
 - UI Schema v1;
 - typed command model;
 - design tokens;
-- tldraw adapter;
+- Product Experience Graph;
+- tldraw flow-aware adapter;
 - deterministic renderer;
 - component registry.
 
@@ -139,13 +140,13 @@ Outputs:
 ### M0 — Repository ready
 Issue #1 complete.
 
-### M1 — First editable UI
-Issues #2–#6 complete:
-fixture → schema → canvas → preview.
+### M1 — First editable product experience
+Issues #2–#6 + #21 complete:
+fixture → schema + experience graph → flow-aware canvas → preview/prototype.
 
-### M2 — AI UI
+### M2 — AI product experience
 Issues #7–#9 complete:
-prompt/screenshot → validated editable UI.
+prompt/screenshot → validated editable UI + generated/updated flows where applicable.
 
 ### M3 — MCP demo
 Issues #10–#12 complete:
@@ -155,9 +156,9 @@ external agent can inspect and safely mutate design.
 Issues #13–#14 complete:
 external agent can implement a React screen from UIForge context.
 
-### M5 — Visual QA loop
+### M5 — Visual + Interaction QA loop
 Issues #15–#16 complete:
-responsive and visual mismatch detection works.
+responsive, visual and interaction-flow mismatch detection works.
 
 ### M6 — Hosted alpha
 Issue #17 complete:
