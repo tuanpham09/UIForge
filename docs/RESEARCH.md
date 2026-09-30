@@ -80,7 +80,7 @@ UIForge will therefore:
 - shadcn/ui/Base UI.
 - tldraw adapter.
 - Supabase/Postgres.
-- MCP TypeScript SDK.
+- MCP TypeScript SDK v2 (`@modelcontextprotocol/server` / `@modelcontextprotocol/client`).
 - AI SDK.
 - Playwright.
 - Vitest.
@@ -97,3 +97,8 @@ UIForge will therefore:
 - advanced animation timeline.
 
 The goal is to prove the agent-native design-to-code loop before expanding the surface area.
+
+
+## September 2026 MCP update
+
+The official TypeScript SDK now documents v2 as the stable release line for the 2026-07-28 MCP specification. The server and client packages are split, and Streamable HTTP is the current hosted transport. UIForge should therefore isolate MCP transport/version details behind the MCP adapter rather than letting protocol details leak into the UI Schema. citeturn2search1turn2search2turn2search11
