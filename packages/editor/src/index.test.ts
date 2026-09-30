@@ -13,7 +13,7 @@ import {
 import { applyCommand, dashboardFixture } from "@uiforge/ui-schema";
 
 const shape = (document: typeof dashboardFixture, nodeId: string, overrides: Record<string, unknown> = {}) => ({
-  id: "shape:" + nodeId,
+  id: \`shape:\${nodeId}\`,
   type: "geo",
   x: 10,
   y: 20,
