@@ -146,7 +146,21 @@ Every screen must declare:
 
 Do not simply scale desktop pixels down.
 
-## 10. Accessibility
+## 10. Interaction and flow consistency
+
+Every interactive element that changes product state or navigation must map to a semantic transition.
+
+Rules:
+
+- every navigation action has an explicit destination;
+- every flow has an explicit starting point;
+- broken destinations are validation errors;
+- orphan/unreachable screens are surfaced rather than silently ignored;
+- loading, success and error branches are modeled where they affect user behavior;
+- overlays, back actions and state changes are distinguished from full navigation;
+- prototype animation metadata must not redefine the semantic action.
+
+## 11. Accessibility
 
 Interactive elements require:
 
@@ -159,7 +173,7 @@ Interactive elements require:
 
 Generated code must preserve these semantics.
 
-## 11. Density
+## 12. Density
 
 Do not solve visual quality by adding decoration.
 
@@ -173,7 +187,7 @@ Prioritize:
 6. interaction states;
 7. decoration.
 
-## 12. AI design constraints
+## 13. AI design constraints
 
 AI may choose from:
 
@@ -184,7 +198,7 @@ AI may choose from:
 
 If AI proposes a new token/component, it must explain why an existing primitive cannot satisfy the requirement.
 
-## 13. Visual quality gate
+## 14. Visual quality gate
 
 Every new component should have:
 
@@ -195,11 +209,11 @@ Every new component should have:
 
 Visual baselines are reviewed as code changes.
 
-## 14. Code consistency
+## 15. Code consistency
 
 The generated implementation must use the same semantic token names and component IDs whenever the target framework supports them.
 
-## 15. No silent drift
+## 16. No silent drift
 
 If implementation intentionally differs from design, record:
 
