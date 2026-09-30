@@ -15,13 +15,16 @@ export function applyColorStrategy(
     if (!supportedRoles.has(role)) {
       throw new Error(`Unknown Color Strategy role: ${role}`);
     }
-    const tokenName = Object.values(next.semantic).find(
-      (token) => token.semanticRole === role,
-    )?.name;
-    if (!tokenName) throw new Error(`No semantic token for color role: ${role}`);
 
-    const token = next.semantic[tokenName]!;
-    token.value = colors.light ?? colors.dark ?? token.value;
+    const token = Object.values(next.semantic).find(
+      (candidate) => candidate.semanticRole === role,
+    );
+    if (!token) throw new Error(`No semantic token for color role: ${role}`);
+
+    if (colors.light !== undefined) token.value = colors.light;
+    if (colors.dark !== undefined) {
+      token.themes = { ...(token.themes ?? {}), dark: colors.dark };
+    }
     token.theme = colors.dark ? "all" : "light";
   }
 
