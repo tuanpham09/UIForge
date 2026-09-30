@@ -143,9 +143,7 @@ export function validateUIDocument(value: unknown): UIDocument {
         node.interaction.targetNodeId &&
         !nodes[node.interaction.targetNodeId]
       ) {
-        issues.push(
-          `interactive node ${key} references missing target node`,
-        );
+        issues.push(`interactive node ${key} references missing target node`);
       }
     }
   }
