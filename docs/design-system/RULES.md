@@ -187,7 +187,21 @@ Prioritize:
 6. interaction states;
 7. decoration.
 
-## 13. AI design constraints
+## 13. Design skill constraints
+
+AI may compose from approved Design Skills. A skill may contribute:
+
+- domain-specific UX patterns;
+- information architecture patterns;
+- component/layout patterns;
+- interaction patterns;
+- responsive rules;
+- accessibility constraints;
+- anti-patterns.
+
+Skill composition must be deterministic for the same Product Intent + registry version and must preserve provenance for the selected skills.
+
+## 14. AI design constraints
 
 AI may choose from:
 
@@ -196,9 +210,9 @@ AI may choose from:
 - existing tokens;
 - documented layout primitives.
 
-If AI proposes a new token/component, it must explain why an existing primitive cannot satisfy the requirement.
+If AI proposes a new token/component, it must explain why an existing primitive cannot satisfy the requirement. The Design Strategy should preserve selected-skill provenance so downstream generation can explain major design decisions without depending on an opaque model prompt.
 
-## 14. Visual quality gate
+## 15. Visual quality gate
 
 Every new component should have:
 
@@ -209,11 +223,11 @@ Every new component should have:
 
 Visual baselines are reviewed as code changes.
 
-## 15. Code consistency
+## 16. Code consistency
 
 The generated implementation must use the same semantic token names and component IDs whenever the target framework supports them.
 
-## 16. No silent drift
+## 17. No silent drift
 
 If implementation intentionally differs from design, record:
 
