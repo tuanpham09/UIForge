@@ -5,7 +5,7 @@
 ~~~mermaid
 flowchart TB
     P0["P0 Foundation<br/>#1"]
-    P1["P1 Semantic Product Core + Design Intelligence<br/>#2 #3 #6 #21 #22 #23 #24 #4 #5"]
+    P1["P1 Semantic Product Core + Design Intelligence<br/>#2 #3 #6 #21 #22 #23 #24 #25 #4 #5"]
     P2["P2 AI Design<br/>#7 #8 #9"]
     P3["P3 Agent Bridge<br/>#10 #11 #12"]
     P4["P4 Design-to-Code<br/>#13 #14"]
@@ -45,6 +45,7 @@ Outputs:
 - deterministic Design Strategy;
 - Color Intelligence + project-wide palette strategy;
 - Component Intelligence + Design Agent decision engine;
+- Visual Craft Quality + anti-AI lint;
 - tldraw flow-aware adapter;
 - deterministic renderer;
 - component registry.
@@ -147,7 +148,7 @@ Outputs:
 Issue #1 complete.
 
 ### M1 — First editable product experience
-Issues #2–#6 + #21 + #22 + #23 complete:
+Issues #2–#6 + #21 + #22 + #23 + #24 + #25 complete:
 fixture → schema + experience graph → flow-aware canvas → preview/prototype.
 
 ### M2 — AI product experience
