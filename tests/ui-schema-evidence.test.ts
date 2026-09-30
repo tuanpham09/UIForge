@@ -7,8 +7,8 @@ import {
   loginFixture,
   mobileListFixture,
   serializeUIDocument,
-  validateUIDocument,
   type UICommand,
+  validateUIDocument,
 } from "../packages/ui-schema/src/index.js";
 
 describe("UI Schema evidence", () => {
