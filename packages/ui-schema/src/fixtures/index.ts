@@ -4,7 +4,7 @@ import type {
   ScreenId,
   UIDocument,
   UINode,
-} from "../types.js";
+} from "../types";
 
 const documentId = (value: string) => value as DocumentId;
 const screenId = (value: string) => value as ScreenId;
