@@ -23,11 +23,7 @@ export default function EditorCanvas() {
                 w: shape.props.w,
                 h: shape.props.h,
                 geo: shape.props.geo,
-                richText: toRichText(
-                  dashboardFixture.nodes[shape.meta.nodeId]?.content?.label ??
-                    dashboardFixture.nodes[shape.meta.nodeId]?.type ??
-                    "UIForge",
-                ),
+                richText: toRichText(shape.label),
               },
               meta: shape.meta,
             })),
