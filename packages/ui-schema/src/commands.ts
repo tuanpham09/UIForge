@@ -4,8 +4,8 @@ import type {
   UICommand,
   UIDocument,
   UINode,
-} from "./types.js";
-import { validateUIDocument } from "./validation.js";
+} from "./types";
+import { validateUIDocument } from "./validation";
 
 export class UICommandError extends Error {
   constructor(message: string) {
