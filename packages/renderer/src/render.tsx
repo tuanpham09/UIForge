@@ -96,8 +96,7 @@ function diagnosticsForNode(node: UINode, context: RendererContext): void {
       severity: "warning",
       nodeId: node.id,
       screenId: node.screenId,
-      message:
-        `Unknown component registry ID ${node.component.registryId}`,
+      message: `Unknown component registry ID ${node.component.registryId}`,
     });
   }
 
@@ -120,8 +119,7 @@ function diagnosticsForNode(node: UINode, context: RendererContext): void {
       severity: "warning",
       nodeId: node.id,
       screenId: node.screenId,
-      message:
-        `No renderer binding for semantic node type ${node.type}`,
+      message: `No renderer binding for semantic node type ${node.type}`,
     });
   }
 
@@ -131,8 +129,7 @@ function diagnosticsForNode(node: UINode, context: RendererContext): void {
       severity: "warning",
       nodeId: node.id,
       screenId: node.screenId,
-      message:
-        `Preview transition → ${node.interaction.targetScreenId}`,
+      message: `Preview transition → ${node.interaction.targetScreenId}`,
     });
   }
 }
@@ -207,11 +204,7 @@ function renderNode(
   }
 
   return (
-    <div
-      {...dataProps}
-      data-unsupported="true"
-      style={style}
-    >
+    <div {...dataProps} data-unsupported="true" style={style}>
       Unsupported: {node.type}
     </div>
   );
