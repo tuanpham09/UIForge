@@ -61,7 +61,9 @@ describe("deterministic semantic renderer", () => {
 
   it("reports unknown semantic component registry IDs without crashing", () => {
     const fixture = structuredClone(dashboardFixture);
-    fixture.nodes["dashboard.cta"].component = { registryId: "uiforge.missing" };
+    fixture.nodes["dashboard.cta"].component = {
+      registryId: "uiforge.missing",
+    };
     fixture.nodes["dashboard.cta"].type = "custom";
 
     const result = renderScreen(fixture, "screen.dashboard", defaultTokenSet, {
