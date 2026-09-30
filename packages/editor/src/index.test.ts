@@ -84,7 +84,9 @@ describe("editor projection", () => {
   });
 
   it("projects explicit editor bounds exactly", () => {
-    const node = { ...dashboardFixture.nodes["dashboard.cta"]!, editor: { x: 7, y: 9, width: 300, height: 120 } };
+    const baseNode = dashboardFixture.nodes["dashboard.cta"];
+    if (!baseNode) throw new Error("dashboard CTA fixture missing");
+    const node = { ...baseNode, editor: { x: 7, y: 9, width: 300, height: 120 } };
     const projected = projectNode(dashboardFixture, node);
     expect(projected).toMatchObject({ x: 7, y: 9, props: { w: 300, h: 120 } });
   });
