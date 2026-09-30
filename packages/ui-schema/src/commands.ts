@@ -34,7 +34,11 @@ function assertNode(document: UIDocument, nodeId: NodeId): UINode {
   return node;
 }
 
-function assertParent(document: UIDocument, node: UINode, parentId: NodeId | null): UINode {
+function assertParent(
+  document: UIDocument,
+  node: UINode,
+  parentId: NodeId | null,
+): UINode {
   if (!parentId) {
     throw new UICommandError("non-root nodes must have a parent");
   }
@@ -52,7 +56,12 @@ function removeFromParent(document: UIDocument, node: UINode): void {
   }
 }
 
-function insertIntoParent(document: UIDocument, nodeId: NodeId, parentId: NodeId, index: number): void {
+function insertIntoParent(
+  document: UIDocument,
+  nodeId: NodeId,
+  parentId: NodeId,
+  index: number,
+): void {
   const parent = assertNode(document, parentId);
   const next = parent.childrenIds.filter((id) => id !== nodeId);
   const safeIndex = Math.max(0, Math.min(index, next.length));
@@ -60,7 +69,10 @@ function insertIntoParent(document: UIDocument, nodeId: NodeId, parentId: NodeId
   parent.childrenIds = next;
 }
 
-function applyReparent(document: UIDocument, command: ReparentNodeCommand): void {
+function applyReparent(
+  document: UIDocument,
+  command: ReparentNodeCommand,
+): void {
   const node = assertNode(document, command.nodeId);
   if (document.screens.some((screen) => screen.rootNodeId === node.id)) {
     throw new UICommandError("screen roots cannot be reparented");
@@ -87,7 +99,10 @@ function applyReparent(document: UIDocument, command: ReparentNodeCommand): void
   }
 }
 
-export function applyCommand(input: UIDocument, command: UICommand): UIDocument {
+export function applyCommand(
+  input: UIDocument,
+  command: UICommand,
+): UIDocument {
   const document = clone(input);
   validateUIDocument(document);
 
@@ -104,14 +119,21 @@ export function applyCommand(input: UIDocument, command: UICommand): UIDocument 
       }
       assertParent(document, command.node, command.node.parentId);
 
-      const screen = document.screens.find((candidate) => candidate.id === command.node.screenId);
+      const screen = document.screens.find(
+        (candidate) => candidate.id === command.node.screenId,
+      );
       if (!screen) {
         throw new UICommandError(`screen not found: ${command.node.screenId}`);
       }
 
       document.nodes[command.node.id] = clone(command.node);
       screen.nodeIds.push(command.node.id);
-      insertIntoParent(document, command.node.id, command.node.parentId, Number.MAX_SAFE_INTEGER);
+      insertIntoParent(
+        document,
+        command.node.id,
+        command.node.parentId,
+        Number.MAX_SAFE_INTEGER,
+      );
       break;
     }
     case "UpdateNode": {
@@ -134,12 +156,16 @@ export function applyCommand(input: UIDocument, command: UICommand): UIDocument 
         throw new UICommandError("node has children; use recursive delete");
       }
 
-      const ids = command.recursive ? collectDescendants(document, node.id) : [node.id];
+      const ids = command.recursive
+        ? collectDescendants(document, node.id)
+        : [node.id];
       for (const id of ids) {
         const candidate = assertNode(document, id);
         removeFromParent(document, candidate);
         delete document.nodes[id];
-        const screen = document.screens.find((screen) => screen.id === candidate.screenId);
+        const screen = document.screens.find(
+          (screen) => screen.id === candidate.screenId,
+        );
         if (screen) {
           screen.nodeIds = screen.nodeIds.filter((nodeId) => nodeId !== id);
         }
@@ -179,7 +205,9 @@ export function applyCommand(input: UIDocument, command: UICommand): UIDocument 
     case "SetResponsiveRule": {
       const node = assertNode(document, command.nodeId);
       node.responsive ??= [];
-      const existing = node.responsive.findIndex((rule) => rule.breakpoint === command.rule.breakpoint);
+      const existing = node.responsive.findIndex(
+        (rule) => rule.breakpoint === command.rule.breakpoint,
+      );
       if (existing >= 0) {
         node.responsive[existing] = clone(command.rule);
       } else {
@@ -212,6 +240,9 @@ function collectDescendants(document: UIDocument, rootId: NodeId): NodeId[] {
   return result.reverse();
 }
 
-export function applyCommands(input: UIDocument, commands: UICommand[]): UIDocument {
+export function applyCommands(
+  input: UIDocument,
+  commands: UICommand[],
+): UIDocument {
   return commands.reduce(applyCommand, input);
 }
