@@ -12,6 +12,7 @@
   "dependencies": {
     "@uiforge/editor": "workspace:*",
     "@uiforge/shared": "workspace:*",
+    "@uiforge/ui-schema": "workspace:*",
     "@tailwindcss/postcss": "4.1.13",
     "next": "16.3.6",
     "react": "19.3.0",
