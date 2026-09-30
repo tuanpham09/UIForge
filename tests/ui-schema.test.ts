@@ -1,9 +1,6 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import {
-  UICommandError,
-  UI_SCHEMA_VERSION,
-  UISchemaValidationError,
   applyCommand,
   applyCommands,
   dashboardFixture,
@@ -13,6 +10,9 @@ import {
   mobileListFixture,
   serializeUIDocument,
   validateUIDocument,
+  UI_SCHEMA_VERSION,
+  UICommandError,
+  UISchemaValidationError,
 } from "../packages/ui-schema/src/index.js";
 
 describe("UI Schema v1 validation", () => {
@@ -27,19 +27,28 @@ describe("UI Schema v1 validation", () => {
     const malformed = structuredClone(dashboardFixture);
     const node = malformed.nodes["dashboard.summary"];
     delete (node as { layout?: unknown }).layout;
-    expect(() => validateUIDocument(malformed)).toThrow(UISchemaValidationError);
+    expect(() => validateUIDocument(malformed)).toThrow(
+      UISchemaValidationError,
+    );
   });
 
   it("rejects broken hierarchy references", () => {
     const malformed = structuredClone(dashboardFixture);
     malformed.nodes["dashboard.summary"].parentId = "screen.dashboard.root";
     malformed.nodes["screen.dashboard.root"].childrenIds = [];
-    expect(() => validateUIDocument(malformed)).toThrow(/does not contain child/);
+    expect(() => validateUIDocument(malformed)).toThrow(
+      /does not contain child/,
+    );
   });
 
   it("fails explicitly for unknown schema versions", () => {
-    const unknown = { ...dashboardFixture, schemaVersion: "uiforge.schema/v999" };
-    expect(() => validateUIDocument(unknown)).toThrow(/unsupported schema version/);
+    const unknown = {
+      ...dashboardFixture,
+      schemaVersion: "uiforge.schema/v999",
+    };
+    expect(() => validateUIDocument(unknown)).toThrow(
+      /unsupported schema version/,
+    );
   });
 
   it("round-trips deterministic serialization", () => {
@@ -78,11 +87,16 @@ describe("typed command model", () => {
     ] as const;
 
     const applied = applyCommands(first, commands);
-    const replayed = applyCommands(first, JSON.parse(JSON.stringify(commands)));
+    const replayed = applyCommands(
+      first,
+      JSON.parse(JSON.stringify(commands)),
+    );
 
     expect(serializeUIDocument(applied)).toBe(serializeUIDocument(replayed));
     expect(applied.revision.revision).toBe(4);
-    expect(applied.nodes["dashboard.cta"].style?.tokens?.background).toBe("color.primary");
+    expect(
+      applied.nodes["dashboard.cta"].style?.tokens?.background,
+    ).toBe("color.primary");
     expect(applied.nodes["dashboard.cta"].component?.variant).toBe("secondary");
   });
 
@@ -128,7 +142,9 @@ describe("typed command model", () => {
     });
 
     expect(mapped.nodes["dashboard.new"].parentId).toBe("dashboard.cta");
-    expect(mapped.nodes["dashboard.cta"].responsive?.[0]?.breakpoint).toBe("md");
+    expect(
+      mapped.nodes["dashboard.cta"].responsive?.[0]?.breakpoint,
+    ).toBe("md");
     expect(mapped.nodes["dashboard.cta"].codeMapping).toEqual({
       source: "@/components/Button",
       exportName: "Button",
