@@ -2,8 +2,8 @@ import {
   type SchemaMigration,
   UI_SCHEMA_VERSION,
   type UIDocument,
-} from "./types.js";
-import { UISchemaValidationError, validateUIDocument } from "./validation.js";
+} from "./types";
+import { UISchemaValidationError, validateUIDocument } from "./validation";
 
 export function migrateToCurrent(
   document: unknown,
