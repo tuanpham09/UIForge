@@ -47,15 +47,17 @@ flowchart LR
     C --> D[Skill discovery]
     D --> E[Skill composition]
     E --> F[Design strategy]
-    F --> G[Experience Graph + UI Schema]
+    F --> G[Color strategy]
+    G --> H[Experience Graph + UI Schema]
     H --> I[Design tokens]
     H --> J[Component registry]
     H --> K[Flow Canvas / Prototype]
     H --> L[Preview renderer]
-    H --> M[MCP]
+    F --> M[MCP]
+    G --> M
+    H --> M
     I --> M
     J --> M
-    G --> M
     M --> N[Cursor / Claude / Codex / other agents]
     N --> O[Codebase]
     O --> P[Browser render]
@@ -64,7 +66,6 @@ flowchart LR
     Q -->|mismatch| N
     Q -->|pass| R[Evidence]
 ```
-
 ## Phase roadmap
 
 ```mermaid
