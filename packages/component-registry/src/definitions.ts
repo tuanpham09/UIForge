@@ -60,7 +60,13 @@ const make = (
     role,
     accessibleName: namePolicy,
     keyboard: ["Tab"],
-    focusable: ["button", "textbox", "dialog", "tablist", "navigation"].includes(role),
+    focusable: [
+      "button",
+      "textbox",
+      "dialog",
+      "tablist",
+      "navigation",
+    ].includes(role),
     requirements: [
       "Do not rely on color alone for meaning.",
       "Preserve semantic labels and roles.",
