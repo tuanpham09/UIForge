@@ -43,7 +43,11 @@ const make = (
   name,
   description,
   anatomy: [
-    { id: "content", description: "Semantic component content", required: true },
+    {
+      id: "content",
+      description: "Semantic component content",
+      required: true,
+    },
     { id: "actions", description: "Optional contextual actions" },
   ],
   variants: variants.map((variant) => ({
