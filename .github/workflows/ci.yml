@@ -33,7 +33,21 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Lint
-        run: pnpm lint
+        run: |
+          set +e
+          pnpm lint > /tmp/uiforge-lint.log 2>&1
+          code=$?
+          {
+            echo "## Temporary UIForge lint diagnostics"
+            echo "```text"
+            cat /tmp/uiforge-lint.log
+            echo "```"
+          } > /tmp/uiforge-lint-comment.md
+          gh pr comment "$PR_NUMBER" --body-file /tmp/uiforge-lint-comment.md
+          exit $code
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
 
       - name: Typecheck
         run: pnpm typecheck
