@@ -48,8 +48,8 @@ export default function RendererPreview() {
         {result.diagnostics.length === 0 ? (
           <span className="text-xs text-emerald-700">No renderer diagnostics</span>
         ) : (
-          result.diagnostics.map((diagnostic, index) => (
-            <div className="text-xs text-amber-700" key={`${diagnostic.code}-${diagnostic.nodeId ?? "document"}-${index}`}>
+          result.diagnostics.map((diagnostic) => (
+            <div className="text-xs text-amber-700" key={`${diagnostic.code}-${diagnostic.nodeId ?? "document"}-${diagnostic.message}`}>
               {diagnostic.message}
             </div>
           ))
