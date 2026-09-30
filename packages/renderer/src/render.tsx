@@ -41,12 +41,14 @@ function layoutStyle(node: UINode, context: RendererContext): CSSProperties {
       ).gap
     : undefined;
 
-  const padding = tokenStyles(
-    { padding: node.layout.padding?.block?.token },
-    context.tokens,
-    context.diagnostics,
-    node.id,
-  ).padding;
+  const padding = node.layout.padding?.block?.token
+    ? tokenStyles(
+        { padding: node.layout.padding.block.token },
+        context.tokens,
+        context.diagnostics,
+        node.id,
+      ).padding
+    : undefined;
 
   if (gap !== undefined) style.gap = gap;
   if (padding !== undefined) style.padding = padding;
