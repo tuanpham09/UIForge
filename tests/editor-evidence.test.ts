@@ -1,7 +1,10 @@
 import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { projectDocument, serializeCanonical } from "../packages/editor/src/index.js";
+import {
+  projectDocument,
+  serializeCanonical,
+} from "../packages/editor/src/index.js";
 import {
   dashboardFixture,
   loginFixture,
