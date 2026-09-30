@@ -1,5 +1,5 @@
 import type { UINode } from "@uiforge/ui-schema";
-import React, { type ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { RendererComponentRegistry, RendererContext } from "./types";
 
 function text(node: UINode): ReactNode {
