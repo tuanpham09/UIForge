@@ -1,7 +1,7 @@
 import type { UIDocument } from "@uiforge/ui-schema";
 import type { TLShape } from "tldraw";
-import { projectDocument } from "./projection.js";
-import type { EditorLike, UIForgeShapeMeta } from "./types.js";
+import { projectDocument } from "./projection";
+import type { EditorLike, UIForgeShapeMeta } from "./types";
 
 function isUIForgeShape(
   shape: TLShape,
