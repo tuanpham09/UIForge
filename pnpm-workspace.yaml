@@ -5,3 +5,7 @@ packages:
 minimumReleaseAge: 1440
 blockExoticSubdeps: true
 strictDepBuilds: true
+
+allowBuilds:
+  "@tailwindcss/oxide": true
+  esbuild: true
