@@ -17,7 +17,10 @@ export function resolveToken(name: string, set: TokenSet): TokenResolution {
   const token = lookupToken(name, set);
   if (!token) throw new UnknownTokenError(name);
 
-  const resolveValue = (value: string | number, seen: Set<string>): string | number => {
+  const resolveValue = (
+    value: string | number,
+    seen: Set<string>,
+  ): string | number => {
     if (typeof value !== "string") return value;
     const match = referencePattern.exec(value);
     if (!match) return value;
@@ -48,5 +51,8 @@ export function resolveToken(name: string, set: TokenSet): TokenResolution {
 }
 
 export function toCssVariable(name: string): string {
-  return `--ui-${name.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase()}`;
+  return `--ui-${name
+    .replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .toLowerCase()}`;
 }
