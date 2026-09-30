@@ -69,9 +69,7 @@ export const defaultRegistry: RendererComponentRegistry = {
     <label data-node-id={node.id}>
       <span>{node.content?.label}</span>
       <select
-        aria-label={
-          node.accessibility?.accessibleName ?? node.content?.label
-        }
+        aria-label={node.accessibility?.accessibleName ?? node.content?.label}
       >
         <option>{node.content?.value ?? "Select"}</option>
       </select>
