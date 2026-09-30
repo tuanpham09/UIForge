@@ -4,11 +4,11 @@ This file is mandatory context for every coding agent working in UIForge.
 
 ## 1. Mission
 
-UIForge is an AI-native UI specification platform. The canonical source of truth is the **versioned UI Schema**, not the canvas and not generated code.
+UIForge is an AI-native product experience and UI specification platform. The canonical domain contract is the **versioned UI Schema + Product Experience Graph**, not the canvas and not generated code.
 
 Every implementation must protect this invariant:
 
-`UI Schema → Canvas / Preview / MCP / Codegen`
+`UI Schema + Experience Graph → Canvas / Prototype / Preview / MCP / Codegen`
 
 ## 2. Non-negotiable rules
 
@@ -43,7 +43,22 @@ Never make tldraw JSON, DOM output, screenshots, or generated code the canonical
 
 All meaningful design state must be representable in the versioned UI Schema.
 
-### Rule D — Semantic layout over pixels
+### Rule D — Product flow is semantic
+
+A screen is not a complete product specification. Navigation and interaction behavior must be represented by the Product Experience Graph.
+
+Every meaningful transition must preserve:
+
+- source screen/node;
+- trigger;
+- action;
+- destination;
+- optional condition;
+- optional animation metadata.
+
+Canvas connections and prototype records are projections, not canonical behavior.
+
+### Rule E — Semantic layout over pixels
 
 Absolute x/y values may exist for editor rendering, but the semantic model must preserve:
 
@@ -55,19 +70,19 @@ Absolute x/y values may exist for editor rendering, but the semantic model must 
 - alignment;
 - responsive behavior.
 
-### Rule E — Design-system consistency
+### Rule F — Design-system consistency
 
 Use semantic tokens and registered components. Do not invent a new color, spacing value, radius, typography style, or component variant when an existing semantic token/variant applies.
 
-### Rule F — Provider abstraction
+### Rule G — Provider abstraction
 
 AI providers must implement stable interfaces. Provider SDK types must not leak into `ui-schema`, editor core, renderer core, or MCP contracts.
 
-### Rule G — MCP stability
+### Rule H — MCP stability
 
 MCP output is a public integration contract. Tool names, resource URIs, input schemas, and semantic meanings require tests and compatibility review.
 
-### Rule H — Security by default
+### Rule I — Security by default
 
 - Never expose service-role/database secrets to the browser.
 - All tenant/project data is authorization checked.
@@ -76,9 +91,11 @@ MCP output is a public integration contract. Tool names, resource URIs, input sc
 - Audit mutation operations.
 - Validate all external input.
 
-### Rule I — Test first
+### Rule J — Test first
 
 Minimum testing by layer:
+
+- experience-graph: unit + graph validation + fixture/contract tests;
 
 - schema: unit + fixture/contract tests;
 - editor: interaction tests;
@@ -90,7 +107,7 @@ Minimum testing by layer:
 - E2E: Playwright;
 - visual QA: screenshot comparison.
 
-### Rule J — Evidence is required
+### Rule K — Evidence is required
 
 A green unit test is not enough.
 
@@ -104,7 +121,7 @@ For every completed issue, attach real evidence appropriate to the feature. Exam
 - CI run URL
 - short screen recording for editor interactions when useful
 
-### Rule K — Close only after main verification
+### Rule L — Close only after main verification
 
 Required lifecycle:
 
@@ -112,7 +129,7 @@ Required lifecycle:
 
 Do not close an issue immediately after PR merge.
 
-### Rule L — Small files
+### Rule M — Small files
 
 Prefer modules with one reason to change. Avoid:
 
