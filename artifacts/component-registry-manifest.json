@@ -1,0 +1,22 @@
+{
+  "registryVersion": "uiforge.components/v1",
+  "componentCount": 16,
+  "components": [
+    "uiforge.button",
+    "uiforge.input",
+    "uiforge.label",
+    "uiforge.card",
+    "uiforge.badge",
+    "uiforge.avatar",
+    "uiforge.alert",
+    "uiforge.dialog",
+    "uiforge.tabs",
+    "uiforge.table",
+    "uiforge.list",
+    "uiforge.navigation",
+    "uiforge.sidebar",
+    "uiforge.header",
+    "uiforge.form",
+    "uiforge.empty-state"
+  ]
+}
