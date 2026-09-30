@@ -1,4 +1,4 @@
-import type { UIDocument } from "./types.js";
+import type { UIDocument } from "./types";
 
 function canonicalize(value: unknown): unknown {
   if (Array.isArray(value)) {
