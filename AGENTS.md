@@ -156,13 +156,19 @@ apps/web
   ↓
 packages/editor
   ↓
-packages/design-intelligence
-  ↓
 packages/ui-schema
   ↓
 packages/design-tokens
   ↓
 packages/component-registry
+
+packages/design-intelligence
+  ↓
+Product Intent + semantic registry/token contracts
+  ↓
+Design Strategy
+  ↓
+ui-schema + experience-graph
 
 apps/mcp-server
   ↓
