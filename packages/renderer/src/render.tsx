@@ -1,5 +1,5 @@
 import type { UIDocument, UINode } from "@uiforge/ui-schema";
-import type { CSSProperties, ReactNode } from "react";
+import React, { type CSSProperties, type ReactNode } from "react";
 import { validateRendererGraph } from "./diagnostics";
 import { defaultRegistry } from "./registry";
 import { tokenStyles } from "./token-style";
