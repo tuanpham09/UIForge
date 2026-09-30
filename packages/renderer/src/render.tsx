@@ -24,10 +24,7 @@ function nodeChildren(document: UIDocument, node: UINode): UINode[] {
     .filter((item): item is UINode => Boolean(item));
 }
 
-function layoutStyle(
-  node: UINode,
-  context: RendererContext,
-): CSSProperties {
+function layoutStyle(node: UINode, context: RendererContext): CSSProperties {
   const style: CSSProperties = {
     display: node.layout.mode === "absolute" ? "block" : "flex",
     flexDirection: node.layout.direction ?? "column",
@@ -67,10 +64,7 @@ function layoutStyle(
   return style;
 }
 
-function diagnosticsForNode(
-  node: UINode,
-  context: RendererContext,
-): void {
+function diagnosticsForNode(node: UINode, context: RendererContext): void {
   const containerTypes = [
     "screen-root",
     "section",
@@ -146,7 +140,7 @@ function renderNode(
   if (node.type === "icon") {
     return (
       <span
-        role={node.accessibility?.role ?? "img"}
+        role="img"
         aria-label={node.accessibility?.accessibleName}
         data-node-id={node.id}
         style={style}
@@ -158,11 +152,7 @@ function renderNode(
 
   if (semantic) {
     return (
-      <div
-        data-node-id={node.id}
-        data-semantic-type={node.type}
-        style={style}
-      >
+      <div data-node-id={node.id} data-semantic-type={node.type} style={style}>
         {semantic(node, context)}
       </div>
     );
