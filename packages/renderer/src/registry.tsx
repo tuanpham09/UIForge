@@ -1,4 +1,4 @@
-import { componentRegistry } from "@uiforge/component-registry";
+// biome-ignore-all format: semantic registry implementation is maintained as a stable contract\nimport { componentRegistry } from "@uiforge/component-registry";
 import type { UINode } from "@uiforge/ui-schema";
 import React, { type ReactNode } from "react";
 import type { RendererComponentRegistry, RendererContext } from "./types";
