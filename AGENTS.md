@@ -57,7 +57,7 @@ Component choices must be semantic decisions, not visual guesses. Agents must co
 
 Button, Card, Form/Input, Dialog/Sheet and Navigation decisions must preserve purpose, context, state, accessibility, responsive behavior and interaction semantics. Do not encode component-choice heuristics only inside provider prompts.
 
-### Rule G — Product flow is semantic
+### Rule F — Product flow is semantic
 
 A screen is not a complete product specification. Navigation and interaction behavior must be represented by the Product Experience Graph.
 
