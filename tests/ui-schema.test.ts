@@ -8,14 +8,14 @@ import {
   loginFixture,
   migrateToCurrent,
   mobileListFixture,
+  type NodeId,
   serializeUIDocument,
   UI_SCHEMA_VERSION,
   UICommand,
   UICommandError,
+  type UIDocument,
   UISchemaValidationError,
   validateUIDocument,
-  type NodeId,
-  type UIDocument,
 } from "../packages/ui-schema/src/index.js";
 
 describe("UI Schema v1 validation", () => {
@@ -37,8 +37,11 @@ describe("UI Schema v1 validation", () => {
 
   it("rejects broken hierarchy references", () => {
     const malformed = structuredClone(dashboardFixture);
-    malformed.nodes["dashboard.summary"]!.parentId = "screen.dashboard.root" as NodeId;
-    malformed.nodes["screen.dashboard.root"]!.childrenIds = [];
+    const summary = malformed.nodes["dashboard.summary"];
+    const root = malformed.nodes["screen.dashboard.root"];
+    if (!summary || !root) throw new Error("fixture hierarchy is incomplete");
+    summary.parentId = "screen.dashboard.root" as NodeId;
+    root.childrenIds = [];
     expect(() => validateUIDocument(malformed)).toThrow(
       /does not contain child/,
     );
@@ -94,10 +97,10 @@ describe("typed command model", () => {
 
     expect(serializeUIDocument(applied)).toBe(serializeUIDocument(replayed));
     expect(applied.revision.revision).toBe(4);
-    expect(applied.nodes["dashboard.cta"]!.style?.tokens?.background).toBe(
+    expect(applied.nodes["dashboard.cta"]?.style?.tokens?.background).toBe(
       "color.primary",
     );
-    expect(applied.nodes["dashboard.cta"]!.component?.variant).toBe("secondary");
+    expect(applied.nodes["dashboard.cta"]?.component?.variant).toBe("secondary");
   });
 
   it("supports create, reparent, responsive and code mapping commands", () => {
@@ -141,11 +144,11 @@ describe("typed command model", () => {
       },
     });
 
-    expect(mapped.nodes["dashboard.new"]!.parentId).toBe("dashboard.cta");
-    expect(mapped.nodes["dashboard.cta"]!.responsive?.[0]?.breakpoint).toBe(
+    expect(mapped.nodes["dashboard.new"]?.parentId).toBe("dashboard.cta");
+    expect(mapped.nodes["dashboard.cta"]?.responsive?.[0]?.breakpoint).toBe(
       "md",
     );
-    expect(mapped.nodes["dashboard.cta"]!.codeMapping).toEqual({
+    expect(mapped.nodes["dashboard.cta"]?.codeMapping).toEqual({
       source: "@/components/Button",
       exportName: "Button",
       componentName: "Button",
