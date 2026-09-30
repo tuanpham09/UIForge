@@ -1,4 +1,3 @@
-import { validateUIDocument } from "./validation.js";
 import type {
   NodeId,
   ReparentNodeCommand,
@@ -6,6 +5,7 @@ import type {
   UIDocument,
   UINode,
 } from "./types.js";
+import { validateUIDocument } from "./validation.js";
 
 export class UICommandError extends Error {
   constructor(message: string) {
