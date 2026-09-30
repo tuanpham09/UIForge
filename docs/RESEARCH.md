@@ -94,7 +94,9 @@ UIForge will therefore:
 - Flutter/SwiftUI codegen.
 - marketplace.
 - plugin marketplace.
-- advanced animation timeline.
+- advanced animation timeline;
+- Figma-level prototype parity;
+- pixel-level canvas parity with Stitch/Figma.
 
 The goal is to prove the agent-native design-to-code loop before expanding the surface area.
 
