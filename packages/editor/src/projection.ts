@@ -1,5 +1,5 @@
-import { createShapeId, toRichText } from "tldraw";
 import type { UIDocument, UINode } from "@uiforge/ui-schema";
+import { createShapeId, toRichText } from "tldraw";
 import type { EditorProjection, ProjectedShape } from "./types.js";
 import { EDITOR_PROJECTION_VERSION } from "./types.js";
 
@@ -12,8 +12,14 @@ function nodeLabel(node: UINode): string {
 
 function dimensions(node: UINode): { width: number; height: number } {
   return {
-    width: node.editor?.width && node.editor.width > 0 ? node.editor.width : DEFAULT_WIDTH,
-    height: node.editor?.height && node.editor.height > 0 ? node.editor.height : DEFAULT_HEIGHT,
+    width:
+      node.editor?.width && node.editor.width > 0
+        ? node.editor.width
+        : DEFAULT_WIDTH,
+    height:
+      node.editor?.height && node.editor.height > 0
+        ? node.editor.height
+        : DEFAULT_HEIGHT,
   };
 }
 
@@ -24,7 +30,11 @@ function position(node: UINode, index: number): { x: number; y: number } {
   };
 }
 
-export function projectNode(document: UIDocument, node: UINode, index = 0): ProjectedShape {
+export function projectNode(
+  document: UIDocument,
+  node: UINode,
+  index = 0,
+): ProjectedShape {
   const size = dimensions(node);
   const point = position(node, index);
   return {
@@ -32,7 +42,12 @@ export function projectNode(document: UIDocument, node: UINode, index = 0): Proj
     type: "geo",
     x: point.x,
     y: point.y,
-    props: { w: size.width, h: size.height, geo: "rectangle", richText: toRichText(nodeLabel(node)) },
+    props: {
+      w: size.width,
+      h: size.height,
+      geo: "rectangle",
+      richText: toRichText(nodeLabel(node)),
+    },
     meta: {
       source: "uiforge",
       projectionVersion: EDITOR_PROJECTION_VERSION,
@@ -50,12 +65,14 @@ export function projectDocument(document: UIDocument): EditorProjection {
   const flows = nodes
     .filter((node) => node.interaction?.targetScreenId)
     .map((node) => ({
-      id: createShapeId("flow:" + node.id),
+      id: createShapeId(["flow", node.id].join(":")),
       sourceNodeId: node.id,
       destinationScreenId: node.interaction?.targetScreenId as string,
       trigger: node.interaction?.trigger,
       action: node.interaction?.action,
-      label: [node.interaction?.trigger, node.interaction?.action].filter(Boolean).join(" → "),
+      label: [node.interaction?.trigger, node.interaction?.action]
+        .filter(Boolean)
+        .join(" → "),
     }));
   return { documentId: document.id, shapes, flows };
 }
