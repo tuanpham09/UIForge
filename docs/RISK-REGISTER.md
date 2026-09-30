@@ -1,0 +1,36 @@
+# UIForge Risk Register
+
+| ID | Risk | Severity | Trigger | Mitigation | Exit Criteria |
+|---|---|---:|---|---|---|
+| R01 | Schema becomes tied to tldraw | High | domain imports tldraw types | adapter boundary + domain fixtures | schema package builds without editor |
+| R02 | AI emits invalid structure | High | malformed/unknown nodes | structured output + validator + normalization | 100% fixture validation |
+| R03 | AI design drift | High | arbitrary values accumulate | token/component validator | zero unapproved token violations in canonical fixture |
+| R04 | MCP context too large | High | large screen response | scoped tools/resources + summaries | benchmark context stays under budget |
+| R05 | MCP mutation unsafe | Critical | unauthorized write | auth + capability + audit + validation | negative security tests pass |
+| R06 | Visual regression flakiness | High | screenshot changes across CI | pinned browser/font/runtime | stable repeat runs |
+| R07 | Codegen duplicates components | High | generated Button/Card copies | code mapping registry | generated fixtures reuse mapped components |
+| R08 | Provider lock-in | Medium | provider SDK in domain | AIProvider interface | domain package has no provider imports |
+| R09 | Schema breaking change | High | old document fails | version + migration + fixtures | old fixture migrates successfully |
+| R10 | Multi-tenant data leak | Critical | cross-project access | RLS + server auth + tests | unauthorized matrix returns deny |
+| R11 | Editor performance degradation | High | large document interaction slows | normalized state + benchmarks | target interaction latency met |
+| R12 | AI cost explosion | High | repeated generations | caching + quotas + model routing | cost per generation tracked |
+| R13 | Asset/privacy leak | High | private asset exposed to MCP | signed URLs + auth | unauthorized asset request denied |
+| R14 | Browser mismatch | Medium | target code differs from preview | same tokens/fixtures + visual QA | mismatch classified and bounded |
+| R15 | MCP client compatibility | Medium | client cannot connect | official SDK + transport tests | Cursor/Claude/Codex smoke matrix passes |
+| R16 | Overbuilding editor | High | features delayed by Figma parity | MVP scope guard | only roadmap capabilities accepted |
+| R17 | Documentation drift | Medium | docs disagree with code | docs in PR checklist + contract tests | docs review gate passes |
+| R18 | Vendor outage/API change | Medium | provider unavailable | provider abstraction + fallback policy | core fixtures run without live provider |
+
+## Incident rule
+
+For Critical risks, implementation must stop when the risk is actively triggered until a mitigation or explicit exception is documented.
+
+## Risk review cadence
+
+Review risks:
+
+- before each phase;
+- after architecture changes;
+- after security incidents;
+- before public beta;
+- before enabling write-capable remote MCP.
