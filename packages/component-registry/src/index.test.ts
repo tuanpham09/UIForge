@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+// biome-ignore-all format: semantic registry implementation is maintained as a stable contract\nimport { describe, expect, it } from "vitest";
 import { componentRegistry } from "./definitions";
 import { validateComponentRegistry } from "./validate";
 
