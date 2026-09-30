@@ -174,7 +174,7 @@ Mutations are gated and auditable:
 
 Production mutation requires explicit project capability and an audit trail.
 
-MCP follows the protocol's Resources/Tools/Prompts model. Hosted production uses the current Streamable HTTP transport and the MCP TypeScript SDK v2 packages (`@modelcontextprotocol/server`, `@modelcontextprotocol/client`). citeturn1search0turn2search1turn2search11
+MCP follows the protocol's Resources/Tools/Prompts model. Hosted production uses the current Streamable HTTP transport and the MCP TypeScript SDK v2 packages (`@modelcontextprotocol/server`, `@modelcontextprotocol/client`).
 
 ## Design consistency rules
 
@@ -250,11 +250,25 @@ This repository starts as a specification-first foundation. Implementation shoul
 
 ## Research references
 
-- Model Context Protocol specification and 2026 updates. citeturn1search0turn1search1
-- Figma MCP demonstrates the market direction of structured design context and write-back. citeturn0search3turn0search21
-- tldraw provides AI/editor integration patterns and LLM-oriented documentation. citeturn0search14turn0search4
-- React 19.3 is the current React major/minor baseline in the official docs. citeturn0search12turn0search19
-- Tailwind CSS v4 provides CSS-first tokens, modern browser primitives and container queries. citeturn1search3turn1search4
-- shadcn/ui is open-code and explicitly AI-ready; new projects default to Base UI as of July 2026. citeturn0search2turn0search17
-- Supabase recommends RLS for exposed tables and explicit security tests. citeturn0search1turn0search20
-- Playwright supports deterministic screenshot comparison with `toHaveScreenshot`. citeturn1search5
+- Model Context Protocol specification and 2026 updates.
+- Figma MCP demonstrates the market direction of structured design context and write-back.
+- tldraw provides AI/editor integration patterns and LLM-oriented documentation.
+- React 19.3 is the current React major/minor baseline in the official docs.
+- Tailwind CSS v4 provides CSS-first tokens, modern browser primitives and container queries.
+- shadcn/ui is open-code and explicitly AI-ready; new projects default to Base UI as of July 2026.
+- Supabase recommends RLS for exposed tables and explicit security tests.
+- Playwright supports deterministic screenshot comparison with `toHaveScreenshot`.
+
+## Official references
+
+- Model Context Protocol: https://modelcontextprotocol.io/
+- MCP TypeScript SDK v2: https://github.com/modelcontextprotocol/typescript-sdk
+- Figma MCP: https://developers.figma.com/docs/figma-mcp-server/
+- tldraw AI: https://tldraw.dev/docs/ai
+- tldraw LLM docs: https://tldraw.dev/docs/llm-docs
+- React: https://react.dev/versions
+- Next.js: https://nextjs.org/docs
+- Tailwind CSS v4: https://tailwindcss.com/docs/upgrade-guide
+- shadcn/ui: https://ui.shadcn.com/docs
+- Supabase RLS: https://supabase.com/docs/guides/database/postgres/row-level-security
+- Playwright visual comparisons: https://playwright.dev/docs/next/test-snapshots
