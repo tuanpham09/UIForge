@@ -459,4 +459,48 @@ Minimum sections:
 - tldraw AI: https://tldraw.dev/docs/ai
 - shadcn/ui: https://ui.shadcn.com/docs
 - Supabase RLS: https://supabase.com/docs/guides/database/postgres/row-level-security
-- Playwright snapshots: https://playwright.dev/docs/next/test-snapshots
+- Playwright snapshots: https://playwright.dev/docs/next/test-snapshots## 6. Component Intelligence and Design Agents
+
+Component Intelligence sits below Design Strategy and above UI Schema generation. Its job is to choose the concrete component, variant, state and interaction contract for a semantic context.
+
+```text
+Design Strategy
+      ↓
+Design Agent Orchestrator
+      ↓
+Discover relevant skills
+      ↓
+Component decision
+  ├── component
+  ├── variant
+  ├── state
+  ├── responsive presentation
+  ├── accessibility requirements
+  └── interaction / Experience Graph requirements
+      ↓
+Validation
+      ↓
+Typed UI command / patch
+```
+
+The agent model follows the useful architectural ideas of reusable agents and on-demand skills: a primary orchestrator delegates bounded specialist work, skills are loaded only when relevant, and permissions/capabilities restrict what each specialist can do. Review specialists are read-only. This is a semantic product architecture, not a copy of OpenCode's runtime/config format.
+
+Recommended roles:
+- information architect;
+- UX pattern designer;
+- component designer;
+- visual designer;
+- responsive designer;
+- accessibility reviewer;
+- interaction reviewer;
+- design critic.
+
+Do not persist private chain-of-thought. Persist concise Decision Records containing the chosen component/pattern, affected semantic IDs, rule/skill provenance, constraints checked and validation result.
+
+Component choice precedence is:
+
+`Accessibility/security → project design-system rules → explicit product requirements → Experience Graph semantics → component/skill rules → visual heuristics → aesthetic inspiration`
+
+This makes the agent's behavior reproducible while allowing explicit exceptions.
+
+
