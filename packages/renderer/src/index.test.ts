@@ -5,30 +5,19 @@ import {
   mobileListFixture,
 } from "@uiforge/ui-schema";
 import { describe, expect, it } from "vitest";
-import {
-  getViewport,
-  renderScreen,
-  validateRendererGraph,
-} from "./index";
+import { getViewport, renderScreen, validateRendererGraph } from "./index";
 
 describe("deterministic semantic renderer", () => {
   it("renders all canonical fixtures into React elements", () => {
-    for (const fixture of [
-      dashboardFixture,
-      loginFixture,
-      mobileListFixture,
-    ]) {
+    for (const fixture of [dashboardFixture, loginFixture, mobileListFixture]) {
       const screen = fixture.screens[0];
       if (!screen) {
         throw new Error(`Missing screen in fixture ${fixture.id}`);
       }
 
-      const result = renderScreen(
-        fixture,
-        screen.id,
-        defaultTokenSet,
-        { viewport: getViewport("desktop") },
-      );
+      const result = renderScreen(fixture, screen.id, defaultTokenSet, {
+        viewport: getViewport("desktop"),
+      });
 
       expect(result.element).toBeTruthy();
       expect(
@@ -74,12 +63,9 @@ describe("deterministic semantic renderer", () => {
       diagnostics.some((item) => item.code === "INVALID_TRANSITION"),
     ).toBe(true);
 
-    const result = renderScreen(
-      broken,
-      "screen.dashboard",
-      defaultTokenSet,
-      { viewport: getViewport("desktop") },
-    );
+    const result = renderScreen(broken, "screen.dashboard", defaultTokenSet, {
+      viewport: getViewport("desktop"),
+    });
     expect(
       result.diagnostics.some((item) => item.code === "UNSUPPORTED_NODE"),
     ).toBe(true);
