@@ -1,4 +1,4 @@
-import type { UIDocument, UINode, DocumentId, ScreenId, NodeId } from "../types.js";
+import type { DocumentId, NodeId, UIDocument, UINode, ScreenId } from "../types.js";
 
 const documentId = (value: string) => value as DocumentId;
 const screenId = (value: string) => value as ScreenId;
@@ -46,14 +46,25 @@ function finish(document: UIDocument, screen: string, name: string, root: UINode
     nodeIds: [root.id, ...children.map((child) => child.id)],
   });
   document.nodes[root.id] = root;
-  for (const child of children) document.nodes[child.id] = child;
+  for (const child of children) {
+    document.nodes[child.id] = child;
+  }
   return document;
 }
 
 export const dashboardFixture = (() => {
   const d = base("dashboard");
-  const root = node("screen.dashboard.root", "screen.dashboard", null, "screen-root", ["dashboard.summary", "dashboard.cta"]);
-  const summary = { ...node("dashboard.summary", "screen.dashboard", root.id, "section"), content: { label: "Overview" } };
+  const root = node(
+    "screen.dashboard.root",
+    "screen.dashboard",
+    null,
+    "screen-root",
+    ["dashboard.summary", "dashboard.cta"],
+  );
+  const summary = {
+    ...node("dashboard.summary", "screen.dashboard", root.id, "section"),
+    content: { label: "Overview" },
+  };
   const cta = {
     ...node("dashboard.cta", "screen.dashboard", root.id, "button"),
     content: { label: "Open details" },
@@ -71,7 +82,13 @@ export const dashboardFixture = (() => {
 
 export const loginFixture = (() => {
   const d = base("login");
-  const root = node("screen.login.root", "screen.login", null, "screen-root", ["login.email", "login.submit"]);
+  const root = node(
+    "screen.login.root",
+    "screen.login",
+    null,
+    "screen-root",
+    ["login.email", "login.submit"],
+  );
   const email = {
     ...node("login.email", "screen.login", root.id, "input"),
     content: { label: "Email", placeholder: "you@example.com" },
@@ -95,9 +112,24 @@ export const loginFixture = (() => {
 
 export const mobileListFixture = (() => {
   const d = base("mobile-list");
-  const root = node("screen.mobile-list.root", "screen.mobile-list", null, "screen-root", ["mobile-list.items"]);
-  const list = node("mobile-list.items", "screen.mobile-list", root.id, "list", ["mobile-list.item"]);
-  const item = { ...node("mobile-list.item", "screen.mobile-list", list.id, "list-item"), content: { label: "Example item" } };
+  const root = node(
+    "screen.mobile-list.root",
+    "screen.mobile-list",
+    null,
+    "screen-root",
+    ["mobile-list.items"],
+  );
+  const list = node(
+    "mobile-list.items",
+    "screen.mobile-list",
+    root.id,
+    "list",
+    ["mobile-list.item"],
+  );
+  const item = {
+    ...node("mobile-list.item", "screen.mobile-list", list.id, "list-item"),
+    content: { label: "Example item" },
+  };
   const result = finish(d, "screen.mobile-list", "Mobile List", root, [list, item]);
   result.screens[0].viewport = { maxWidth: 767 };
   return result;
