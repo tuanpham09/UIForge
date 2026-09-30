@@ -13,18 +13,25 @@ import {
 describe("semantic design token engine", () => {
   it("ships a valid default token set", () => {
     expect(validateTokenSet(defaultTokenSet)).toEqual([]);
-    expect(resolveToken("color.primary", defaultTokenSet).value).toBe("#2563eb");
+    expect(resolveToken("color.primary", defaultTokenSet).value).toBe(
+      "#2563eb",
+    );
     expect(resolveToken("layout.pageGap", defaultTokenSet).value).toBe("24px");
   });
 
   it("resolves references deterministically and rejects unknown tokens", () => {
     const first = resolveToken("color.primary", defaultTokenSet);
-    const second = resolveToken("color.primary", structuredClone(defaultTokenSet));
+    const second = resolveToken(
+      "color.primary",
+      structuredClone(defaultTokenSet),
+    );
     expect(first).toEqual(second);
     expect(() => resolveToken("color.doesNotExist", defaultTokenSet)).toThrow(
       UnknownTokenError,
     );
-    expect(validateTokenReference("color.doesNotExist", defaultTokenSet)).toHaveLength(1);
+    expect(
+      validateTokenReference("color.doesNotExist", defaultTokenSet),
+    ).toHaveLength(1);
   });
 
   it("maps upstream Color Strategy roles without inventing a parallel palette", () => {
@@ -37,7 +44,9 @@ describe("semantic design token engine", () => {
     });
     expect(resolveToken("color.primary", result).value).toBe("#7c3aed");
     expect(resolveToken("color.primary", result).themes?.dark).toBe("#a78bfa");
-    expect(resolveToken("color.foreground", result).themes?.dark).toBe("#fafafa");
+    expect(resolveToken("color.foreground", result).themes?.dark).toBe(
+      "#fafafa",
+    );
   });
 
   it("exports stable CSS variables with dark theme overrides", () => {
@@ -67,9 +76,9 @@ describe("semantic design token engine", () => {
       reason: "optical icon alignment",
       approvedBy: "design-system",
     });
-    expect(
-      validateRawValue("transform.translateX", 1, withException),
-    ).toEqual([]);
+    expect(validateRawValue("transform.translateX", 1, withException)).toEqual(
+      [],
+    );
   });
 
   it("rejects expired raw-value exceptions", () => {
