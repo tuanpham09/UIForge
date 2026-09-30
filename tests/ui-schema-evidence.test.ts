@@ -20,6 +20,7 @@ describe("UI Schema evidence", () => {
       login: loginFixture,
       "mobile-list": mobileListFixture,
     };
+
     for (const [name, fixture] of Object.entries(fixtures)) {
       validateUIDocument(fixture);
       writeFileSync(
@@ -40,14 +41,32 @@ describe("UI Schema evidence", () => {
     );
 
     const commands = [
-      { type: "SetToken", commandId: "evidence.token", nodeId: "dashboard.cta", slot: "background", token: "color.primary" },
-      { type: "SetVariant", commandId: "evidence.variant", nodeId: "dashboard.cta", variant: "secondary" },
-      { type: "MoveNode", commandId: "evidence.move", nodeId: "dashboard.cta", toIndex: 0 },
+      {
+        type: "SetToken",
+        commandId: "evidence.token",
+        nodeId: "dashboard.cta",
+        slot: "background",
+        token: "color.primary",
+      },
+      {
+        type: "SetVariant",
+        commandId: "evidence.variant",
+        nodeId: "dashboard.cta",
+        variant: "secondary",
+      },
+      {
+        type: "MoveNode",
+        commandId: "evidence.move",
+        nodeId: "dashboard.cta",
+        toIndex: 0,
+      },
     ] as const;
     const before = serializeUIDocument(dashboardFixture);
     const afterDocument = applyCommands(dashboardFixture, commands);
     const after = serializeUIDocument(afterDocument);
-    const replay = serializeUIDocument(applyCommands(dashboardFixture, JSON.parse(JSON.stringify(commands))));
+    const replay = serializeUIDocument(
+      applyCommands(dashboardFixture, JSON.parse(JSON.stringify(commands))),
+    );
     const transcript = {
       schemaVersion: dashboardFixture.schemaVersion,
       commandCount: commands.length,
@@ -58,7 +77,10 @@ describe("UI Schema evidence", () => {
       replayMatches: after === replay,
       finalRevision: afterDocument.revision.revision,
     };
-    writeFileSync(`${directory}/command-replay.json`, `${JSON.stringify(transcript, null, 2)}\n`);
+    writeFileSync(
+      `${directory}/command-replay.json`,
+      `${JSON.stringify(transcript, null, 2)}\n`,
+    );
     expect(transcript.replayMatches).toBe(true);
   });
 });
