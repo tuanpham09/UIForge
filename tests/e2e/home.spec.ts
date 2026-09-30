@@ -17,7 +17,7 @@ test("web shell renders deterministic preview and editor projection", async ({
     "Preview transition → screen.mobile-list",
   );
 
-  await page.getByRole("button", { name: "Mobile" }).click();
+  await page.getByTestId("renderer-preview").getByRole("button", { name: "Mobile" }).click();
   await expect(page.getByTestId("renderer-viewport")).toHaveText("390×844");
   await expect(page.getByTestId("renderer-preview")).toHaveAttribute(
     "data-viewport",
