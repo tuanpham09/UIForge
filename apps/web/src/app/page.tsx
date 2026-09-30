@@ -9,8 +9,8 @@ export default function HomePage() {
           Canonical UI Schema → tldraw
         </h1>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
-          tldraw is a projection only. Stable UIForge node IDs stay in shape metadata;
-          canonical persistence remains the UI Schema.
+          tldraw is a projection only. Stable UIForge node IDs stay in shape
+          metadata; canonical persistence remains the UI Schema.
         </p>
         <EditorCanvas />
       </div>
