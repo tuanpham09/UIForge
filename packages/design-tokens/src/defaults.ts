@@ -219,7 +219,7 @@ export const defaultTokenSet: TokenSet = {
       name: "control.radius",
       kind: "radius",
       value: "{radius.md}",
-    }
+    },
   },
-  rawValueExceptions: []
+  rawValueExceptions: [],
 };
