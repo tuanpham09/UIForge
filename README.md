@@ -160,6 +160,7 @@ The MCP server will expose three categories:
 - `ui://project`
 - `ui://design-strategy`
 - `ui://design-skills`
+- `ui://color-strategy`
 - `ui://screens`
 - `ui://screen/{id}`
 - `ui://component/{id}`
@@ -175,6 +176,7 @@ The MCP server will expose three categories:
 - `get_project`
 - `get_design_strategy`
 - `get_design_skills`
+- `get_color_strategy`
 - `get_screen`
 - `get_layout_tree`
 - `get_component`
