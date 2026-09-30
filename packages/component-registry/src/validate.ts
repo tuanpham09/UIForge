@@ -1,3 +1,10 @@
+import type {
+  ComponentDefinition,
+  ComponentRegistry,
+  RegistryValidationIssue,
+  RegistryValidationResult,
+} from "./types";
+
   ComponentDefinition,
   ComponentRegistry,
   RegistryValidationIssue,
@@ -25,8 +32,8 @@ function validateComponent(
     if (variantIds.has(variant.id)) {
       issues.push({
         code: "DUPLICATE_VARIANT",
-        path: path + ".variants",
-        message: "Duplicate variant " + variant.id + ".",
+        path: `${path}.variants`,
+        message: `Duplicate variant ${variant.id}.`,
       });
     }
     variantIds.add(variant.id);
@@ -47,7 +54,7 @@ function validateComponent(
   if (!component.renderer.bindingId || !component.renderer.semanticType) {
     issues.push({
       code: "INVALID_RENDERER_BINDING",
-      path: path + ".renderer",
+      path: `${path}.renderer`,
       message: "Renderer binding requires bindingId and semanticType.",
     });
   }
@@ -58,7 +65,7 @@ function validateComponent(
   ) {
     issues.push({
       code: "INVALID_ACCESSIBILITY",
-      path: path + ".accessibility",
+      path: `${path}.accessibility`,
       message:
         "Accessibility contract requires role and accessibleName.",
     });
@@ -75,7 +82,7 @@ function validateComponent(
   ) {
     issues.push({
       code: "INVALID_DECISION_METADATA",
-      path: path + ".decision",
+      path: `${path}.decision`,
       message: "Decision metadata is incomplete.",
     });
   }
@@ -92,7 +99,7 @@ export function validateComponentRegistry(
       issues.push({
         code: "DUPLICATE_ID",
         path: "components",
-        message: "Duplicate component ID " + component.id + ".",
+        message: `Duplicate component ID ${component.id}.`,
       });
     }
     seenIds.add(component.id);
@@ -100,7 +107,7 @@ export function validateComponentRegistry(
     if (key !== component.id) {
       issues.push({
         code: "INVALID_ID",
-        path: "components." + key,
+        path: `components.${key}`,
         message: "Registry key must match component ID.",
       });
     }
@@ -118,8 +125,8 @@ export function assertValidComponentRegistry(
   if (!result.valid) {
     throw new Error(
       result.issues
-        .map((issue) => issue.path + ": " + issue.message)
-        .join("\\n"),
+        .map((issue) => `${issue.path}: ${issue.message}`)
+        .join("\n"),
     );
   }
 }
