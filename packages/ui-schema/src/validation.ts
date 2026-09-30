@@ -18,7 +18,9 @@ const isNonEmptyString = (value: unknown): value is string =>
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
-const hasId = (value: unknown): value is { id: string } =>
+const hasId = (
+  value: unknown,
+): value is Record<string, unknown> & { id: string } =>
   isRecord(value) && isNonEmptyString(value.id);
 
 export function isNode(value: unknown): value is UINode {
