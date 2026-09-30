@@ -24,14 +24,26 @@ The July 2026 MCP specification update added cache metadata to list/read results
 
 AI SDK guidance recommends Streamable HTTP for production MCP connections and stdio for local servers.
 
+## Design intelligence direction
+
+UIForge should treat design expertise as reusable semantic skills rather than a large provider prompt. The intended chain is:
+
+`Product Intent → Skill Discovery → Skill Composition → Design Strategy → Experience Graph + UI Schema`
+
+A Design Skill can package domain applicability, UX patterns, information architecture, component/layout patterns, interaction rules, responsive rules, accessibility constraints and anti-patterns. The initial registry should be curated, versioned and composable; a future marketplace is outside the current scope.
+
+Selection should be explainable from matching metadata. An internal ordering mechanism may help choose among compatible skills, but UIForge should not present a universal numeric "best UI" score as though design had one objective optimum.
+
 ## Architecture implications
 
-1. MCP must be a first-class public contract.
-2. Read and write capabilities should be separated.
-3. Responses need cache/version metadata.
-4. Project context must be scoped.
-5. Mutation operations need auditability and idempotency.
-6. The UI Schema must be more semantic than a canvas JSON dump.
+1. Design intelligence must be a first-class semantic layer between Product Intent and generation.
+2. MCP must be a first-class public contract.
+3. Read and write capabilities should be separated.
+4. Responses need cache/version metadata.
+5. Project context must be scoped.
+6. Mutation operations need auditability and idempotency.
+7. The UI Schema must be more semantic than a canvas JSON dump.
+8. Design knowledge must be versioned, testable and reusable independently of AI providers.
 
 ## Canvas implications
 
