@@ -1,7 +1,7 @@
 import type { UIDocument, UINode } from "@uiforge/ui-schema";
 import { createShapeId } from "tldraw";
-import type { EditorProjection, ProjectedShape } from "./types.js";
-import { EDITOR_PROJECTION_VERSION } from "./types.js";
+import type { EditorProjection, ProjectedShape } from "./types";
+import { EDITOR_PROJECTION_VERSION } from "./types";
 
 const DEFAULT_WIDTH = 240;
 const DEFAULT_HEIGHT = 96;
