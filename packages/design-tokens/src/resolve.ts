@@ -29,12 +29,21 @@ export function resolveToken(name: string, set: TokenSet): TokenResolution {
   };
 
   const value = resolveValue(token.value, new Set([name]));
+  const themes = token.themes
+    ? Object.fromEntries(
+        Object.entries(token.themes).map(([theme, themeValue]) => [
+          theme,
+          resolveValue(themeValue!, new Set([name])),
+        ]),
+      )
+    : undefined;
   return {
     name,
     kind: token.kind,
     value,
     cssVariable: toCssVariable(name),
     theme: token.theme,
+    ...(themes ? { themes } : {}),
   };
 }
 
