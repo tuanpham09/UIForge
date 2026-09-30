@@ -17,7 +17,9 @@
     "next": "16.3.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "tldraw": "5.4.2"
+    "tldraw": "5.4.2",
+    "@uiforge/design-tokens": "workspace:*",
+    "@uiforge/renderer": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "24.5.2",
