@@ -3,7 +3,7 @@ import {
   UI_SCHEMA_VERSION,
   type UIDocument,
   type UINode,
-} from "./types.js";
+} from "./types";
 
 export class UISchemaValidationError extends Error {
   constructor(public readonly issues: string[]) {

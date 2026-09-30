@@ -60,6 +60,14 @@ jobs:
           path: artifacts/design-tokens/
           if-no-files-found: error
 
+      - name: Upload editor evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: editor-report
+          path: artifacts/editor/
+          if-no-files-found: error
+
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
 

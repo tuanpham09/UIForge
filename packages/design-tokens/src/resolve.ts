@@ -4,7 +4,7 @@ const referencePattern = /^\{([^}]+)\}$/;
 
 export class UnknownTokenError extends Error {
   constructor(public readonly tokenName: string) {
-    super(`Unknown design token: ${tokenName}`);
+    super(["Unknown design token: ", tokenName].join(""));
     this.name = "UnknownTokenError";
   }
 }
@@ -24,8 +24,10 @@ export function resolveToken(name: string, set: TokenSet): TokenResolution {
     if (typeof value !== "string") return value;
     const match = referencePattern.exec(value);
     if (!match) return value;
-    const ref = match[1]!;
-    if (seen.has(ref)) throw new Error(`Circular token reference: ${ref}`);
+    const ref = match[1];
+    if (!ref) throw new UnknownTokenError(value);
+    if (seen.has(ref))
+      throw new Error(["Circular token reference: ", ref].join(""));
     const target = lookupToken(ref, set);
     if (!target) throw new UnknownTokenError(ref);
     return resolveValue(target.value, new Set([...seen, ref]));
@@ -34,12 +36,18 @@ export function resolveToken(name: string, set: TokenSet): TokenResolution {
   const value = resolveValue(token.value, new Set([name]));
   const themes = token.themes
     ? Object.fromEntries(
-        Object.entries(token.themes).map(([theme, themeValue]) => [
-          theme,
-          resolveValue(themeValue!, new Set([name])),
-        ]),
+        Object.entries(token.themes)
+          .filter(
+            (entry): entry is [string, string | number] =>
+              entry[1] !== undefined,
+          )
+          .map(([theme, themeValue]) => [
+            theme,
+            resolveValue(themeValue, new Set([name])),
+          ]),
       )
     : undefined;
+
   return {
     name,
     kind: token.kind,
@@ -51,8 +59,11 @@ export function resolveToken(name: string, set: TokenSet): TokenResolution {
 }
 
 export function toCssVariable(name: string): string {
-  return `--ui-${name
-    .replace(/[^a-zA-Z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .toLowerCase()}`;
+  return [
+    "--ui-",
+    name
+      .replace(/[^a-zA-Z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .toLowerCase(),
+  ].join("");
 }
