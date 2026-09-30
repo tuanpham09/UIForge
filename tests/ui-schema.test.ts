@@ -10,9 +10,12 @@ import {
   mobileListFixture,
   serializeUIDocument,
   UI_SCHEMA_VERSION,
+  UICommand,
   UICommandError,
   UISchemaValidationError,
   validateUIDocument,
+  type NodeId,
+  type UIDocument,
 } from "../packages/ui-schema/src/index.js";
 
 describe("UI Schema v1 validation", () => {
@@ -34,8 +37,8 @@ describe("UI Schema v1 validation", () => {
 
   it("rejects broken hierarchy references", () => {
     const malformed = structuredClone(dashboardFixture);
-    malformed.nodes["dashboard.summary"].parentId = "screen.dashboard.root";
-    malformed.nodes["screen.dashboard.root"].childrenIds = [];
+    malformed.nodes["dashboard.summary"]!.parentId = "screen.dashboard.root" as NodeId;
+    malformed.nodes["screen.dashboard.root"]!.childrenIds = [];
     expect(() => validateUIDocument(malformed)).toThrow(
       /does not contain child/,
     );
@@ -64,7 +67,7 @@ describe("UI Schema v1 validation", () => {
 describe("typed command model", () => {
   it("applies and replays serializable commands deterministically", () => {
     const first = dashboardFixture;
-    const commands = [
+    const commands: UICommand[] = [
       {
         type: "SetToken",
         commandId: "cmd.token",
@@ -84,17 +87,17 @@ describe("typed command model", () => {
         nodeId: "dashboard.cta",
         toIndex: 0,
       },
-    ] as const;
+    ];
 
     const applied = applyCommands(first, commands);
     const replayed = applyCommands(first, JSON.parse(JSON.stringify(commands)));
 
     expect(serializeUIDocument(applied)).toBe(serializeUIDocument(replayed));
     expect(applied.revision.revision).toBe(4);
-    expect(applied.nodes["dashboard.cta"].style?.tokens?.background).toBe(
+    expect(applied.nodes["dashboard.cta"]!.style?.tokens?.background).toBe(
       "color.primary",
     );
-    expect(applied.nodes["dashboard.cta"].component?.variant).toBe("secondary");
+    expect(applied.nodes["dashboard.cta"]!.component?.variant).toBe("secondary");
   });
 
   it("supports create, reparent, responsive and code mapping commands", () => {
@@ -138,11 +141,11 @@ describe("typed command model", () => {
       },
     });
 
-    expect(mapped.nodes["dashboard.new"].parentId).toBe("dashboard.cta");
-    expect(mapped.nodes["dashboard.cta"].responsive?.[0]?.breakpoint).toBe(
+    expect(mapped.nodes["dashboard.new"]!.parentId).toBe("dashboard.cta");
+    expect(mapped.nodes["dashboard.cta"]!.responsive?.[0]?.breakpoint).toBe(
       "md",
     );
-    expect(mapped.nodes["dashboard.cta"].codeMapping).toEqual({
+    expect(mapped.nodes["dashboard.cta"]!.codeMapping).toEqual({
       source: "@/components/Button",
       exportName: "Button",
       componentName: "Button",
@@ -168,8 +171,12 @@ describe("typed command model", () => {
   });
 
   it("migrates through an explicit interface", () => {
+    const legacy = {
+      ...dashboardFixture,
+      schemaVersion: "uiforge.schema/v0",
+    } as unknown;
     const migrated = migrateToCurrent(
-      { schemaVersion: "uiforge.schema/v0", ...dashboardFixture },
+      legacy,
       [
         {
           from: "uiforge.schema/v0",
