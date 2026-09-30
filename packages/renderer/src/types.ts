@@ -44,10 +44,7 @@ export interface RendererContext {
 }
 
 export interface RendererComponentRegistry {
-  [bindingId: string]: (
-    node: UINode,
-    context: RendererContext,
-  ) => ReactNode;
+  [bindingId: string]: (node: UINode, context: RendererContext) => ReactNode;
 }
 
 export interface RenderStyles {
