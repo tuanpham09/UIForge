@@ -242,7 +242,7 @@ function collectDescendants(document: UIDocument, rootId: NodeId): NodeId[] {
 
 export function applyCommands(
   input: UIDocument,
-  commands: UICommand[],
+  commands: readonly UICommand[],
 ): UIDocument {
   return commands.reduce(applyCommand, input);
 }
