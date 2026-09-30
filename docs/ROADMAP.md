@@ -5,7 +5,7 @@
 ~~~mermaid
 flowchart TB
     P0["P0 Foundation<br/>#1"]
-    P1["P1 Semantic Product Core<br/>#2 #3 #21 #4 #5 #6"]
+    P1["P1 Semantic Product Core + Design Intelligence<br/>#2 #3 #6 #21 #22 #4 #5"]
     P2["P2 AI Design<br/>#7 #8 #9"]
     P3["P3 Agent Bridge<br/>#10 #11 #12"]
     P4["P4 Design-to-Code<br/>#13 #14"]
@@ -30,30 +30,34 @@ Outputs:
 - Playwright skeleton;
 - package boundary rules.
 
-## Phase 1 — Semantic Product Core
+## Phase 1 — Semantic Product Core + Design Intelligence
 
-**Issues #2–#6 + #21**
+**Issues #2–#6 + #21 + #22**
 
-Goal: establish the canonical design language **and product-flow model**. A screen is only one part of the product specification; user journeys and transitions are first-class.
+Goal: establish the canonical design language, product-flow model and reusable design-intelligence layer. A screen is only one part of the product specification; user journeys, transitions and design strategy are first-class.
 
 Outputs:
 - UI Schema v1;
 - typed command model;
 - design tokens;
 - Product Experience Graph;
+- Design Skill Registry;
+- deterministic Design Strategy;
 - tldraw flow-aware adapter;
 - deterministic renderer;
 - component registry.
 
 ## Phase 2 — AI Design
 
-**Issues #7–#9**
+**Issues #7–#9, consuming #22**
 
-Goal: safely generate and modify semantic UI.
+Goal: safely generate and modify semantic UI from Product Intent + validated Design Strategy.
 
 Outputs:
 - provider abstraction;
+- Product Intent normalization;
 - structured AI pipeline;
+- Design Strategy consumption;
 - text-to-UI;
 - screenshot-to-UI;
 - confidence/validation.
@@ -141,12 +145,12 @@ Outputs:
 Issue #1 complete.
 
 ### M1 — First editable product experience
-Issues #2–#6 + #21 complete:
+Issues #2–#6 + #21 + #22 complete:
 fixture → schema + experience graph → flow-aware canvas → preview/prototype.
 
 ### M2 — AI product experience
 Issues #7–#9 complete:
-prompt/screenshot → validated editable UI + generated/updated flows where applicable.
+prompt/screenshot → Product Intent/Design Strategy → validated editable UI + generated/updated flows where applicable.
 
 ### M3 — MCP demo
 Issues #10–#12 complete:
