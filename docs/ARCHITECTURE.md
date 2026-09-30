@@ -4,9 +4,10 @@
 
 UIForge is a **schema-first, agent-first, renderer-independent** system.
 
-The same UI Schema must be able to drive:
+The same UI Schema + Product Experience Graph must be able to drive:
 
 - visual editor;
+- flow/prototype canvas;
 - browser preview;
 - AI modification;
 - MCP context;
@@ -54,7 +55,9 @@ flowchart TB
 
 ### Domain
 
-`ui-schema`, `design-tokens`, `component-registry`
+`ui-schema`, `experience-graph`, `design-tokens`, `component-registry`
+
+`ui-schema` owns screen/node semantics. `experience-graph` owns user journeys, flows and semantic transitions between screens/nodes.
 
 Must be browser-independent and provider-independent.
 
@@ -88,7 +91,24 @@ Exposes domain data and controlled mutations.
 
 Converts semantic design into implementation specs and target code.
 
-## 4. UI Schema requirements
+## 4. Product Experience Graph
+
+The Experience Graph is the canonical behavioral/navigation model. It must represent:
+
+- Flow and UserJourney;
+- starting points;
+- source screen/node and destination screen/node;
+- trigger;
+- action;
+- optional condition;
+- optional animation metadata;
+- validation findings.
+
+Required graph invariants include valid references, deterministic IDs, explicit destinations, deterministic reachability checks and no silent orphan/broken connections.
+
+tldraw prototype connections are an editor projection of this graph.
+
+## 5. UI Schema requirements
 
 Every node must have:
 
@@ -105,7 +125,7 @@ Every node must have:
 
 The schema must support migration.
 
-## 5. Layout model
+## 6. Layout model
 
 The semantic layout model prioritizes:
 
@@ -185,7 +205,7 @@ Project
 
 All exposed tables must have RLS and allow/deny tests. Supabase explicitly recommends RLS for exposed tables and security tests for each operation.
 
-## 9. Editor strategy
+## 10. Editor strategy
 
 tldraw is an editor implementation detail.
 
@@ -195,7 +215,7 @@ This prevents a future canvas replacement from becoming a migration disaster.
 
 tldraw already provides AI integration patterns and custom shape infrastructure suitable for visual AI applications.
 
-## 10. Rendering strategy
+## 11. Rendering strategy
 
 The renderer must be deterministic for the same:
 
@@ -203,7 +223,7 @@ The renderer must be deterministic for the same:
 
 This enables visual regression testing.
 
-## 11. AI strategy
+## 12. AI strategy
 
 AI providers implement:
 
@@ -217,7 +237,7 @@ interface AIProvider {
 
 The domain layer never imports a provider SDK.
 
-## 12. Code generation strategy
+## 13. Code generation strategy
 
 Do not generate code directly from pixels.
 
@@ -240,7 +260,7 @@ MVP target:
 
 shadcn/ui is particularly compatible with this approach because it distributes open component source and explicitly positions itself as AI-ready.
 
-## 13. MCP architecture
+## 14. MCP architecture
 
 MCP is a public integration boundary.
 
@@ -252,13 +272,13 @@ Hosted transport:
 
 because current AI SDK guidance recommends HTTP transport for production and stdio for local servers.
 
-## 14. Visual QA
+## 15. Visual QA
 
 The design preview and implementation are rendered at identical viewport/fixture settings.
 
 Playwright `toHaveScreenshot` provides screenshot comparison. Baselines must be generated and verified in a controlled environment because browser/OS/font differences can affect pixels.
 
-## 15. ADR rule
+## 16. ADR rule
 
 Architecture decisions with long-term consequences require an ADR under `docs/architecture/adr/`.
 
