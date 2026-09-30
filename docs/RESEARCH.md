@@ -86,6 +86,17 @@ UIForge will therefore:
 - Vitest.
 - pnpm + Turborepo.
 
+## Product flow research update
+
+The design direction should learn from both Stitch-style AI generation and Figma-style prototype flows without cloning either product. The key architectural takeaway is that a product design needs two complementary semantic views:
+
+1. **Visual contract** — screens, components, layout, tokens and responsive behavior.
+2. **Behavioral contract** — user journeys, starting points, triggers, actions, destinations, conditions and transitions.
+
+Figma's prototype model is useful evidence that explicit connections, destinations and actions make flows understandable. Stitch's project/canvas-oriented AI workflow is useful evidence that AI should reason across multiple screens rather than generate isolated frames. UIForge should combine those lessons while keeping its own framework-neutral schema and Experience Graph as the source of truth.
+
+The **Product Experience Graph** therefore becomes a P1 domain primitive, not a prototype-only feature.
+
 ### Explicitly deferred
 
 - Figma parity.
