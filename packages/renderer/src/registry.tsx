@@ -53,7 +53,7 @@ function link(node: UINode): ReactNode {
     <a
       href={
         node.interaction?.targetScreenId
-          ? "#screen-" + node.interaction.targetScreenId
+          ? `#screen-${node.interaction.targetScreenId}`
           : "#"
       }
       data-node-id={node.id}
