@@ -7,7 +7,9 @@ export class CommandHistory {
 
   constructor(private current: UIDocument) {}
 
-  get document(): UIDocument { return this.current; }
+  get document(): UIDocument {
+    return this.current;
+  }
 
   apply(command: UICommand): UIDocument {
     this.past.push(this.current);
@@ -32,6 +34,11 @@ export class CommandHistory {
     return this.current;
   }
 
-  canUndo(): boolean { return this.past.length > 0; }
-  canRedo(): boolean { return this.future.length > 0; }
+  canUndo(): boolean {
+    return this.past.length > 0;
+  }
+
+  canRedo(): boolean {
+    return this.future.length > 0;
+  }
 }
