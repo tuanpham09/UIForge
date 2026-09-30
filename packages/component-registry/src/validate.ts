@@ -1,4 +1,3 @@
-// biome-ignore-all format: semantic registry implementation is maintained as a stable contract\nimport type {
   ComponentDefinition,
   ComponentRegistry,
   RegistryValidationIssue,
