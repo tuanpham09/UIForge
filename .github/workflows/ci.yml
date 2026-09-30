@@ -44,6 +44,14 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Upload UI Schema evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-schema-report
+          path: artifacts/ui-schema/
+          if-no-files-found: error
+
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
 
