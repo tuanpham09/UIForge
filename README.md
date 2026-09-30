@@ -125,7 +125,7 @@ docs/
 - **Zustand** for local editor state where React state is insufficient.
 - **TanStack Query** for server state.
 - **Supabase/Postgres** for persistence/auth/storage in the initial hosted architecture.
-- **MCP TypeScript SDK** for the agent bridge.
+- **MCP TypeScript SDK v2** (`@modelcontextprotocol/server` + client package) for the agent bridge.
 - **AI SDK** for model/provider orchestration.
 - **Playwright** for browser and visual regression testing.
 - **Vitest** for unit/contract tests.
@@ -174,7 +174,7 @@ Mutations are gated and auditable:
 
 Production mutation requires explicit project capability and an audit trail.
 
-MCP follows the protocol's Resources/Tools/Prompts model and should use Streamable HTTP for hosted production connections. citeturn1search0turn1search2
+MCP follows the protocol's Resources/Tools/Prompts model. Hosted production uses the current Streamable HTTP transport and the MCP TypeScript SDK v2 packages (`@modelcontextprotocol/server`, `@modelcontextprotocol/client`). citeturn1search0turn2search1turn2search11
 
 ## Design consistency rules
 
