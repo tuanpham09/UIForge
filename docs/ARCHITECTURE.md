@@ -4,7 +4,13 @@
 
 UIForge is a **schema-first, agent-first, renderer-independent** system.
 
-The same UI Schema + Product Experience Graph must be able to drive:
+The semantic product-design pipeline is:
+
+`User Intent → Product Intent → Design Skill Discovery → Skill Composition → Design Strategy → UI Schema + Product Experience Graph`
+
+The **UI Schema + Product Experience Graph** remain the canonical persisted design contracts. Design Strategy is a validated intermediate planning artifact, not a second source of truth.
+
+The same canonical contracts must be able to drive:
 
 - visual editor;
 - flow/prototype canvas;
@@ -12,66 +18,90 @@ The same UI Schema + Product Experience Graph must be able to drive:
 - AI modification;
 - MCP context;
 - code generation;
-- visual QA;
+- visual + interaction QA;
 - future framework targets.
 
 ## 2. System diagram
 
 ```mermaid
 flowchart TB
-    User[Human designer]
-    AI[AI Designer]
-    Editor[tldraw Editor Adapter]
+    User[Human / Product request]
+    Intent[Normalized Product Intent]
+    Intelligence[Design Intelligence]
+    Strategy[Design Strategy]
     Schema[Versioned UI Schema]
+    Graph[Product Experience Graph]
     Tokens[Design Tokens]
     Registry[Component Registry]
+    Editor[tldraw Editor Adapter]
     Renderer[Deterministic Web Renderer]
     MCP[MCP Server]
     Agent[External AI Agent]
     Codegen[Code Specification / Generator]
     Code[Real Codebase]
     Browser[Browser Runtime]
-    QA[Visual QA]
+    QA[Visual + Interaction QA]
 
-    User --> Editor
-    AI --> Schema
+    User --> Intent
+    Intent --> Intelligence
+    Intelligence --> Strategy
+    Strategy --> Schema
+    Strategy --> Graph
+    Intelligence --> Registry
+    Intelligence --> Tokens
+
     Editor <--> Schema
+    Editor <--> Graph
     Schema <--> Tokens
     Schema <--> Registry
     Schema --> Renderer
+    Graph --> Renderer
     Schema --> MCP
+    Graph --> MCP
     Registry --> MCP
     Tokens --> MCP
+
     MCP <--> Agent
     Agent --> Codegen
     Codegen --> Code
     Code --> Browser
     Renderer --> QA
     Browser --> QA
-    QA -->|feedback| Agent
+    QA -->|mismatch / feedback| Agent
 ```
+
+The important separation is:
+
+- **Product Intent** describes what the user is trying to build.
+- **Design Intelligence** decides which reusable design knowledge applies.
+- **Design Strategy** records the resulting plan.
+- **UI Schema** describes what screens/components/layouts are.
+- **Experience Graph** describes how users move and interact through the product.
+- Canvas, prototype, renderer, MCP and codegen are downstream projections.
 
 ## 3. Layer boundaries
 
-### Domain
+### Semantic product layer
 
-`ui-schema`, `experience-graph`, `design-tokens`, `component-registry`
+`design-intelligence`, `ui-schema`, `experience-graph`, `design-tokens`, `component-registry`
+
+`design-intelligence` owns the provider-independent Skill Registry, discovery/composition and Design Strategy contracts.
 
 `ui-schema` owns screen/node semantics. `experience-graph` owns user journeys, flows and semantic transitions between screens/nodes.
 
-Must be browser-independent and provider-independent.
+The semantic layer must be browser-independent and provider-independent.
 
 ### Interaction
 
 `editor`
 
-Owns selection, tools, commands, canvas adapter and UI interaction.
+Owns selection, tools, commands, canvas projection, flow visualization and editor interaction. It must read/write canonical semantic contracts through adapters, not define a competing persistence model.
 
 ### Presentation
 
 `renderer`
 
-Converts semantic schema into deterministic HTML/React preview.
+Converts semantic schema/graph state into deterministic HTML/React preview.
 
 ### Intelligence
 
@@ -79,19 +109,110 @@ Converts semantic schema into deterministic HTML/React preview.
 
 Owns model calls, prompt orchestration, structured generation, normalization and AI patch generation.
 
+The AI package consumes Design Strategy rather than embedding the entire design-skill catalog in provider-specific prompts.
+
 ### Agent integration
 
 `mcp-server`
 
-Exposes domain data and controlled mutations.
+Exposes scoped semantic resources and controlled mutations.
 
 ### Delivery
 
 `codegen`
 
-Converts semantic design into implementation specs and target code.
+Converts semantic design into implementation specifications and target code.
 
-## 4. Product Experience Graph
+## 4. Design Intelligence
+
+Design Intelligence is the planning layer between Product Intent and canonical design contracts.
+
+Pipeline:
+
+```text
+User prompt
+   ↓
+Product Intent
+   ↓
+Skill Discovery
+   ↓
+Skill Composition
+   ↓
+Design Strategy
+   ├── information architecture
+   ├── primary navigation
+   ├── user tasks
+   ├── screen archetypes
+   ├── component patterns
+   ├── interaction patterns
+   ├── responsive strategy
+   ├── accessibility constraints
+   └── anti-patterns
+   ↓
+UI Schema + Experience Graph
+```
+
+### Design Skill
+
+A skill is reusable semantic design knowledge. It may contain:
+
+- domain applicability;
+- UX patterns;
+- information-architecture patterns;
+- component/layout patterns;
+- interaction rules;
+- responsive rules;
+- accessibility rules;
+- anti-patterns;
+- semantic references;
+- compatibility/conflict metadata;
+- validation constraints;
+- examples/fixtures;
+- version/provenance metadata.
+
+Skills are not merely prompt snippets.
+
+### Discovery
+
+Discovery receives normalized Product Intent and returns deterministic candidates with explicit matching metadata.
+
+An internal relevance ordering may exist, but UIForge must not present a universal numeric "best UI" score. Selection must be explainable through matched domain/pattern/constraint metadata.
+
+### Composition
+
+Composition must be deterministic for the same:
+
+`Product Intent + Registry version + Design-system version`
+
+It must:
+
+- deduplicate compatible patterns;
+- detect explicit conflicts;
+- resolve tested conflicts deterministically;
+- preserve skill provenance;
+- validate semantic references;
+- serialize stably.
+
+### Design Strategy
+
+Design Strategy is an intermediate, versioned artifact. It must contain, at minimum:
+
+- product/domain context;
+- selected skill IDs and provenance;
+- information architecture;
+- primary navigation strategy;
+- primary user tasks;
+- screen archetypes;
+- component pattern recommendations;
+- interaction strategy;
+- responsive strategy;
+- accessibility constraints;
+- anti-patterns;
+- composition/validation findings.
+
+It must not duplicate persisted screen/node state or become a hidden second source of truth.
+
+## 5. Product Experience Graph
 
 The Experience Graph is the canonical behavioral/navigation model. It must represent:
 
@@ -108,7 +229,7 @@ Required graph invariants include valid references, deterministic IDs, explicit 
 
 tldraw prototype connections are an editor projection of this graph.
 
-## 5. UI Schema requirements
+## 6. UI Schema requirements
 
 Every node must have:
 
@@ -125,7 +246,7 @@ Every node must have:
 
 The schema must support migration.
 
-## 6. Layout model
+## 7. Layout model
 
 The semantic layout model prioritizes:
 
@@ -148,11 +269,11 @@ Example:
 }
 ```
 
-## 6. Change model
+## 8. Change model
 
 AI and editor mutations should become typed operations:
 
-```
+```text
 CreateNode
 UpdateNode
 MoveNode
@@ -161,6 +282,9 @@ SetToken
 SetVariant
 SetResponsiveRule
 SetCodeMapping
+CreateTransition
+UpdateTransition
+DeleteTransition
 ```
 
 Operations should be serializable for:
@@ -171,7 +295,7 @@ Operations should be serializable for:
 - replay tests;
 - future collaboration.
 
-## 7. Versioning
+## 9. Versioning
 
 Schema versions use explicit versions such as:
 
@@ -184,11 +308,13 @@ Breaking changes require:
 - compatibility tests;
 - changelog entry.
 
-## 8. Persistence
+Design Strategy and Design Skills are separately versioned and should include fixture compatibility tests.
+
+## 10. Persistence
 
 Initial hosted model:
 
-```
+```text
 Supabase Auth
     ↓
 Postgres
@@ -196,6 +322,8 @@ Postgres
 Project
  ├── Document
  ├── Screen
+ ├── Flow
+ ├── UserJourney
  ├── TokenSet
  ├── ComponentDefinition
  ├── Asset
@@ -203,29 +331,27 @@ Project
  └── AuditEvent
 ```
 
-All exposed tables must have RLS and allow/deny tests. Supabase explicitly recommends RLS for exposed tables and security tests for each operation.
+All exposed tables must have RLS and allow/deny tests.
 
-## 10. Editor strategy
+## 11. Editor strategy
 
 tldraw is an editor implementation detail.
 
-We use custom semantic shapes where useful, but persistence must serialize to UI Schema.
+We use custom semantic shapes where useful, but persistence must serialize to UI Schema and Experience Graph.
 
 This prevents a future canvas replacement from becoming a migration disaster.
 
-tldraw already provides AI integration patterns and custom shape infrastructure suitable for visual AI applications.
-
-## 11. Rendering strategy
+## 12. Rendering strategy
 
 The renderer must be deterministic for the same:
 
-`schema + token set + component registry + viewport + fixture data`
+`UI Schema + Experience Graph + token set + component registry + viewport + fixture data`
 
-This enables visual regression testing.
+This enables visual and interaction regression testing.
 
-## 12. AI strategy
+## 13. AI strategy
 
-AI providers implement:
+AI providers implement stable interfaces such as:
 
 ```ts
 interface AIProvider {
@@ -235,14 +361,29 @@ interface AIProvider {
 }
 ```
 
+The AI execution contract should support:
+
+```text
+Input
+ → Product Intent
+ → Design Strategy
+ → Structured generation
+ → Parse
+ → Schema / Graph validation
+ → Normalize
+ → Design-system validation
+ → Typed command/patch
+ → Apply
+```
+
 The domain layer never imports a provider SDK.
 
-## 13. Code generation strategy
+## 14. Code generation strategy
 
 Do not generate code directly from pixels.
 
-```
-UI Schema
+```text
+UI Schema + Experience Graph + Design Strategy requirements
   ↓
 Code Specification
   ↓
@@ -258,27 +399,29 @@ MVP target:
 - Tailwind CSS v4;
 - shadcn/ui/Base UI.
 
-shadcn/ui is particularly compatible with this approach because it distributes open component source and explicitly positions itself as AI-ready.
-
-## 14. MCP architecture
+## 15. MCP architecture
 
 MCP is a public integration boundary.
 
 Resources provide structured context; tools provide executable read/write operations. The MCP specification separates these primitives by control model.
 
+MCP should be able to expose selected design-strategy provenance and relevant skill requirements to coding agents without exposing the entire registry by default.
+
 Hosted transport:
 
 `Streamable HTTP`
 
-because current AI SDK guidance recommends HTTP transport for production and stdio for local servers.
+Local development may use stdio.
 
-## 15. Visual QA
+## 16. Visual + Interaction QA
 
 The design preview and implementation are rendered at identical viewport/fixture settings.
 
-Playwright `toHaveScreenshot` provides screenshot comparison. Baselines must be generated and verified in a controlled environment because browser/OS/font differences can affect pixels.
+Playwright screenshot comparison verifies visual fidelity. Interaction QA should replay canonical Experience Graph journeys and detect broken/misrouted transitions.
 
-## 16. ADR rule
+Baselines must be generated and verified in a controlled environment because browser/OS/font differences can affect pixels.
+
+## 17. ADR rule
 
 Architecture decisions with long-term consequences require an ADR under `docs/architecture/adr/`.
 
