@@ -112,7 +112,7 @@ export const defaultTokenSet: TokenSet = {
       value: "1280px",
     },
     "motion.fast": { name: "motion.fast", kind: "motion", value: "120ms" },
-    "motion.normal": { name: "motion.normal", kind: "motion", value: "200ms" }
+    "motion.normal": { name: "motion.normal", kind: "motion", value: "200ms" },
   },
   semantic: {
     "color.background": {
