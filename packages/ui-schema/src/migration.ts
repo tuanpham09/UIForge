@@ -1,4 +1,8 @@
-import { UI_SCHEMA_VERSION, type SchemaMigration, type UIDocument } from "./types.js";
+import {
+  UI_SCHEMA_VERSION,
+  type SchemaMigration,
+  type UIDocument,
+} from "./types.js";
 import { UISchemaValidationError, validateUIDocument } from "./validation.js";
 
 export function migrateToCurrent(
@@ -26,7 +30,9 @@ export function migrateToCurrent(
     }
 
     seen.add(currentVersion);
-    const migration = migrations.find((candidate) => candidate.from === currentVersion);
+    const migration = migrations.find(
+      (candidate) => candidate.from === currentVersion,
+    );
     if (!migration) {
       throw new UISchemaValidationError([
         `no migration registered from ${currentVersion} to ${UI_SCHEMA_VERSION}`,
