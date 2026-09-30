@@ -1,9 +1,9 @@
-import { resolveToken } from "./resolve.js";
+import { resolveToken } from "./resolve";
 import type {
   RawValueException,
   TokenSet,
   TokenValidationIssue,
-} from "./types.js";
+} from "./types";
 
 export function validateTokenReference(
   name: string,
