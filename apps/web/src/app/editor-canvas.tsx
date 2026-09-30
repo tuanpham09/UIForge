@@ -9,7 +9,7 @@ import "tldraw/tldraw.css";
 export default function EditorCanvas() {
   const projection = useMemo(() => projectDocument(dashboardFixture), []);
   return (
-    <div className="h-[720px] w-full overflow-hidden rounded-xl border border-slate-700">
+    <div className="h-[720px] w-full overflow-hidden rounded-xl border border-slate-700" data-testid="uiforge-editor-canvas">
       <Tldraw
         onMount={(editor) => {
           if (editor.getCurrentPageShapeIds().size > 0) return;
@@ -31,6 +31,9 @@ export default function EditorCanvas() {
           editor.zoomToFit({ animation: { duration: 0 } });
         }}
       />
+      <div className="border-t border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-300" data-testid="editor-projection-status">
+        {projection.shapes.length} nodes · {projection.flows.length} flow projection
+      </div>
     </div>
   );
 }
