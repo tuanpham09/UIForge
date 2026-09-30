@@ -3,12 +3,12 @@ export const UI_SCHEMA_VERSION = "uiforge.schema/v1" as const;
 export type SchemaVersion = typeof UI_SCHEMA_VERSION;
 export type Brand<T, B extends string> = T & { readonly __brand: B };
 
-export type DocumentId = Brand<string, "DocumentId">;
-export type ScreenId = Brand<string, "ScreenId">;
-export type NodeId = Brand<string, "NodeId">;
-export type AssetId = Brand<string, "AssetId">;
+export type DocumentId = string;
+export type ScreenId = string;
+export type NodeId = string;
+export type AssetId = string;
 export type CommandId = string;
-export type TokenRef = string & { readonly __tokenRef: true };
+export type TokenRef = string;
 
 export type SemanticNodeType =
   | "screen-root"
