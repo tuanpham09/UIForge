@@ -49,18 +49,20 @@ flowchart LR
     E --> F[Design strategy]
     F --> G[Experience Graph + UI Schema]
     G --> H[Design tokens]
-    H --> J[Component registry]
-    G --> K[Flow Canvas / Prototype]
-    H --> L[Preview renderer]
-    G --> M[MCP]
-    J --> M
-    H --> M
-    I --> J[Cursor / Claude / Codex / other agents]
-    J --> K[Codebase]
-    K --> L[Browser render]
-    L --> M[Visual + Interaction QA]
-    M -->|mismatch| J
-    M -->|pass| N[Evidence]
+    G --> I[Component registry]
+    G --> J[Flow Canvas / Prototype]
+    G --> K[Preview renderer]
+    G --> L[MCP]
+    H --> L
+    I --> L
+    F --> L
+    L --> M[Cursor / Claude / Codex / other agents]
+    M --> N[Codebase]
+    N --> O[Browser render]
+    K --> P[Visual + Interaction QA]
+    O --> P
+    P -->|mismatch| M
+    P -->|pass| Q[Evidence]
 ```
 
 ## Phase roadmap
@@ -68,7 +70,7 @@ flowchart LR
 ```mermaid
 flowchart TB
     P0["P0 Foundation<br/>product contract + repo + CI"]
-    P1["P1 Semantic Product Core<br/>schema + tokens + experience graph + editor + renderer"]
+    P1["P1 Semantic Product Core<br/>schema + tokens + experience graph + design intelligence + editor + renderer"]
     P2["P2 AI<br/>text-to-UI + screenshot-to-UI"]
     P3["P3 Agent Bridge<br/>component registry + MCP"]
     P4["P4 Code Loop<br/>React/Tailwind/shadcn code spec + generator"]
