@@ -5,7 +5,7 @@ import type {
   RegistryValidationResult,
 } from "./types";
 
-const idPattern = /^uiforge\\.[a-z][a-z0-9-]*$/;
+const idPattern = /^uiforge\.[a-z][a-z0-9-]*$/;
 
 function validateComponent(
   component: ComponentDefinition,
