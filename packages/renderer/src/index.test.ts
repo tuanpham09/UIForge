@@ -55,8 +55,12 @@ describe("deterministic semantic renderer", () => {
       viewport: getViewport("desktop"),
     });
 
-    expect(result.diagnostics.some((item) => item.code === "UNKNOWN_COMPONENT")).toBe(false);
-    expect(result.diagnostics.some((item) => item.code === "UNSUPPORTED_NODE")).toBe(false);
+    expect(
+      result.diagnostics.some((item) => item.code === "UNKNOWN_COMPONENT"),
+    ).toBe(false);
+    expect(
+      result.diagnostics.some((item) => item.code === "UNSUPPORTED_NODE"),
+    ).toBe(false);
   });
 
   it("reports unknown semantic component registry IDs without crashing", () => {
@@ -71,7 +75,9 @@ describe("deterministic semantic renderer", () => {
     });
 
     expect(result.element).toBeTruthy();
-    expect(result.diagnostics.some((item) => item.code === "UNKNOWN_COMPONENT")).toBe(true);
+    expect(
+      result.diagnostics.some((item) => item.code === "UNKNOWN_COMPONENT"),
+    ).toBe(true);
   });
 
   it("supports desktop and mobile viewport presets", () => {
