@@ -4,13 +4,13 @@
 
 The current market validates several pieces of the workflow:
 
-- Figma MCP exposes design context to agents and can write native content back to the canvas. citeturn0search3turn0search21
-- tldraw supports AI models reading a canvas and creating/manipulating shapes, and provides an agent starter pattern. citeturn0search14turn0search18
-- shadcn/ui is explicitly open-code and AI-ready; its current new-project default is Base UI while Radix remains supported. citeturn0search2turn0search17
-- Tailwind v4 exposes CSS-first theme variables and modern browser primitives that fit a token-driven renderer. citeturn1search3turn1search4
-- React 19.3 is the current official React release documented by the React team. citeturn0search12turn0search19
-- Playwright provides screenshot comparison and documents the need for controlled rendering environments. citeturn1search5
-- Supabase documents RLS as a core security mechanism for exposed Postgres tables and recommends explicit allow/deny testing. citeturn0search1turn0search20
+- Figma MCP exposes design context to agents and can write native content back to the canvas.
+- tldraw supports AI models reading a canvas and creating/manipulating shapes, and provides an agent starter pattern.
+- shadcn/ui is explicitly open-code and AI-ready; its current new-project default is Base UI while Radix remains supported.
+- Tailwind v4 exposes CSS-first theme variables and modern browser primitives that fit a token-driven renderer.
+- React 19.3 is the current official React release documented by the React team.
+- Playwright provides screenshot comparison and documents the need for controlled rendering environments.
+- Supabase documents RLS as a core security mechanism for exposed Postgres tables and recommends explicit allow/deny testing.
 
 ## MCP direction
 
@@ -18,11 +18,11 @@ The MCP specification separates:
 
 - Prompts — user-controlled;
 - Resources — application-controlled context;
-- Tools — model-controlled actions. citeturn1search0
+- Tools — model-controlled actions.
 
-The July 2026 MCP specification update added cache metadata to list/read results and continued tightening authorization semantics. This matters for UIForge because screen/component resources can become heavily cached while mutations require stricter authorization. citeturn1search1
+The July 2026 MCP specification update added cache metadata to list/read results and continued tightening authorization semantics. This matters for UIForge because screen/component resources can become heavily cached while mutations require stricter authorization.
 
-AI SDK guidance recommends Streamable HTTP for production MCP connections and stdio for local servers. citeturn1search2
+AI SDK guidance recommends Streamable HTTP for production MCP connections and stdio for local servers.
 
 ## Architecture implications
 
@@ -35,7 +35,7 @@ AI SDK guidance recommends Streamable HTTP for production MCP connections and st
 
 ## Canvas implications
 
-tldraw is a strong MVP canvas because it already supports AI integration and custom shapes. Its documentation also ships LLM-oriented bundles, making it easier for coding agents to work against the SDK. citeturn0search14turn0search4
+tldraw is a strong MVP canvas because it already supports AI integration and custom shapes. Its documentation also ships LLM-oriented bundles, making it easier for coding agents to work against the SDK.
 
 The architecture should still prevent tldraw types from becoming the domain model.
 
@@ -52,13 +52,13 @@ The target is deliberately narrow. Multi-framework generation is a later adapter
 
 ## Security implications
 
-Supabase's current guidance is clear: exposed tables need RLS, grants and policies must be considered together, and service credentials must remain server-side. citeturn0search1turn0search7
+Supabase's current guidance is clear: exposed tables need RLS, grants and policies must be considered together, and service credentials must remain server-side.
 
 UIForge therefore treats authorization as an architecture concern, not a launch checklist item.
 
 ## Visual QA implications
 
-Playwright screenshot baselines should run in a controlled environment. OS, browser, fonts and rendering conditions can alter pixels. citeturn1search5
+Playwright screenshot baselines should run in a controlled environment. OS, browser, fonts and rendering conditions can alter pixels.
 
 UIForge will therefore:
 
@@ -101,4 +101,18 @@ The goal is to prove the agent-native design-to-code loop before expanding the s
 
 ## September 2026 MCP update
 
-The official TypeScript SDK now documents v2 as the stable release line for the 2026-07-28 MCP specification. The server and client packages are split, and Streamable HTTP is the current hosted transport. UIForge should therefore isolate MCP transport/version details behind the MCP adapter rather than letting protocol details leak into the UI Schema. citeturn2search1turn2search2turn2search11
+The official TypeScript SDK now documents v2 as the stable release line for the 2026-07-28 MCP specification. The server and client packages are split, and Streamable HTTP is the current hosted transport. UIForge should therefore isolate MCP transport/version details behind the MCP adapter rather than letting protocol details leak into the UI Schema.
+
+## Official references
+
+- MCP specification: https://modelcontextprotocol.io/specification/
+- MCP 2026-07-28 update: https://blog.modelcontextprotocol.io/posts/2026-07-28/
+- MCP TypeScript SDK v2: https://github.com/modelcontextprotocol/typescript-sdk
+- Figma MCP: https://developers.figma.com/docs/figma-mcp-server/
+- tldraw AI: https://tldraw.dev/docs/ai
+- React versions: https://react.dev/versions
+- Next.js: https://nextjs.org/docs
+- Tailwind CSS: https://tailwindcss.com/docs/upgrade-guide
+- shadcn/ui: https://ui.shadcn.com/docs
+- Supabase RLS: https://supabase.com/docs/guides/database/postgres/row-level-security
+- Playwright snapshots: https://playwright.dev/docs/next/test-snapshots
