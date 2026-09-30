@@ -1,5 +1,5 @@
-import type { Editor, TLShape, TLShapeId } from "tldraw";
 import type { UICommand, UIDocument, UINode } from "@uiforge/ui-schema";
+import type { Editor, TLShape, TLShapeId } from "tldraw";
 
 export const EDITOR_PROJECTION_VERSION = "uiforge.editor/v1" as const;
 
@@ -17,7 +17,12 @@ export interface ProjectedShape {
   type: "geo";
   x: number;
   y: number;
-  props: { w: number; h: number; geo: "rectangle"; richText: unknown };
+  props: {
+    w: number;
+    h: number;
+    geo: "rectangle";
+    richText: unknown;
+  };
   meta: UIForgeShapeMeta;
 }
 
