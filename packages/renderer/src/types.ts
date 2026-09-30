@@ -3,12 +3,23 @@ import type { ScreenId, UIDocument, UINode } from "@uiforge/ui-schema";
 import type { CSSProperties, ReactNode } from "react";
 
 export const RENDERER_VERSION = "uiforge.renderer/v1" as const;
+
 export type ViewportPreset = "desktop" | "mobile";
-export interface Viewport { width: number; height: number; preset: ViewportPreset; }
+
+export interface Viewport {
+  width: number;
+  height: number;
+  preset: ViewportPreset;
+}
+
 export interface FixtureData {
   values?: Record<string, string | number | boolean | null>;
-  lists?: Record<string, Array<Record<string, string | number | boolean | null>>>;
+  lists?: Record<
+    string,
+    Array<Record<string, string | number | boolean | null>>
+  >;
 }
+
 export interface RendererDiagnostic {
   code:
     | "UNSUPPORTED_NODE"
@@ -23,6 +34,7 @@ export interface RendererDiagnostic {
   screenId?: string;
   message: string;
 }
+
 export interface RendererContext {
   document: UIDocument;
   tokens: TokenSet;
@@ -30,8 +42,20 @@ export interface RendererContext {
   fixture?: FixtureData;
   diagnostics: RendererDiagnostic[];
 }
+
 export interface RendererComponentRegistry {
-  [bindingId: string]: (node: UINode, context: RendererContext) => ReactNode;
+  [bindingId: string]: (
+    node: UINode,
+    context: RendererContext,
+  ) => ReactNode;
 }
-export interface RenderStyles { style?: CSSProperties; className?: string; }
-export interface PreviewState { activeScreenId: ScreenId; overlayNodeId?: string; }
+
+export interface RenderStyles {
+  style?: CSSProperties;
+  className?: string;
+}
+
+export interface PreviewState {
+  activeScreenId: ScreenId;
+  overlayNodeId?: string;
+}
