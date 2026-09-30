@@ -7,7 +7,7 @@ export type DocumentId = Brand<string, "DocumentId">;
 export type ScreenId = Brand<string, "ScreenId">;
 export type NodeId = Brand<string, "NodeId">;
 export type AssetId = Brand<string, "AssetId">;
-export type CommandId = Brand<string, "CommandId">;
+export type CommandId = string;
 export type TokenRef = string & { readonly __tokenRef: true };
 
 export type SemanticNodeType =
@@ -179,8 +179,8 @@ export interface UIDocument {
   metadata: UIDocumentMetadata;
   revision: RevisionMetadata;
   screens: Screen[];
-  nodes: Record<NodeId, UINode>;
-  assets: Record<AssetId, AssetRef>;
+  nodes: Record<string, UINode>;
+  assets: Record<string, AssetRef>;
 }
 
 export type NodePatch = Partial<Omit<UINode, "id" | "screenId">>;
