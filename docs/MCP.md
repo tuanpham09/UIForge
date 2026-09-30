@@ -36,6 +36,10 @@ Scoped index of design skills relevant to the project/strategy. Do not expose th
 
 Scoped semantic component decision rules: when-to-use, when-not-to-use, variants/states, accessibility, responsive and composition constraints.
 
+### `ui://visual-craft-strategy`
+
+Project visual craft requirements: typography ramps, spacing/density, card treatment, icon system, radius/elevation and anti-pattern findings.
+
 ### `ui://screens`
 
 Screen index with IDs, names, viewport metadata and short summaries.
@@ -93,6 +97,10 @@ Returns scoped skill definitions or summaries needed for the requested design/co
 ### get_component_rules
 
 Returns the semantic decision rules for one or more components in the current project/design-system context.
+
+### get_visual_craft_strategy
+
+Returns the validated Visual Craft Strategy and relevant anti-pattern findings.
 
 ### get_screen
 
@@ -203,7 +211,7 @@ Never expose the entire project unless explicitly requested.
 
 Prefer:
 
-`design strategy → color strategy → relevant skills/patterns → flow → relevant screens → transitions → relevant components → relevant tokens → code mappings`
+`design strategy → color strategy → visual craft strategy → relevant skills/patterns → flow → relevant screens → transitions → relevant components → relevant tokens → code mappings`
 
 For a coding task, agents should receive the relevant Design Strategy requirements plus both the visual contract and behavioral contract so implementation does not silently omit design rationale, navigation or interaction.
 
