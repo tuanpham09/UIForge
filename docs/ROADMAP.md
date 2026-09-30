@@ -1,218 +1,172 @@
 # UIForge Roadmap
 
-## Dependency graph
+## Phase dependency graph
 
-```mermaid
-flowchart LR
-    I01[01 Foundation] --> I02[02 Monorepo]
-    I02 --> I03[03 UI Schema]
-    I03 --> I04[04 Tokens]
-    I03 --> I05[05 Editor]
-    I04 --> I06[06 Components]
-    I05 --> I07[07 Renderer]
-    I06 --> I07
-    I06 --> I08[08 AI Provider]
-    I07 --> I08
-    I08 --> I09[09 Text to UI]
-    I08 --> I10[10 Screenshot to UI]
-    I06 --> I11[11 Registry]
-    I11 --> I12[12 MCP Read]
-    I12 --> I13[13 MCP Mutations]
-    I11 --> I14[14 Code Spec]
-    I14 --> I15[15 React Codegen]
-    I07 --> I16[16 Responsive]
-    I15 --> I17[17 Visual QA]
-    I16 --> I17
-    I17 --> I18[18 Persistence/Auth]
-    I18 --> I19[19 GitHub Codebase Mapping]
-    I19 --> I20[20 Agent E2E Benchmark]
-    I20 --> I21[21 Production Hardening]
-```
+~~~mermaid
+flowchart TB
+    P0["P0 Foundation<br/>#1"]
+    P1["P1 Semantic UI Core<br/>#2 #3 #4 #5 #6"]
+    P2["P2 AI Design<br/>#7 #8 #9"]
+    P3["P3 Agent Bridge<br/>#10 #11 #12"]
+    P4["P4 Design-to-Code<br/>#13 #14"]
+    P5["P5 Quality<br/>#15 #16"]
+    P6["P6 Hosted Product<br/>#17"]
+    P7["P7 Codebase Intelligence<br/>#18 #19"]
+    P8["P8 Production<br/>#20"]
+
+    P0 --> P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7 --> P8
+~~~
 
 ## Phase 0 — Foundation
 
-### Goal
+**Issue #1**
 
-Make the repository safe for autonomous implementation.
+Goal: make the repository safe for autonomous implementation.
 
 Outputs:
-
-- README;
-- AGENTS;
-- architecture;
-- research;
+- monorepo;
 - CI;
-- coding/test conventions;
-- issue templates.
+- typecheck/lint/test/build gates;
+- Playwright skeleton;
+- package boundary rules.
 
 ## Phase 1 — Semantic UI Core
 
-### Goal
+**Issues #2–#6**
 
-Create the canonical UI representation.
-
-Outputs:
-
-- schema v1;
-- validator;
-- migration strategy;
-- token engine;
-- component model;
-- deterministic fixtures.
-
-## Phase 2 — Visual Editor
-
-### Goal
-
-Make the schema visually editable.
+Goal: establish the canonical design language.
 
 Outputs:
-
+- UI Schema v1;
+- typed command model;
+- design tokens;
 - tldraw adapter;
-- layer tree;
-- property panel;
-- component insertion;
-- selection;
-- undo/redo;
-- responsive viewport controls.
+- deterministic renderer;
+- component registry.
 
-## Phase 3 — AI Design
+## Phase 2 — AI Design
 
-### Goal
+**Issues #7–#9**
 
-Generate and modify schema safely.
+Goal: safely generate and modify semantic UI.
 
 Outputs:
-
-- AI provider abstraction;
-- structured generation;
+- provider abstraction;
+- structured AI pipeline;
 - text-to-UI;
 - screenshot-to-UI;
-- patch application;
-- validation.
+- confidence/validation.
 
-## Phase 4 — Agent Bridge
+## Phase 3 — Agent Bridge
 
-### Goal
+**Issues #10–#12**
 
-Make UIForge useful to external coding agents.
-
-Outputs:
-
-- MCP resources;
-- read tools;
-- mutation tools;
-- capability/security model;
-- contract tests.
-
-## Phase 5 — Design-to-Code
-
-### Goal
-
-Produce implementation-ready specifications and code.
+Goal: expose the design system to external agents.
 
 Outputs:
+- real code mappings;
+- read-only MCP;
+- mutation capabilities;
+- authorization;
+- audit trail.
 
-- code mapping;
-- React/Tailwind/shadcn target;
+## Phase 4 — Design-to-Code
+
+**Issues #13–#14**
+
+Goal: generate implementation-ready React code.
+
+Outputs:
 - code specification;
-- code generator;
-- compile verification.
+- React/Next.js/Tailwind v4/shadcn/Base UI generator;
+- compile gate.
 
-## Phase 6 — Visual Quality
+## Phase 5 — Quality
 
-### Goal
+**Issues #15–#16**
 
-Close the design-to-code feedback loop.
-
-Outputs:
-
-- deterministic preview;
-- browser renderer;
-- Playwright screenshots;
-- visual diff;
-- mismatch report;
-- auto-fix proposals.
-
-## Phase 7 — Persistence
-
-### Goal
-
-Make UIForge a real hosted product.
+Goal: make responsive behavior and visual fidelity testable.
 
 Outputs:
+- responsive rules;
+- multi-viewport validation;
+- deterministic screenshots;
+- visual diffs.
 
+## Phase 6 — Hosted Product
+
+**Issue #17**
+
+Goal: persist projects safely.
+
+Outputs:
 - auth;
-- project storage;
+- projects;
 - revisions;
 - assets;
 - RLS;
-- audit logs.
+- audit events.
 
-## Phase 8 — Codebase Intelligence
+## Phase 7 — Codebase Intelligence
 
-### Goal
+**Issues #18–#19**
 
-Map designs to real project components instead of generating duplicates.
-
-Outputs:
-
-- GitHub integration;
-- component discovery;
-- code mapping suggestions;
-- import graph;
-- registry synchronization.
-
-## Phase 9 — Production
-
-### Goal
-
-Operate safely at real-user scale.
+Goal: make the agent reuse real project components and prove the full loop.
 
 Outputs:
+- GitHub indexing;
+- component mapping;
+- external-agent benchmark;
+- MCP compatibility evidence;
+- visual QA loop.
 
-- rate limiting;
+## Phase 8 — Production
+
+**Issue #20**
+
+Goal: prepare controlled alpha/beta operation.
+
+Outputs:
+- security hardening;
+- rate/cost controls;
 - observability;
-- cost controls;
-- security review;
-- backup/recovery;
 - deployment;
-- launch checklist.
+- backup/recovery;
+- launch runbook.
 
 ## Milestones
 
 ### M0 — Repository ready
-
-No product functionality required.
+Issue #1 complete.
 
 ### M1 — First editable UI
-
-Text fixture → schema → canvas → preview.
+Issues #2–#6 complete:
+fixture → schema → canvas → preview.
 
 ### M2 — AI UI
-
-Prompt → editable UI with validated schema.
+Issues #7–#9 complete:
+prompt/screenshot → validated editable UI.
 
 ### M3 — MCP demo
+Issues #10–#12 complete:
+external agent can inspect and safely mutate design.
 
-External agent reads a screen and component registry.
-
-### M4 — Design-to-code demo
-
-External agent implements React screen using mapped components.
+### M4 — Design-to-code
+Issues #13–#14 complete:
+external agent can implement a React screen from UIForge context.
 
 ### M5 — Visual QA loop
-
-Design vs implementation mismatch is detected and reported.
+Issues #15–#16 complete:
+responsive and visual mismatch detection works.
 
 ### M6 — Hosted alpha
-
-Projects, auth, revisions and assets work.
+Issue #17 complete:
+auth, persistence, revisions and assets.
 
 ### M7 — Agent-native beta
+Issues #18–#20 complete:
+real codebase mapping, external-agent benchmark and production controls.
 
-GitHub mapping + visual QA + stable MCP integration.
+## Completion rule
 
-## Definition of milestone success
-
-A milestone requires real runtime evidence, not only source code or unit tests.
+A milestone is not complete because source code exists. It requires real runtime verification, tests, CI, reviewed artifacts and an issue evidence comment, following AGENTS.md.
