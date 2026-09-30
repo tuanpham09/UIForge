@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
 import { defaultTokenSet } from "../packages/design-tokens/src/index";
 import { getViewport, renderScreen } from "../packages/renderer/src/index";
 import {
@@ -7,42 +8,33 @@ import {
   loginFixture,
   mobileListFixture,
 } from "../packages/ui-schema/src/index";
-import { describe, expect, it } from "vitest";
 
 describe("Renderer evidence", () => {
   it("writes deterministic fixture evidence", () => {
     mkdirSync("artifacts/renderer", { recursive: true });
 
-    const records = [
-      dashboardFixture,
-      loginFixture,
-      mobileListFixture,
-    ].map((document) => {
-      const screen = document.screens[0];
-      if (!screen) {
-        throw new Error(`Missing screen in fixture ${document.id}`);
-      }
+    const records = [dashboardFixture, loginFixture, mobileListFixture].map(
+      (document) => {
+        const screen = document.screens[0];
+        if (!screen) {
+          throw new Error(`Missing screen in fixture ${document.id}`);
+        }
 
-      const desktop = renderScreen(
-        document,
-        screen.id,
-        defaultTokenSet,
-        { viewport: getViewport("desktop") },
-      );
-      const mobile = renderScreen(
-        document,
-        screen.id,
-        defaultTokenSet,
-        { viewport: getViewport("mobile") },
-      );
+        const desktop = renderScreen(document, screen.id, defaultTokenSet, {
+          viewport: getViewport("desktop"),
+        });
+        const mobile = renderScreen(document, screen.id, defaultTokenSet, {
+          viewport: getViewport("mobile"),
+        });
 
-      return {
-        documentId: document.id,
-        screenId: screen.id,
-        desktopDiagnostics: desktop.diagnostics,
-        mobileDiagnostics: mobile.diagnostics,
-      };
-    });
+        return {
+          documentId: document.id,
+          screenId: screen.id,
+          desktopDiagnostics: desktop.diagnostics,
+          mobileDiagnostics: mobile.diagnostics,
+        };
+      },
+    );
 
     const canonical = JSON.stringify(records);
     writeFileSync(
