@@ -1,6 +1,8 @@
 import type { UINode } from "@uiforge/ui-schema";
-import type { ReactNode } from "react";
+import React, { type ReactNode } from "react";
 import type { RendererComponentRegistry, RendererContext } from "./types";
+
+void React;
 
 function text(node: UINode): ReactNode {
   return node.content?.text ?? node.content?.label ?? "";
