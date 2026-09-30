@@ -1,4 +1,10 @@
-import type { DocumentId, NodeId, ScreenId, UIDocument, UINode } from "../types.js";
+import type {
+  DocumentId,
+  NodeId,
+  ScreenId,
+  UIDocument,
+  UINode,
+} from "../types.js";
 
 const documentId = (value: string) => value as DocumentId;
 const screenId = (value: string) => value as ScreenId;
@@ -32,13 +38,22 @@ const node = (
   childrenIds: childrenIds.map(nodeId),
   type,
   layout: {
-    mode: type === "screen-root" || type === "section" || type === "list" ? "stack" : "flex",
+    mode:
+      type === "screen-root" || type === "section" || type === "list"
+        ? "stack"
+        : "flex",
     direction: "column",
     gap: { token: "space.4" as never },
   },
 });
 
-function finish(document: UIDocument, screen: string, name: string, root: UINode, children: UINode[]): UIDocument {
+function finish(
+  document: UIDocument,
+  screen: string,
+  name: string,
+  root: UINode,
+  children: UINode[],
+): UIDocument {
   document.screens.push({
     id: screenId(screen),
     name,
@@ -82,13 +97,10 @@ export const dashboardFixture = (() => {
 
 export const loginFixture = (() => {
   const d = base("login");
-  const root = node(
-    "screen.login.root",
-    "screen.login",
-    null,
-    "screen-root",
-    ["login.email", "login.submit"],
-  );
+  const root = node("screen.login.root", "screen.login", null, "screen-root", [
+    "login.email",
+    "login.submit",
+  ]);
   const email = {
     ...node("login.email", "screen.login", root.id, "input"),
     content: { label: "Email", placeholder: "you@example.com" },
@@ -130,7 +142,10 @@ export const mobileListFixture = (() => {
     ...node("mobile-list.item", "screen.mobile-list", list.id, "list-item"),
     content: { label: "Example item" },
   };
-  const result = finish(d, "screen.mobile-list", "Mobile List", root, [list, item]);
+  const result = finish(d, "screen.mobile-list", "Mobile List", root, [
+    list,
+    item,
+  ]);
   result.screens[0].viewport = { maxWidth: 767 };
   return result;
 })();
