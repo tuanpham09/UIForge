@@ -106,11 +106,7 @@ function dialog(node: UINode): ReactNode {
 }
 
 function table(node: UINode): ReactNode {
-  return (
-    <table data-node-id={node.id}>
-      {text(node)}
-    </table>
-  );
+  return <table data-node-id={node.id}>{text(node)}</table>;
 }
 
 function list(node: UINode): ReactNode {
