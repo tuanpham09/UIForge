@@ -1,10 +1,10 @@
 "use client";
 
+import { projectDocument } from "@uiforge/editor";
+import { dashboardFixture } from "@uiforge/ui-schema";
+import { useMemo } from "react";
 import { Tldraw, toRichText } from "tldraw";
 import "tldraw/tldraw.css";
-import { useMemo } from "react";
-import { dashboardFixture } from "@uiforge/ui-schema";
-import { projectDocument } from "@uiforge/editor";
 
 export default function EditorCanvas() {
   const projection = useMemo(() => projectDocument(dashboardFixture), []);
