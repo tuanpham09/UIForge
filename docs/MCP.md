@@ -155,7 +155,7 @@ Never return:
 - unrelated tenant data;
 - internal database details not needed by the agent.
 
-Hosted MCP uses Streamable HTTP. Local development can use stdio. Current AI SDK guidance recommends HTTP for production MCP clients. citeturn1search2
+Hosted MCP uses the current Streamable HTTP transport. Local development can use stdio. Use the current MCP TypeScript SDK v2 packages (`@modelcontextprotocol/server`, `@modelcontextprotocol/client`) rather than the legacy monolithic SDK package. citeturn2search1turn2search2turn2search11
 
 ## Agent prompt conventions
 
@@ -168,3 +168,8 @@ The server may expose optional prompts:
 Prompts must be thin orchestration helpers. They must not replace typed resources/tools.
 
 The MCP protocol defines prompts, resources and tools as separate primitives with different control semantics. citeturn1search0
+
+
+## Current protocol baseline
+
+As of the September 2026 project baseline, the MCP TypeScript SDK v2 is the stable line implementing the 2026-07-28 specification. The SDK is split into server/client packages and the modern protocol has updated HTTP/session behavior. Keep protocol-version assumptions isolated in the MCP adapter so the UI Schema and business logic remain stable. citeturn2search1turn2search3
