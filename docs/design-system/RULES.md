@@ -105,6 +105,68 @@ Examples:
 
 Avoid names based on appearance such as `BlueRoundedBox`.
 
+## 7. Component decision rules
+
+Components are not selected by visual preference alone. Each reusable component must expose semantic decision metadata:
+
+- purpose;
+- when-to-use;
+- when-not-to-use;
+- task/hierarchy fit;
+- variants by context;
+- states;
+- accessibility requirements;
+- responsive behavior;
+- interaction semantics;
+- composition/nesting rules;
+- anti-patterns;
+- alternatives;
+- Experience Graph implications.
+
+### Button
+
+- Use a Button for an action or state mutation.
+- Use a link when the semantic operation is navigation without state mutation.
+- A primary Button represents the dominant action in a decision context.
+- Secondary/tertiary variants are for supporting actions.
+- Destructive styling is reserved for destructive actions.
+- Loading state must communicate progress and prevent duplicate submission where appropriate.
+- Icon-only actions require an accessible name and must be unambiguous.
+- Button groups must preserve action hierarchy; do not create several visually equal primary actions without explicit product justification.
+
+### Card
+
+- Use Card to group related content or a meaningful summary/preview.
+- Do not wrap every section in Card by default.
+- Interactive Card requires explicit interaction semantics and must not conflict with contained controls.
+- Do not nest multiple independent interactive targets inside an interactive Card without a defined interaction model.
+- Elevation is structural only when it communicates grouping, layering or affordance; do not add shadows as decoration by default.
+
+### Form / Input
+
+- Every field has an accessible label/name and description/error relationship when applicable.
+- Input type, keyboard behavior, required/optional state and validation behavior must be explicit.
+- Validation state must remain semantic; color alone is insufficient.
+- Submission/loading/error states are part of the interaction contract.
+
+### Dialog / Sheet
+
+- Use an overlay only when interruption or focused context is justified.
+- Prefer inline flows when the task does not require interruption.
+- Desktop Dialog and mobile Sheet are responsive presentations of the same semantic action when appropriate.
+- Focus return/trapping and Escape/back behavior must be explicit.
+- Destructive confirmation must use an explicit destructive action and semantic transition.
+
+### Navigation
+
+Navigation choice depends on information architecture, viewport, screen count and task frequency.
+
+- bottom navigation: primary destinations in compact mobile experiences;
+- sidebar/navigation rail: persistent multi-destination navigation on larger surfaces;
+- tabs: peer views inside one information context, not unrelated top-level destinations;
+- breadcrumbs: hierarchical location context, not primary navigation;
+- back: history/context return, not a replacement for explicit destination semantics.
+
 ## 7. States
 
 Interactive components should define where relevant:
@@ -118,7 +180,7 @@ Interactive components should define where relevant:
 - error;
 - selected.
 
-## 8. Layout
+## 9. Layout
 
 Prefer semantic constraints:
 
@@ -133,7 +195,7 @@ Prefer semantic constraints:
 
 Avoid using absolute coordinates as the primary semantic representation.
 
-## 9. Responsive design
+## 10. Responsive design
 
 Every screen must declare:
 
@@ -146,7 +208,7 @@ Every screen must declare:
 
 Do not simply scale desktop pixels down.
 
-## 10. Interaction and flow consistency
+## 11. Interaction and flow consistency
 
 Every interactive element that changes product state or navigation must map to a semantic transition.
 
@@ -160,7 +222,7 @@ Rules:
 - overlays, back actions and state changes are distinguished from full navigation;
 - prototype animation metadata must not redefine the semantic action.
 
-## 11. Accessibility
+## 12. Accessibility
 
 Interactive elements require:
 
@@ -173,7 +235,7 @@ Interactive elements require:
 
 Generated code must preserve these semantics.
 
-## 12. Density
+## 13. Density
 
 Do not solve visual quality by adding decoration.
 
@@ -187,7 +249,7 @@ Prioritize:
 6. interaction states;
 7. decoration.
 
-## 13. Design skill constraints
+## 14. Design skill constraints
 
 AI may compose from approved Design Skills. A skill may contribute:
 
@@ -201,7 +263,7 @@ AI may compose from approved Design Skills. A skill may contribute:
 
 Skill composition must be deterministic for the same Product Intent + registry version and must preserve provenance for the selected skills.
 
-## 14. AI design constraints
+## 15. AI design constraints
 
 AI may choose from:
 
@@ -212,7 +274,7 @@ AI may choose from:
 
 If AI proposes a new token/component, it must explain why an existing primitive cannot satisfy the requirement. The Design Strategy should preserve selected-skill provenance so downstream generation can explain major design decisions without depending on an opaque model prompt.
 
-## 15. Visual quality gate
+## 16. Visual quality gate
 
 Every new component should have:
 
@@ -223,11 +285,11 @@ Every new component should have:
 
 Visual baselines are reviewed as code changes.
 
-## 16. Code consistency
+## 17. Code consistency
 
 The generated implementation must use the same semantic token names and component IDs whenever the target framework supports them.
 
-## 17. No silent drift
+## 18. No silent drift
 
 If implementation intentionally differs from design, record:
 
