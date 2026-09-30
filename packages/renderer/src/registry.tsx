@@ -10,9 +10,7 @@ function button(node: UINode, context: RendererContext): ReactNode {
   return (
     <button
       type="button"
-      aria-label={
-        node.accessibility?.accessibleName ?? node.content?.label
-      }
+      aria-label={node.accessibility?.accessibleName ?? node.content?.label}
       data-node-id={node.id}
       onClick={() =>
         context.diagnostics.push({
@@ -48,9 +46,7 @@ export const defaultRegistry: RendererComponentRegistry = {
     <label data-node-id={node.id}>
       <span>{node.content?.label}</span>
       <input
-        aria-label={
-          node.accessibility?.accessibleName ?? node.content?.label
-        }
+        aria-label={node.accessibility?.accessibleName ?? node.content?.label}
         placeholder={node.content?.placeholder}
         defaultValue={node.content?.value}
       />
