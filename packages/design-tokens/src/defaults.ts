@@ -54,10 +54,7 @@ export const defaultTokenSet: TokenSet = {
     "font.family.sans": {
       name: "font.family.sans",
       kind: "typography",
-      value: "Inter,
-      ui-sans-serif,
-      system-ui,
-      sans-serif",
+      value: "Inter, ui-sans-serif, system-ui, sans-serif",
     },
     "font.size.body": {
       name: "font.size.body",
