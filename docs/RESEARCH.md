@@ -44,11 +44,11 @@ The design rationale is deliberately split into three layers:
 2. **UIForge design heuristics** — restrained accent usage, neutral-heavy content surfaces, semantic status colors, tonal-scale consistency and avoidance of random palette proliferation.
 3. **Aesthetic inspiration** — visual references such as Dribbble palette/style explorations.
 
-Dribbble is therefore a source of visual inspiration rather than an authority for UX/accessibility. citeturn844906search0turn844906search36
+Dribbble is therefore a source of visual inspiration rather than an authority for UX/accessibility.
 
-For applicable text, WCAG 2.2 Level AA requires at least 4.5:1 contrast for normal text and 3:1 for large text. Applicable non-text UI components and meaningful graphics require 3:1 against adjacent colors, and color must not be the sole visual means of conveying meaning. citeturn844906search2turn957451search0turn957451search1
+For applicable text, WCAG 2.2 Level AA requires at least 4.5:1 contrast for normal text and 3:1 for large text. Applicable non-text UI components and meaningful graphics require 3:1 against adjacent colors, and color must not be the sole visual means of conveying meaning.
 
-Tailwind's current palette exposes OKLCH values and its theme system is token-oriented; shadcn/ui likewise uses semantic background/foreground pairs and OKLCH examples. This supports storing semantic roles in UIForge while using perceptual values for tonal-scale generation. citeturn301146search0turn301146search1
+Tailwind's current palette exposes OKLCH values and its theme system is token-oriented; shadcn/ui likewise uses semantic background/foreground pairs and OKLCH examples. This supports storing semantic roles in UIForge while using perceptual values for tonal-scale generation.
 
 ## Architecture implications
 
