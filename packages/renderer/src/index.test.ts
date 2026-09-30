@@ -7,8 +7,8 @@ describe("deterministic semantic renderer", () => {
   it("renders all canonical fixtures into React elements", () => {
     for (const fixture of [dashboardFixture, loginFixture, mobileListFixture]) {
       const screen = fixture.screens[0];
-      expect(screen).toBeDefined();
-      const result = renderScreen(fixture, screen!.id, defaultTokenSet, { viewport: getViewport("desktop") });
+      if (!screen) throw new Error(`Missing screen in fixture ${fixture.id}`);
+      const result = renderScreen(fixture, screen.id, defaultTokenSet, { viewport: getViewport("desktop") });
       expect(result.element).toBeTruthy();
       expect(result.diagnostics.filter((item) => item.severity === "error")).toHaveLength(0);
     }
