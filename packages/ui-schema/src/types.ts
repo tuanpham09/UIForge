@@ -111,7 +111,14 @@ export interface AssetRef {
 
 export interface InteractionMetadata {
   interactive: boolean;
-  trigger?: "click" | "submit" | "change" | "input" | "focus" | "hover" | "keyboard";
+  trigger?:
+    | "click"
+    | "submit"
+    | "change"
+    | "input"
+    | "focus"
+    | "hover"
+    | "keyboard";
   action?: string;
   targetScreenId?: ScreenId;
   targetNodeId?: NodeId;
@@ -258,7 +265,10 @@ export interface MigrationContext {
   readonly to: string;
 }
 
-export interface SchemaMigration<From extends string = string, To extends string = string> {
+export interface SchemaMigration<
+  From extends string = string,
+  To extends string = string,
+> {
   readonly from: From;
   readonly to: To;
   migrate(document: unknown, context: MigrationContext): UIDocument;
