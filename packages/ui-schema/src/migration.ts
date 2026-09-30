@@ -1,6 +1,6 @@
 import {
-  UI_SCHEMA_VERSION,
   type SchemaMigration,
+  UI_SCHEMA_VERSION,
   type UIDocument,
 } from "./types.js";
 import { UISchemaValidationError, validateUIDocument } from "./validation.js";
