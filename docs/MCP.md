@@ -22,7 +22,11 @@ Project metadata, schema version, active design system, target frameworks.
 
 ### `ui://design-strategy`
 
-Current validated Design Strategy, including selected skill IDs, provenance, information architecture, navigation strategy, screen archetypes, interaction/responsive/accessibility requirements and anti-patterns.
+Current validated Design Strategy, including selected skill IDs, provenance, information architecture, navigation strategy, screen archetypes, interaction/responsive/accessibility requirements, anti-patterns and Color Strategy reference.
+
+### `ui://color-strategy`
+
+Current project-wide Color Strategy: primary/secondary/accent roles, semantic surface/foreground/status roles, tonal scales, light/dark mappings, chart palette and validation findings.
 
 ### `ui://design-skills`
 
@@ -73,6 +77,10 @@ Returns project metadata and capabilities.
 ### get_design_strategy
 
 Returns the current Design Strategy and selected-skill provenance.
+
+### get_color_strategy
+
+Returns the validated project-wide Color Strategy and semantic palette roles.
 
 ### get_design_skills
 
@@ -187,7 +195,7 @@ Never expose the entire project unless explicitly requested.
 
 Prefer:
 
-`design strategy → relevant skills/patterns → flow → relevant screens → transitions → relevant components → relevant tokens → code mappings`
+`design strategy → color strategy → relevant skills/patterns → flow → relevant screens → transitions → relevant components → relevant tokens → code mappings`
 
 For a coding task, agents should receive the relevant Design Strategy requirements plus both the visual contract and behavioral contract so implementation does not silently omit design rationale, navigation or interaction.
 
