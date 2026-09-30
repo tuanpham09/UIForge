@@ -19,15 +19,15 @@ Most design-to-code workflows lose information between design and implementation
 
 UIForge is designed around a different contract:
 
-`Intent → Experience Graph + UI Schema → Design System → Canvas/Prototype → MCP → Agent → Code → Visual + Interaction QA → Fix`
+`User Intent → Product Intent → Skill Discovery → Skill Composition → Design Strategy → Experience Graph + UI Schema → Design System → Canvas/Prototype → MCP → Agent → Code → Visual + Interaction QA → Fix`
 
 The product is **not** "another AI UI generator". Its core asset is a machine-readable UI specification that humans can edit visually and agents can consume deterministically.
 
 ## Product principles
 
-1. **Schema first** — the UI Schema is the canonical representation.
-2. **Agent first** — every important design decision must be queryable through MCP.
-3. **Design-system first** — arbitrary one-off values are discouraged when a token/component exists.
+1. **Semantic core first** — Product Intent, Design Strategy, UI Schema and Product Experience Graph are explicit, versioned contracts.
+2. **Design intelligence first** — AI selects and composes reusable UI/UX skills before generating screens.
+3. **Schema first** — the UI Schema and Experience Graph are the canonical representation.
 4. **Renderer independent** — tldraw is an editor adapter, not the persistence model.
 5. **Provider independent** — AI providers are behind stable contracts.
 6. **Human controlled** — AI proposes/apply changes with inspectable diffs.
@@ -36,20 +36,25 @@ The product is **not** "another AI UI generator". Its core asset is a machine-re
 9. **Deterministic where possible** — fixtures, snapshots, seeded examples, stable rendering.
 10. **Progressive complexity** — MVP solves one complete product-flow loop before adding collaboration or multi-framework codegen.
 11. **Flow first-class** — a screen is not a complete product specification; every meaningful journey must be representable as semantic transitions.
+12. **Skill-driven design** — domain knowledge, UX patterns, interaction patterns, responsive rules and accessibility constraints live in reusable, composable skills rather than giant model prompts.
 
 ## Core workflow
 
 ```mermaid
 flowchart LR
-    A[Product intent] --> B[AI design agent]
-    B --> C[UI Schema]
-    C --> D[Design tokens]
-    D --> F[Component registry]
-    C --> G[Flow Canvas / Prototype]
-    D --> H[Preview renderer]
-    C --> I[MCP]
-    D --> I
-    E --> I
+    A[User intent] --> B[Product intelligence]
+    B --> C[Product intent]
+    C --> D[Skill discovery]
+    D --> E[Skill composition]
+    E --> F[Design strategy]
+    F --> G[Experience Graph + UI Schema]
+    G --> H[Design tokens]
+    H --> J[Component registry]
+    G --> K[Flow Canvas / Prototype]
+    H --> L[Preview renderer]
+    G --> M[MCP]
+    J --> M
+    H --> M
     I --> J[Cursor / Claude / Codex / other agents]
     J --> K[Codebase]
     K --> L[Browser render]
@@ -80,8 +85,11 @@ flowchart TB
 The first credible MVP is complete when a user can:
 
 1. create a project;
-2. define or generate a user journey/flow;
-3. describe a screen in natural language;
+2. define or infer Product Intent;
+3. discover and compose relevant design skills;
+4. generate/review a Design Strategy;
+5. define or generate a user journey/flow;
+6. describe a screen in natural language;
 3. generate an editable UI;
 4. inspect its semantic layer tree;
 5. edit components/tokens manually;
@@ -102,6 +110,7 @@ apps/
 packages/
   ui-schema/            # canonical screen/node schema + validators
   experience-graph/     # flows, journeys, transitions and graph validation
+  design-intelligence/  # skill registry, discovery, composition and design strategy
   design-tokens/        # token model + resolution
   component-registry/   # semantic components + code mappings
   editor/               # tldraw adapter and editor commands
