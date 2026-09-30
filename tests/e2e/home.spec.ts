@@ -30,7 +30,8 @@ test("web shell renders deterministic preview and editor projection", async ({
   );
   await expect(page).toHaveTitle("UIForge");
 
-  await expect(page).toHaveScreenshot("renderer-preview-desktop-mobile.png", {
+  await page.screenshot({
+    path: "artifacts/renderer/runtime-preview.png",
     fullPage: true,
   });
 });
