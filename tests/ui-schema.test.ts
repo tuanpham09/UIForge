@@ -100,7 +100,9 @@ describe("typed command model", () => {
     expect(applied.nodes["dashboard.cta"]?.style?.tokens?.background).toBe(
       "color.primary",
     );
-    expect(applied.nodes["dashboard.cta"]?.component?.variant).toBe("secondary");
+    expect(applied.nodes["dashboard.cta"]?.component?.variant).toBe(
+      "secondary",
+    );
   });
 
   it("supports create, reparent, responsive and code mapping commands", () => {
@@ -178,9 +180,7 @@ describe("typed command model", () => {
       ...dashboardFixture,
       schemaVersion: "uiforge.schema/v0",
     } as unknown;
-    const migrated = migrateToCurrent(
-      legacy,
-      [
+    const migrated = migrateToCurrent(legacy, [
         {
           from: "uiforge.schema/v0",
           to: UI_SCHEMA_VERSION,
