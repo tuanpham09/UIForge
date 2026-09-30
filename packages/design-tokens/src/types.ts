@@ -18,6 +18,7 @@ export interface DesignToken<T extends TokenValue = TokenValue> {
   semanticRole?: string;
   primitiveRef?: string;
   theme?: "light" | "dark" | "all";
+  themes?: Partial<Record<"light" | "dark", T>>;
 }
 
 export interface RawValueException {
