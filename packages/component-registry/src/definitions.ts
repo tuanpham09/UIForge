@@ -1,4 +1,4 @@
-// biome-ignore-all format: semantic registry implementation is maintained as a stable contract\nimport type { ComponentDefinition, ComponentRegistry } from "./types";
+import type { ComponentDefinition, ComponentRegistry } from "./types";
 
 const decision = (use: string, avoid: string, graph: string) => ({
   whenToUse: [use],
