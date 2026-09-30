@@ -12,13 +12,21 @@ Expose UIForge design context to AI agents in a form that is:
 - versionable;
 - safe to mutate.
 
-The MCP server is not a raw database proxy. It is a semantic projection of the UI Schema and Product Experience Graph.
+The MCP server is not a raw database proxy. It is a semantic projection of Product Intent, Design Strategy, UI Schema and Product Experience Graph. The latter two remain the canonical persisted design contracts.
 
 ## Resource model
 
 ### `ui://project`
 
 Project metadata, schema version, active design system, target frameworks.
+
+### `ui://design-strategy`
+
+Current validated Design Strategy, including selected skill IDs, provenance, information architecture, navigation strategy, screen archetypes, interaction/responsive/accessibility requirements and anti-patterns.
+
+### `ui://design-skills`
+
+Scoped index of design skills relevant to the project/strategy. Do not expose the entire registry by default.
 
 ### `ui://screens`
 
@@ -61,6 +69,14 @@ Incoming/outgoing transitions for one screen.
 ### get_project
 
 Returns project metadata and capabilities.
+
+### get_design_strategy
+
+Returns the current Design Strategy and selected-skill provenance.
+
+### get_design_skills
+
+Returns scoped skill definitions or summaries needed for the requested design/code task.
 
 ### get_screen
 
@@ -171,9 +187,9 @@ Never expose the entire project unless explicitly requested.
 
 Prefer:
 
-`flow → relevant screens → transitions → relevant components → relevant tokens → code mappings`
+`design strategy → relevant skills/patterns → flow → relevant screens → transitions → relevant components → relevant tokens → code mappings`
 
-For a coding task, agents should receive both the visual contract and the behavioral contract so implementation does not silently omit navigation or interaction.
+For a coding task, agents should receive the relevant Design Strategy requirements plus both the visual contract and behavioral contract so implementation does not silently omit design rationale, navigation or interaction.
 
 over:
 
