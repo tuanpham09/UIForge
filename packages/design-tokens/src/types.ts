@@ -53,6 +53,7 @@ export interface TokenResolution {
   value: TokenValue;
   cssVariable: string;
   theme?: "light" | "dark" | "all";
+  themes?: Partial<Record<"light" | "dark", TokenValue>>;
 }
 
 export interface TokenValidationIssue {
