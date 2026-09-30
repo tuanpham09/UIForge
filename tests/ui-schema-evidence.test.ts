@@ -8,6 +8,7 @@ import {
   mobileListFixture,
   serializeUIDocument,
   validateUIDocument,
+  type UICommand,
 } from "../packages/ui-schema/src/index.js";
 
 describe("UI Schema evidence", () => {
@@ -40,7 +41,7 @@ describe("UI Schema evidence", () => {
       `${JSON.stringify(validationReport, null, 2)}\n`,
     );
 
-    const commands = [
+    const commands: UICommand[] = [
       {
         type: "SetToken",
         commandId: "evidence.token",
@@ -60,7 +61,7 @@ describe("UI Schema evidence", () => {
         nodeId: "dashboard.cta",
         toIndex: 0,
       },
-    ] as const;
+    ];
     const before = serializeUIDocument(dashboardFixture);
     const afterDocument = applyCommands(dashboardFixture, commands);
     const after = serializeUIDocument(afterDocument);
