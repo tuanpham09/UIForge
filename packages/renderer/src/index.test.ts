@@ -43,6 +43,43 @@ describe("deterministic semantic renderer", () => {
     expect(a.diagnostics).toEqual(b.diagnostics);
   });
 
+  it("resolves a semantic component registry ID to its renderer binding", () => {
+    const fixture = structuredClone(dashboardFixture);
+    fixture.nodes["dashboard.cta"].component = {
+      registryId: "uiforge.button",
+      variant: "primary",
+    };
+    fixture.nodes["dashboard.cta"].type = "custom";
+
+    const result = renderScreen(fixture, "screen.dashboard", defaultTokenSet, {
+      viewport: getViewport("desktop"),
+    });
+
+    expect(
+      result.diagnostics.some((item) => item.code === "UNKNOWN_COMPONENT"),
+    ).toBe(false);
+    expect(
+      result.diagnostics.some((item) => item.code === "UNSUPPORTED_NODE"),
+    ).toBe(false);
+  });
+
+  it("reports unknown semantic component registry IDs without crashing", () => {
+    const fixture = structuredClone(dashboardFixture);
+    fixture.nodes["dashboard.cta"].component = {
+      registryId: "uiforge.missing",
+    };
+    fixture.nodes["dashboard.cta"].type = "custom";
+
+    const result = renderScreen(fixture, "screen.dashboard", defaultTokenSet, {
+      viewport: getViewport("desktop"),
+    });
+
+    expect(result.element).toBeTruthy();
+    expect(
+      result.diagnostics.some((item) => item.code === "UNKNOWN_COMPONENT"),
+    ).toBe(true);
+  });
+
   it("supports desktop and mobile viewport presets", () => {
     expect(getViewport("desktop").width).toBe(1440);
     expect(getViewport("mobile").width).toBe(390);

@@ -1,3 +1,4 @@
+import { componentRegistry } from "@uiforge/component-registry";
 import type { UINode } from "@uiforge/ui-schema";
 import React, { type ReactNode } from "react";
 import type { RendererComponentRegistry, RendererContext } from "./types";
@@ -6,6 +7,10 @@ void React;
 
 function text(node: UINode): ReactNode {
   return node.content?.text ?? node.content?.label ?? "";
+}
+
+function generic(node: UINode): ReactNode {
+  return <span data-node-id={node.id}>{text(node)}</span>;
 }
 
 function button(node: UINode, context: RendererContext): ReactNode {
@@ -20,7 +25,7 @@ function button(node: UINode, context: RendererContext): ReactNode {
           severity: "warning",
           nodeId: node.id,
           message:
-            "Preview interaction: transition is represented by diagnostics, not application navigation.",
+            "Preview interaction is represented by diagnostics, not application navigation.",
         })
       }
     >
@@ -29,10 +34,21 @@ function button(node: UINode, context: RendererContext): ReactNode {
   );
 }
 
-export const defaultRegistry: RendererComponentRegistry = {
-  text: (node) => <span data-node-id={node.id}>{text(node)}</span>,
-  button,
-  link: (node) => (
+function input(node: UINode): ReactNode {
+  return (
+    <label data-node-id={node.id}>
+      <span>{node.content?.label}</span>
+      <input
+        aria-label={node.accessibility?.accessibleName ?? node.content?.label}
+        placeholder={node.content?.placeholder}
+        defaultValue={node.content?.value}
+      />
+    </label>
+  );
+}
+
+function link(node: UINode): ReactNode {
+  return (
     <a
       href={
         node.interaction?.targetScreenId
@@ -43,31 +59,30 @@ export const defaultRegistry: RendererComponentRegistry = {
     >
       {text(node)}
     </a>
-  ),
-  input: (node) => (
-    <label data-node-id={node.id}>
-      <span>{node.content?.label}</span>
-      <input
-        aria-label={node.accessibility?.accessibleName ?? node.content?.label}
-        placeholder={node.content?.placeholder}
-        defaultValue={node.content?.value}
-      />
-    </label>
-  ),
-  image: (node) => (
+  );
+}
+
+function image(node: UINode): ReactNode {
+  return (
     <img
       data-node-id={node.id}
       src={node.content?.src ?? "about:blank"}
       alt={node.content?.alt ?? ""}
     />
-  ),
-  checkbox: (node) => (
+  );
+}
+
+function checkbox(node: UINode): ReactNode {
+  return (
     <label data-node-id={node.id}>
       <input type="checkbox" />
       {text(node)}
     </label>
-  ),
-  select: (node) => (
+  );
+}
+
+function select(node: UINode): ReactNode {
+  return (
     <label data-node-id={node.id}>
       <span>{node.content?.label}</span>
       <select
@@ -76,5 +91,57 @@ export const defaultRegistry: RendererComponentRegistry = {
         <option>{node.content?.value ?? "Select"}</option>
       </select>
     </label>
-  ),
+  );
+}
+
+function dialog(node: UINode): ReactNode {
+  return (
+    <dialog
+      data-node-id={node.id}
+      aria-label={node.accessibility?.accessibleName}
+    >
+      {text(node)}
+    </dialog>
+  );
+}
+
+function table(node: UINode): ReactNode {
+  return <table data-node-id={node.id}>{text(node)}</table>;
+}
+
+function list(node: UINode): ReactNode {
+  return <ul data-node-id={node.id}>{text(node)}</ul>;
+}
+
+export function resolveRendererBinding(
+  registryId?: string,
+): string | undefined {
+  if (!registryId) {
+    return undefined;
+  }
+  return componentRegistry.components[registryId]?.renderer.bindingId;
+}
+
+export const defaultRegistry: RendererComponentRegistry = {
+  text: generic,
+  label: generic,
+  button,
+  input,
+  link,
+  image,
+  avatar: image,
+  badge: generic,
+  alert: generic,
+  card: generic,
+  dialog,
+  tabs: generic,
+  table,
+  list,
+  navigation: generic,
+  sidebar: generic,
+  header: generic,
+  form: generic,
+  "empty-state": generic,
+  checkbox,
+  select,
 };

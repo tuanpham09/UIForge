@@ -1,7 +1,8 @@
+import { componentRegistry } from "@uiforge/component-registry";
 import type { UIDocument, UINode } from "@uiforge/ui-schema";
 import React, { type CSSProperties, type ReactNode } from "react";
 import { validateRendererGraph } from "./diagnostics";
-import { defaultRegistry } from "./registry";
+import { defaultRegistry, resolveRendererBinding } from "./registry";
 import { tokenStyles } from "./token-style";
 import type {
   PreviewState,
@@ -50,8 +51,12 @@ function layoutStyle(node: UINode, context: RendererContext): CSSProperties {
       ).padding
     : undefined;
 
-  if (gap !== undefined) style.gap = gap;
-  if (padding !== undefined) style.padding = padding;
+  if (gap !== undefined) {
+    style.gap = gap;
+  }
+  if (padding !== undefined) {
+    style.padding = padding;
+  }
 
   if (node.layout.mode === "grid") {
     style.display = "grid";
@@ -60,8 +65,12 @@ function layoutStyle(node: UINode, context: RendererContext): CSSProperties {
       : undefined;
   }
 
-  if (node.editor?.width) style.width = node.editor.width;
-  if (node.editor?.height) style.minHeight = node.editor.height;
+  if (node.editor?.width) {
+    style.width = node.editor.width;
+  }
+  if (node.editor?.height) {
+    style.minHeight = node.editor.height;
+  }
 
   return style;
 }
@@ -79,8 +88,31 @@ function diagnosticsForNode(node: UINode, context: RendererContext): void {
   ];
 
   if (
-    node.type === "custom" ||
-    (!defaultRegistry[node.type] && !containerTypes.includes(node.type))
+    node.component?.registryId &&
+    !componentRegistry.components[node.component.registryId]
+  ) {
+    context.diagnostics.push({
+      code: "UNKNOWN_COMPONENT",
+      severity: "warning",
+      nodeId: node.id,
+      screenId: node.screenId,
+      message: `Unknown component registry ID ${node.component.registryId}`,
+    });
+  }
+
+  const bindingId = resolveRendererBinding(node.component?.registryId);
+
+  if (node.type === "custom" && !node.component?.registryId) {
+    context.diagnostics.push({
+      code: "UNSUPPORTED_NODE",
+      severity: "warning",
+      nodeId: node.id,
+      screenId: node.screenId,
+      message: "No component registry binding for custom node",
+    });
+  } else if (
+    !defaultRegistry[bindingId ?? node.type] &&
+    !containerTypes.includes(node.type)
   ) {
     context.diagnostics.push({
       code: "UNSUPPORTED_NODE",
@@ -110,7 +142,8 @@ function renderNode(
   diagnosticsForNode(node, context);
 
   const children = nodeChildren(context.document, node);
-  const semantic = registry[node.component?.registryId ?? node.type];
+  const bindingId = resolveRendererBinding(node.component?.registryId);
+  const semantic = registry[bindingId ?? node.type];
   const style = {
     ...layoutStyle(node, context),
     ...tokenStyles(
@@ -119,6 +152,16 @@ function renderNode(
       context.diagnostics,
       node.id,
     ),
+  };
+  const dataProps = {
+    "data-node-id": node.id,
+    "data-semantic-type": node.type,
+    ...(node.component?.registryId
+      ? { "data-component-id": node.component.registryId }
+      : {}),
+    ...(node.component?.variant
+      ? { "data-component-variant": node.component.variant }
+      : {}),
   };
 
   if (
@@ -129,11 +172,7 @@ function renderNode(
     node.type === "card"
   ) {
     return (
-      <section
-        data-node-id={node.id}
-        data-semantic-type={node.type}
-        style={style}
-      >
+      <section {...dataProps} style={style}>
         {children.map((child) => (
           <React.Fragment key={child.id}>
             {renderNode(child, context, registry)}
@@ -148,7 +187,7 @@ function renderNode(
       <div
         role="img"
         aria-label={node.accessibility?.accessibleName}
-        data-node-id={node.id}
+        {...dataProps}
         style={style}
       >
         ◆
@@ -158,19 +197,14 @@ function renderNode(
 
   if (semantic) {
     return (
-      <div data-node-id={node.id} data-semantic-type={node.type} style={style}>
+      <div {...dataProps} style={style}>
         {semantic(node, context)}
       </div>
     );
   }
 
   return (
-    <div
-      data-node-id={node.id}
-      data-semantic-type={node.type}
-      data-unsupported="true"
-      style={style}
-    >
+    <div {...dataProps} data-unsupported="true" style={style}>
       Unsupported: {node.type}
     </div>
   );
@@ -206,7 +240,6 @@ export function renderScreen(
     fixture: options.fixture,
     diagnostics,
   };
-
   const root = document.nodes[screen.rootNodeId];
 
   if (!root) {

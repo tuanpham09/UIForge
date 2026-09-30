@@ -1,5 +1,5 @@
 {
-  "name": "@uiforge/renderer",
+  "name": "@uiforge/component-registry",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,14 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
-  "dependencies": {
-    "@uiforge/component-registry": "workspace:*",
-    "@uiforge/design-tokens": "workspace:*",
-    "@uiforge/ui-schema": "workspace:*",
-    "react": "19.3.0"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "@types/react": "19.1.13",
     "typescript": "5.9.2",
     "vitest": "3.2.4"
   }

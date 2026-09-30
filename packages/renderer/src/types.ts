@@ -23,6 +23,7 @@ export interface FixtureData {
 export interface RendererDiagnostic {
   code:
     | "UNSUPPORTED_NODE"
+    | "UNKNOWN_COMPONENT"
     | "INVALID_PARENT"
     | "INVALID_CHILD"
     | "INVALID_TRANSITION"
@@ -43,7 +44,7 @@ export interface RendererContext {
 }
 
 export interface RendererComponentRegistry {
-  [type: string]: (node: UINode, context: RendererContext) => ReactNode;
+  [bindingId: string]: (node: UINode, context: RendererContext) => ReactNode;
 }
 
 export interface RenderStyles {
