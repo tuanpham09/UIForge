@@ -139,14 +139,14 @@ function renderNode(
 
   if (node.type === "icon") {
     return (
-      <span
+      <div
         role="img"
         aria-label={node.accessibility?.accessibleName}
         data-node-id={node.id}
         style={style}
       >
         ◆
-      </span>
+      </div>
     );
   }
 
