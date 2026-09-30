@@ -48,21 +48,21 @@ flowchart LR
     D --> E[Skill composition]
     E --> F[Design strategy]
     F --> G[Experience Graph + UI Schema]
-    G --> H[Design tokens]
-    G --> I[Component registry]
-    G --> J[Flow Canvas / Prototype]
-    G --> K[Preview renderer]
-    G --> L[MCP]
-    H --> L
-    I --> L
-    F --> L
-    L --> M[Cursor / Claude / Codex / other agents]
-    M --> N[Codebase]
-    N --> O[Browser render]
-    K --> P[Visual + Interaction QA]
-    O --> P
-    P -->|mismatch| M
-    P -->|pass| Q[Evidence]
+    H --> I[Design tokens]
+    H --> J[Component registry]
+    H --> K[Flow Canvas / Prototype]
+    H --> L[Preview renderer]
+    H --> M[MCP]
+    I --> M
+    J --> M
+    G --> M
+    M --> N[Cursor / Claude / Codex / other agents]
+    N --> O[Codebase]
+    O --> P[Browser render]
+    L --> Q[Visual + Interaction QA]
+    P --> Q
+    Q -->|mismatch| N
+    Q -->|pass| R[Evidence]
 ```
 
 ## Phase roadmap
@@ -90,17 +90,18 @@ The first credible MVP is complete when a user can:
 2. define or infer Product Intent;
 3. discover and compose relevant design skills;
 4. generate/review a Design Strategy;
-5. define or generate a user journey/flow;
-6. describe a screen in natural language;
-3. generate an editable UI;
-4. inspect its semantic layer tree;
-5. edit components/tokens manually;
-6. expose the design through a remote MCP endpoint;
-7. ask an agent to implement the screen in React + Tailwind + shadcn/ui;
-8. render the implementation in a browser;
-9. verify the implementation follows the intended navigation and interaction flow;
-10. compare it against the design;
-11. produce evidence showing the design-to-code and flow loop works.
+5. establish the project Color Strategy;
+6. define or generate a user journey/flow;
+7. describe a screen in natural language;
+8. generate an editable UI;
+9. inspect its semantic layer tree;
+10. edit components/tokens manually;
+11. expose the design through a remote MCP endpoint;
+12. ask an agent to implement the screen in React + Tailwind + shadcn/ui;
+13. render the implementation in a browser;
+14. verify the implementation follows the intended navigation and interaction flow;
+15. compare it against the design;
+16. produce evidence showing the design-to-code and flow loop works.
 
 ## Target architecture
 
