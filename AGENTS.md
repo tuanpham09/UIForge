@@ -4,7 +4,9 @@ This file is mandatory context for every coding agent working in UIForge.
 
 ## 1. Mission
 
-UIForge is an AI-native product experience and UI specification platform. The canonical domain contract is the **versioned UI Schema + Product Experience Graph**, not the canvas and not generated code.
+UIForge is an AI-native product experience and UI specification platform. The semantic chain is **User Intent → Product Intent → Design Strategy → versioned UI Schema + Product Experience Graph**, while canvas, preview and generated code remain projections.
+
+The canonical design contracts are **UI Schema + Product Experience Graph**. Design Strategy is the validated intermediate plan that explains how the product should be designed before those canonical models are generated.
 
 Every implementation must protect this invariant:
 
@@ -43,7 +45,13 @@ Never make tldraw JSON, DOM output, screenshots, or generated code the canonical
 
 All meaningful design state must be representable in the versioned UI Schema.
 
-### Rule D — Product flow is semantic
+### Rule D — Design intent is semantic
+
+Product Intent, Design Strategy, UI Schema and Experience Graph must remain inspectable and versioned. Reusable UI/UX knowledge belongs in the Design Skill Registry, not in opaque provider prompts.
+
+Design Strategy must record selected skill IDs and provenance/rationale metadata. It must not become a second source of truth for persisted screens or flows.
+
+### Rule E — Product flow is semantic
 
 A screen is not a complete product specification. Navigation and interaction behavior must be represented by the Product Experience Graph.
 
@@ -58,7 +66,7 @@ Every meaningful transition must preserve:
 
 Canvas connections and prototype records are projections, not canonical behavior.
 
-### Rule E — Semantic layout over pixels
+### Rule F — Semantic layout over pixels
 
 Absolute x/y values may exist for editor rendering, but the semantic model must preserve:
 
@@ -70,19 +78,19 @@ Absolute x/y values may exist for editor rendering, but the semantic model must 
 - alignment;
 - responsive behavior.
 
-### Rule F — Design-system consistency
+### Rule G — Design-system consistency
 
 Use semantic tokens and registered components. Do not invent a new color, spacing value, radius, typography style, or component variant when an existing semantic token/variant applies.
 
-### Rule G — Provider abstraction
+### Rule H — Provider abstraction
 
 AI providers must implement stable interfaces. Provider SDK types must not leak into `ui-schema`, editor core, renderer core, or MCP contracts.
 
-### Rule H — MCP stability
+### Rule I — MCP stability
 
 MCP output is a public integration contract. Tool names, resource URIs, input schemas, and semantic meanings require tests and compatibility review.
 
-### Rule I — Security by default
+### Rule J — Security by default
 
 - Never expose service-role/database secrets to the browser.
 - All tenant/project data is authorization checked.
@@ -91,7 +99,9 @@ MCP output is a public integration contract. Tool names, resource URIs, input sc
 - Audit mutation operations.
 - Validate all external input.
 
-### Rule J — Test first
+### Rule K — Test first
+
+Minimum testing for `design-intelligence` includes skill-contract, registry lookup, deterministic discovery, composition/conflict resolution, semantic-reference validation and Design Strategy fixture tests.
 
 Minimum testing by layer:
 
@@ -107,7 +117,7 @@ Minimum testing by layer:
 - E2E: Playwright;
 - visual QA: screenshot comparison.
 
-### Rule K — Evidence is required
+### Rule L — Evidence is required
 
 A green unit test is not enough.
 
@@ -121,7 +131,7 @@ For every completed issue, attach real evidence appropriate to the feature. Exam
 - CI run URL
 - short screen recording for editor interactions when useful
 
-### Rule L — Close only after main verification
+### Rule M — Close only after main verification
 
 Required lifecycle:
 
@@ -129,7 +139,7 @@ Required lifecycle:
 
 Do not close an issue immediately after PR merge.
 
-### Rule M — Small files
+### Rule N — Small files
 
 Prefer modules with one reason to change. Avoid:
 
@@ -145,6 +155,8 @@ Prefer modules with one reason to change. Avoid:
 apps/web
   ↓
 packages/editor
+  ↓
+packages/design-intelligence
   ↓
 packages/ui-schema
   ↓
@@ -169,7 +181,17 @@ packages/design-tokens
 
 Dependency direction must not point from domain packages back into apps.
 
-## 4. AI rules
+## 4. Design Intelligence rules
+
+The design intelligence pipeline is:
+
+`User Input → Product Intent → Skill Discovery → Skill Composition → Design Strategy → Experience Graph + UI Schema → Validate → Apply`
+
+The Design Skill Registry is provider-independent. Skills may contain domain applicability, UX patterns, information architecture, component/layout patterns, interaction rules, responsive rules, accessibility constraints, anti-patterns, provenance and validation metadata.
+
+Internal relevance ordering is an implementation detail; never expose a fake universal "best UI" score. Selection results must be explainable from matched metadata and constraints.
+
+## 5. AI rules
 
 AI output is untrusted until validated.
 
@@ -181,7 +203,7 @@ Never directly apply raw model JSON to the editor.
 
 Every AI mutation must be represented as a typed command or patch.
 
-## 5. MCP rules
+## 6. MCP rules
 
 Prefer small semantic tools over one giant `get_everything` tool.
 
@@ -208,7 +230,7 @@ MCP responses must be:
 
 Production remote MCP uses Streamable HTTP. Local development may use stdio.
 
-## 6. UI implementation rules
+## 7. UI implementation rules
 
 Before adding a UI primitive:
 
@@ -222,7 +244,7 @@ Before adding a UI primitive:
 8. define design tokens;
 9. add visual coverage.
 
-## 7. Performance rules
+## 8. Performance rules
 
 The editor must avoid unnecessary full-canvas rerenders.
 
@@ -239,7 +261,7 @@ Prefer:
 
 Do not optimize blindly. Add a benchmark before claiming a performance improvement.
 
-## 8. Git and PR rules
+## 9. Git and PR rules
 
 Branch naming:
 
@@ -262,7 +284,7 @@ PR must contain:
 - known limitations;
 - follow-up issues.
 
-## 9. Handoff format
+## 10. Handoff format
 
 Every issue must end with:
 
@@ -277,7 +299,7 @@ Every issue must end with:
 - Do not repeat:
 - Risks:
 
-## 10. Definition of Done
+## 11. Definition of Done
 
 An issue is complete only when:
 
