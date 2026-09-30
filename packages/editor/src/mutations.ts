@@ -1,6 +1,6 @@
 import type { UICommand } from "@uiforge/ui-schema";
 import type { TLShape } from "tldraw";
-import type { EditorMutationContext, UIForgeShapeMeta } from "./types.js";
+import type { EditorMutationContext, UIForgeShapeMeta } from "./types";
 
 const metaOf = (shape: TLShape): UIForgeShapeMeta | undefined => {
   const meta = shape.meta as Partial<UIForgeShapeMeta>;
