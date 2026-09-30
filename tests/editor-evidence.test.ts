@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
 import { projectDocument, serializeCanonical } from "../packages/editor/src/index.js";
 import { dashboardFixture, loginFixture } from "../packages/ui-schema/src/index.js";
-import { describe, expect, it } from "vitest";
 
 describe("Editor adapter evidence", () => {
   it("writes deterministic projection and canonical persistence evidence", () => {
@@ -23,8 +23,14 @@ describe("Editor adapter evidence", () => {
       status: "passed",
     };
 
-    writeFileSync([directory, "projection.json"].join("/"), JSON.stringify(projection, null, 2) + "\n");
-    writeFileSync([directory, "validation-report.json"].join("/"), JSON.stringify(evidence, null, 2) + "\n");
+    writeFileSync(
+      [directory, "projection.json"].join("/"),
+      JSON.stringify(projection, null, 2).concat("\n"),
+    );
+    writeFileSync(
+      [directory, "validation-report.json"].join("/"),
+      JSON.stringify(evidence, null, 2).concat("\n"),
+    );
     expect(evidence.canonicalContainsTldraw).toBe(false);
     expect(evidence.shapeCount).toBe(Object.keys(dashboardFixture.nodes).length);
   });
