@@ -274,6 +274,43 @@ AI may choose from:
 
 If AI proposes a new token/component, it must explain why an existing primitive cannot satisfy the requirement. The Design Strategy should preserve selected-skill provenance so downstream generation can explain major design decisions without depending on an opaque model prompt.
 
+## 16. Visual craft quality
+
+Visual craft is validated after semantic component choice and before final UI application.
+
+Rules:
+- use semantic typography roles with explicit line-height;
+- use the project's responsive desktop/mobile type ramp;
+- use the 4px spacing rhythm and semantic density tiers;
+- do not use a Card merely because a rectangular container is available;
+- do not repeat identical card anatomy for every metric/content group;
+- use SVG icons from the registered icon provider for UI iconography;
+- persist semantic icon IDs, not raw SVG markup;
+- keep icon family, stroke/weight and optical sizing coherent;
+- do not put spacing inside the icon asset;
+- distinguish visible icon size from interactive hit area;
+- keep radius and elevation proportional to component purpose;
+- avoid stacking border + strong shadow + large radius + tinted fill without a semantic reason;
+- desktop and mobile must use intentional type/spacing/composition variants rather than simply scaling pixels;
+- decorative visual elements need a documented role.
+
+### Anti-AI visual lint
+
+The system should surface deterministic findings for:
+- generic card grids;
+- raw font sizes;
+- inconsistent line-height;
+- random spacing values;
+- mixed icon styles;
+- non-SVG UI icons;
+- icon-size inconsistency;
+- excessive radius/shadow;
+- oversized headings;
+- missing mobile adaptation;
+- decorative elements with no semantic purpose.
+
+Do not turn these heuristics into a single subjective score.
+
 ## 16. Visual quality gate
 
 Every new component should have:
