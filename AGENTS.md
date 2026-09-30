@@ -51,7 +51,13 @@ Product Intent, Design Strategy, UI Schema and Experience Graph must remain insp
 
 Design Strategy must record selected skill IDs and provenance/rationale metadata. It must not become a second source of truth for persisted screens or flows.
 
-### Rule E — Product flow is semantic
+Component choices must be semantic decisions, not visual guesses. Agents must consult component decision metadata before selecting a component/variant where such rules exist.
+
+### Rule E — Component behavior is semantic
+
+Button, Card, Form/Input, Dialog/Sheet and Navigation decisions must preserve purpose, context, state, accessibility, responsive behavior and interaction semantics. Do not encode component-choice heuristics only inside provider prompts.
+
+### Rule G — Product flow is semantic
 
 A screen is not a complete product specification. Navigation and interaction behavior must be represented by the Product Experience Graph.
 
@@ -66,7 +72,7 @@ Every meaningful transition must preserve:
 
 Canvas connections and prototype records are projections, not canonical behavior.
 
-### Rule F — Semantic layout over pixels
+### Rule G — Semantic layout over pixels
 
 Absolute x/y values may exist for editor rendering, but the semantic model must preserve:
 
@@ -78,19 +84,19 @@ Absolute x/y values may exist for editor rendering, but the semantic model must 
 - alignment;
 - responsive behavior.
 
-### Rule G — Design-system consistency
+### Rule H — Design-system consistency
 
 Use semantic tokens and registered components. Do not invent a new color, spacing value, radius, typography style, or component variant when an existing semantic token/variant applies.
 
-### Rule H — Provider abstraction
+### Rule I — Provider abstraction
 
 AI providers must implement stable interfaces. Provider SDK types must not leak into `ui-schema`, editor core, renderer core, or MCP contracts.
 
-### Rule I — MCP stability
+### Rule J — MCP stability
 
 MCP output is a public integration contract. Tool names, resource URIs, input schemas, and semantic meanings require tests and compatibility review.
 
-### Rule J — Security by default
+### Rule K — Security by default
 
 - Never expose service-role/database secrets to the browser.
 - All tenant/project data is authorization checked.
@@ -99,7 +105,7 @@ MCP output is a public integration contract. Tool names, resource URIs, input sc
 - Audit mutation operations.
 - Validate all external input.
 
-### Rule K — Test first
+### Rule L — Test first
 
 Minimum testing for `design-intelligence` includes skill-contract, registry lookup, deterministic discovery, composition/conflict resolution, semantic-reference validation and Design Strategy fixture tests.
 
@@ -117,7 +123,7 @@ Minimum testing by layer:
 - E2E: Playwright;
 - visual QA: screenshot comparison.
 
-### Rule L — Evidence is required
+### Rule M — Evidence is required
 
 A green unit test is not enough.
 
@@ -131,7 +137,7 @@ For every completed issue, attach real evidence appropriate to the feature. Exam
 - CI run URL
 - short screen recording for editor interactions when useful
 
-### Rule M — Close only after main verification
+### Rule N — Close only after main verification
 
 Required lifecycle:
 
@@ -139,7 +145,7 @@ Required lifecycle:
 
 Do not close an issue immediately after PR merge.
 
-### Rule N — Small files
+### Rule O — Small files
 
 Prefer modules with one reason to change. Avoid:
 
