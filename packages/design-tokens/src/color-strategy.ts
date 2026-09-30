@@ -1,4 +1,4 @@
-import type { TokenSet, ColorStrategyInput } from "./types.js";
+import type { ColorStrategyInput, TokenSet } from "./types.js";
 
 export function applyColorStrategy(
   base: TokenSet,
