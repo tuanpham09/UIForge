@@ -1,6 +1,6 @@
 import {
-  UI_SCHEMA_VERSION,
   type NodeId,
+  UI_SCHEMA_VERSION,
   type UIDocument,
   type UINode,
 } from "./types.js";
@@ -34,7 +34,9 @@ export function isNode(value: unknown): value is UINode {
   );
 }
 
-export function assertSupportedSchemaVersion(value: unknown): asserts value is UIDocument {
+export function assertSupportedSchemaVersion(
+  value: unknown,
+): asserts value is UIDocument {
   if (!isRecord(value) || value.schemaVersion !== UI_SCHEMA_VERSION) {
     throw new UISchemaValidationError([
       `unsupported schema version: ${isRecord(value) ? String(value.schemaVersion) : "unknown"}`,
@@ -56,7 +58,10 @@ export function validateUIDocument(value: unknown): UIDocument {
   if (!isRecord(value.metadata) || !isNonEmptyString(value.metadata.name)) {
     issues.push("document.metadata.name is required");
   }
-  if (!isRecord(value.revision) || typeof value.revision.revision !== "number") {
+  if (
+    !isRecord(value.revision) ||
+    typeof value.revision.revision !== "number"
+  ) {
     issues.push("document.revision.revision is required");
   }
   if (!Array.isArray(value.screens) || value.screens.length === 0) {
@@ -101,7 +106,9 @@ export function validateUIDocument(value: unknown): UIDocument {
       if (!child) {
         issues.push(`node ${key} references missing child ${childId}`);
       } else if ((child as { parentId?: string | null }).parentId !== node.id) {
-        issues.push(`child ${childId} does not point back to parent ${node.id}`);
+        issues.push(
+          `child ${childId} does not point back to parent ${node.id}`,
+        );
       } else if ((child as { screenId?: string }).screenId !== node.screenId) {
         issues.push(`child ${childId} belongs to another screen`);
       }
@@ -113,7 +120,9 @@ export function validateUIDocument(value: unknown): UIDocument {
         issues.push(`node ${key} references missing parent ${node.parentId}`);
       } else {
         if (!(parent as UINode).childrenIds.includes(node.id)) {
-          issues.push(`parent ${node.parentId} does not contain child ${node.id}`);
+          issues.push(
+            `parent ${node.parentId} does not contain child ${node.id}`,
+          );
         }
         if ((parent as UINode).screenId !== node.screenId) {
           issues.push(`parent ${node.parentId} belongs to another screen`);
@@ -122,17 +131,31 @@ export function validateUIDocument(value: unknown): UIDocument {
     }
 
     if (node.interaction?.interactive) {
-      if (!node.accessibility?.accessibleName && !["text", "image"].includes(node.type)) {
-        issues.push(`interactive node ${key} requires accessibility.accessibleName`);
+      if (
+        !node.accessibility?.accessibleName &&
+        !["text", "image"].includes(node.type)
+      ) {
+        issues.push(
+          `interactive node ${key} requires accessibility.accessibleName`,
+        );
       }
-      if (node.interaction.targetNodeId && !nodes[node.interaction.targetNodeId]) {
-        issues.push(`interactive node ${key} references missing target node`);
+      if (
+        node.interaction.targetNodeId &&
+        !nodes[node.interaction.targetNodeId]
+      ) {
+        issues.push(
+          `interactive node ${key} references missing target node`,
+        );
       }
     }
   }
 
   for (const screen of screens) {
-    if (!isRecord(screen) || !isNonEmptyString(screen.id) || !isNonEmptyString(screen.name)) {
+    if (
+      !isRecord(screen) ||
+      !isNonEmptyString(screen.id) ||
+      !isNonEmptyString(screen.name)
+    ) {
       issues.push("invalid screen");
       continue;
     }
