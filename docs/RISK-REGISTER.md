@@ -25,6 +25,7 @@
 | R21 | Flow model over-engineered | Medium | too many prototype concepts enter domain | narrow semantic actions/triggers + explicit non-goals | P1 supports core product journeys without canvas coupling |
 | R22 | Skill registry over-constrains creativity | High | generic skill rules block legitimate product-specific solutions | curated skills + explicit exceptions + provenance + strategy review | representative fixtures improve consistency without blocking valid patterns |
 | R23 | Skill selection becomes opaque or arbitrary | High | model/provider hides why a pattern was chosen | deterministic discovery metadata + composition rules + fixture tests | every selected skill has inspectable match/provenance data |
+| R24 | Palette drift across screens | High | individual generators pick new colors | project Color Strategy lock + semantic token validation | canonical multi-screen fixture contains no unapproved color roles |
 
 ## Incident rule
 
