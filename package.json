@@ -1,0 +1,27 @@
+{
+  "name": "uiforge",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.7.0",
+  "engines": {
+    "node": ">=24.21.0 <25"
+  },
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "check": "pnpm lint && pnpm typecheck && pnpm test:unit && pnpm build"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.0",
+    "@playwright/test": "1.55.0",
+    "turbo": "2.11.0",
+    "typescript": "5.9.2",
+    "vitest": "3.2.4"
+  }
+}
