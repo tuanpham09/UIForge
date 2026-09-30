@@ -23,6 +23,8 @@
 | R19 | Flow graph diverges from screen design | High | navigation represented only in prototype/canvas | canonical Experience Graph + validation + graph-aware MCP | all canonical journeys validate and round-trip |
 | R20 | Agent implements visuals but misses behavior | High | screenshot passes while navigation is wrong | flow-aware MCP + interaction QA + benchmark | benchmark verifies screen and transition fidelity |
 | R21 | Flow model over-engineered | Medium | too many prototype concepts enter domain | narrow semantic actions/triggers + explicit non-goals | P1 supports core product journeys without canvas coupling |
+| R22 | Skill registry over-constrains creativity | High | generic skill rules block legitimate product-specific solutions | curated skills + explicit exceptions + provenance + strategy review | representative fixtures improve consistency without blocking valid patterns |
+| R23 | Skill selection becomes opaque or arbitrary | High | model/provider hides why a pattern was chosen | deterministic discovery metadata + composition rules + fixture tests | every selected skill has inspectable match/provenance data |
 
 ## Incident rule
 
