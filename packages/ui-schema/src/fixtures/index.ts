@@ -1,4 +1,4 @@
-import type { DocumentId, NodeId, UIDocument, UINode, ScreenId } from "../types.js";
+import type { DocumentId, NodeId, ScreenId, UIDocument, UINode } from "../types.js";
 
 const documentId = (value: string) => value as DocumentId;
 const screenId = (value: string) => value as ScreenId;
