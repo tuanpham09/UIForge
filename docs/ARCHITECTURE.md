@@ -243,7 +243,7 @@ Required graph invariants include valid references, deterministic IDs, explicit 
 
 tldraw prototype connections are an editor projection of this graph.
 
-## 7. UI Schema requirements
+## 8. UI Schema requirements
 
 Every node must have:
 
@@ -283,7 +283,7 @@ Example:
 }
 ```
 
-## 9. Change model
+## 10. Change model
 
 AI and editor mutations should become typed operations:
 
@@ -309,7 +309,7 @@ Operations should be serializable for:
 - replay tests;
 - future collaboration.
 
-## 10. Versioning
+## 11. Versioning
 
 Schema versions use explicit versions such as:
 
@@ -324,7 +324,7 @@ Breaking changes require:
 
 Design Strategy and Design Skills are separately versioned and should include fixture compatibility tests.
 
-## 11. Persistence
+## 12. Persistence
 
 Initial hosted model:
 
@@ -347,7 +347,7 @@ Project
 
 All exposed tables must have RLS and allow/deny tests.
 
-## 12. Editor strategy
+## 13. Editor strategy
 
 tldraw is an editor implementation detail.
 
@@ -355,7 +355,7 @@ We use custom semantic shapes where useful, but persistence must serialize to UI
 
 This prevents a future canvas replacement from becoming a migration disaster.
 
-## 13. Rendering strategy
+## 14. Rendering strategy
 
 The renderer must be deterministic for the same:
 
@@ -363,7 +363,7 @@ The renderer must be deterministic for the same:
 
 This enables visual and interaction regression testing.
 
-## 14. AI strategy
+## 15. AI strategy
 
 AI providers implement stable interfaces such as:
 
@@ -392,7 +392,7 @@ Input
 
 The domain layer never imports a provider SDK.
 
-## 15. Code generation strategy
+## 16. Code generation strategy
 
 Do not generate code directly from pixels.
 
@@ -413,7 +413,7 @@ MVP target:
 - Tailwind CSS v4;
 - shadcn/ui/Base UI.
 
-## 16. MCP architecture
+## 17. MCP architecture
 
 MCP is a public integration boundary.
 
@@ -427,7 +427,7 @@ Hosted transport:
 
 Local development may use stdio.
 
-## 17. Visual + Interaction QA
+## 18. Visual + Interaction QA
 
 The design preview and implementation are rendered at identical viewport/fixture settings.
 
@@ -435,7 +435,7 @@ Playwright screenshot comparison verifies visual fidelity. Interaction QA should
 
 Baselines must be generated and verified in a controlled environment because browser/OS/font differences can affect pixels.
 
-## 18. ADR rule
+## 19. ADR rule
 
 Architecture decisions with long-term consequences require an ADR under `docs/architecture/adr/`.
 
@@ -459,7 +459,67 @@ Minimum sections:
 - tldraw AI: https://tldraw.dev/docs/ai
 - shadcn/ui: https://ui.shadcn.com/docs
 - Supabase RLS: https://supabase.com/docs/guides/database/postgres/row-level-security
-- Playwright snapshots: https://playwright.dev/docs/next/test-snapshots## 6. Component Intelligence and Design Agents
+- Playwright snapshots: https://playwright.dev/docs/next/test-snapshots## 7. Visual Craft Quality
+
+Visual quality is a semantic system, not an aesthetic afterthought.
+
+The Visual Craft layer consumes Design Strategy, Color Strategy and component decisions, then applies project-wide rules for:
+- typography hierarchy and responsive type ramps;
+- spacing rhythm and component density;
+- card anatomy and usage;
+- iconography family/weight/size;
+- radius and elevation;
+- responsive composition;
+- visual anti-pattern detection.
+
+Pipeline:
+
+`Design Strategy + Color Strategy → Component Decision → Visual Craft Strategy → UI Schema + Design Tokens → Render`
+
+The visual layer must distinguish:
+- normative accessibility constraints;
+- UIForge design heuristics;
+- product-specific visual direction;
+- inspiration references.
+
+It must never collapse these into a subjective "beauty score".
+
+### Typography
+
+UIForge defines semantic desktop/mobile type roles for web products. Each role includes size and line-height. Screens use roles rather than raw font sizes.
+
+### Spacing and density
+
+Use a 4px base rhythm with semantic spacing tokens. Density is contextual: compact, standard and spacious. The same Card component can legitimately use different density tiers depending on information density and product strategy.
+
+### Iconography
+
+The default web icon provider is SVG-based Lucide through an icon registry. The semantic model stores icon IDs, while rendering resolves them to SVG. Icon family, optical weight and size remain consistent across the product.
+
+Interactive hit area is a component concern and may be larger than the visible SVG.
+
+### Card craft
+
+Cards are optional composition primitives, not universal wrappers. Visual Craft should detect repeated generic card anatomy and recommend alternatives such as sections, list rows, inline panels or table rows when a card adds no grouping or interaction value.
+
+### Anti-AI lint
+
+The Visual Craft validator should detect suspiciously generic patterns including:
+- card spam;
+- raw/unregistered font sizes;
+- inconsistent line-height;
+- random spacing;
+- mixed icon families;
+- non-SVG UI icon assets;
+- inconsistent icon sizes/weights;
+- excessive radius/elevation;
+- oversized headings;
+- missing mobile type adaptation;
+- decorative visual noise without semantic purpose.
+
+Findings are deterministic, explainable and tied to semantic IDs/rule IDs.
+
+## 6. Component Intelligence and Design Agents
 
 Component Intelligence sits below Design Strategy and above UI Schema generation. Its job is to choose the concrete component, variant, state and interaction contract for a semantic context.
 
