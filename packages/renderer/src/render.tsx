@@ -1,3 +1,4 @@
+import { componentRegistry } from "@uiforge/component-registry";
 import type { UIDocument, UINode } from "@uiforge/ui-schema";
 import React, { type CSSProperties, type ReactNode } from "react";
 import { validateRendererGraph } from "./diagnostics";
@@ -60,7 +61,7 @@ function layoutStyle(node: UINode, context: RendererContext): CSSProperties {
   if (node.layout.mode === "grid") {
     style.display = "grid";
     style.gridTemplateColumns = node.layout.columns
-      ? "repeat(" + node.layout.columns + ", minmax(0, 1fr))"
+      ? `repeat(${node.layout.columns}, minmax(0, 1fr))`
       : undefined;
   }
 
@@ -96,7 +97,7 @@ function diagnosticsForNode(node: UINode, context: RendererContext): void {
       nodeId: node.id,
       screenId: node.screenId,
       message:
-        "Unknown component registry ID " + node.component.registryId,
+        `Unknown component registry ID ${node.component.registryId}`,
     });
   }
 
@@ -120,7 +121,7 @@ function diagnosticsForNode(node: UINode, context: RendererContext): void {
       nodeId: node.id,
       screenId: node.screenId,
       message:
-        "No renderer binding for semantic node type " + node.type,
+        `No renderer binding for semantic node type ${node.type}`,
     });
   }
 
@@ -131,7 +132,7 @@ function diagnosticsForNode(node: UINode, context: RendererContext): void {
       nodeId: node.id,
       screenId: node.screenId,
       message:
-        "Preview transition → " + node.interaction.targetScreenId,
+        `Preview transition → ${node.interaction.targetScreenId}`,
     });
   }
 }
@@ -233,7 +234,7 @@ export function renderScreen(
         {
           code: "RENDER_ERROR",
           severity: "error",
-          message: "Screen " + screenId + " is not found",
+          message: `Screen ${screenId} is not found`,
         },
       ],
     };
