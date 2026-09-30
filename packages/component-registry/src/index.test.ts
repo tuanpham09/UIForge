@@ -18,7 +18,7 @@ describe("component registry", () => {
     expect(result.issues).toEqual([]);
 
     for (const component of Object.values(componentRegistry.components)) {
-      expect(component.id).toMatch(/^uiforge\\./);
+      expect(component.id).toMatch(/^uiforge\./);
       expect(component.variants.length).toBeGreaterThan(0);
       expect(component.states.length).toBeGreaterThan(0);
       expect(component.decision.whenToUse.length).toBeGreaterThan(0);
