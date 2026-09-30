@@ -48,11 +48,11 @@ const make = (
   ],
   variants: variants.map((variant) => ({
     id: variant,
-    description: variant + " variant.",
+    description: `${variant} variant.`,
   })),
   states: states.map((state) => ({
     id: state,
-    description: state + " state.",
+    description: `${state} state.`,
     interactive: ["default", "hover", "focus", "selected"].includes(state),
   })),
   tokens,
@@ -86,7 +86,7 @@ const definitions: ComponentDefinition[] = [
     ["primary", "secondary", "destructive", "ghost"],
     ["default", "hover", "focus", "disabled", "loading"],
     ["color.primary", "color.onPrimary", "control.radius"],
-  )
+  ),
   make(
     "uiforge.input",
     "Input",
@@ -100,7 +100,7 @@ const definitions: ComponentDefinition[] = [
     "Input/change may participate in a graph transition.",
     ["default", "search"],
     ["default", "focus", "disabled", "invalid"],
-  )
+  ),
   make(
     "uiforge.label",
     "Label",
@@ -115,7 +115,7 @@ const definitions: ComponentDefinition[] = [
     ["default"],
     ["default"],
     ["color.foreground", "text.body"],
-  )
+  ),
   make(
     "uiforge.card",
     "Card",
@@ -130,7 +130,7 @@ const definitions: ComponentDefinition[] = [
     ["default", "interactive"],
     ["default", "selected"],
     ["color.surface", "color.border", "control.radius", "shadow.subtle"],
-  )
+  ),
   make(
     "uiforge.badge",
     "Badge",
@@ -143,7 +143,7 @@ const definitions: ComponentDefinition[] = [
     "Do not use as a primary action.",
     "Usually no graph transition unless explicitly interactive.",
     ["default", "success", "warning", "error"],
-  )
+  ),
   make(
     "uiforge.avatar",
     "Avatar",
@@ -158,7 +158,7 @@ const definitions: ComponentDefinition[] = [
     ["default"],
     ["default"],
     ["control.radius"],
-  )
+  ),
   make(
     "uiforge.alert",
     "Alert",
@@ -171,7 +171,7 @@ const definitions: ComponentDefinition[] = [
     "Do not use for every informational sentence.",
     "Feedback state does not imply navigation.",
     ["info", "success", "warning", "error"],
-  )
+  ),
   make(
     "uiforge.dialog",
     "Dialog",
@@ -186,7 +186,7 @@ const definitions: ComponentDefinition[] = [
     ["default", "confirmation"],
     ["closed", "open"],
     ["color.surface", "control.radius", "shadow.medium"],
-  )
+  ),
   make(
     "uiforge.tabs",
     "Tabs",
@@ -200,7 +200,7 @@ const definitions: ComponentDefinition[] = [
     "Tab changes are state transitions, not necessarily new screens.",
     ["default"],
     ["default", "disabled"],
-  )
+  ),
   make(
     "uiforge.table",
     "Table",
@@ -214,7 +214,7 @@ const definitions: ComponentDefinition[] = [
     "Row actions may navigate to detail or edit screens.",
     ["default", "compact"],
     ["default", "loading", "empty"],
-  )
+  ),
   make(
     "uiforge.list",
     "List",
@@ -228,7 +228,7 @@ const definitions: ComponentDefinition[] = [
     "Interactive items may emit click/keyboard transitions.",
     ["default", "interactive"],
     ["default", "empty"],
-  )
+  ),
   make(
     "uiforge.navigation",
     "Navigation",
@@ -240,7 +240,7 @@ const definitions: ComponentDefinition[] = [
     "Use for navigational destinations.",
     "Do not use for actions that do not change location.",
     "Each destination maps to a graph navigation transition.",
-  )
+  ),
   make(
     "uiforge.sidebar",
     "Sidebar",
@@ -254,7 +254,7 @@ const definitions: ComponentDefinition[] = [
     "Navigation links transition through the graph; collapse is local state.",
     ["expanded", "collapsed"],
     ["expanded", "collapsed"],
-  )
+  ),
   make(
     "uiforge.header",
     "Header",
@@ -267,7 +267,7 @@ const definitions: ComponentDefinition[] = [
     "Do not use as a generic container.",
     "Header actions may emit graph transitions.",
     ["page", "application"],
-  )
+  ),
   make(
     "uiforge.form",
     "Form",
@@ -281,7 +281,7 @@ const definitions: ComponentDefinition[] = [
     "Submit may create a graph transition after validation.",
     ["default", "compact"],
     ["default", "submitting", "invalid"],
-  )
+  ),
   make(
     "uiforge.empty-state",
     "EmptyState",
@@ -294,7 +294,7 @@ const definitions: ComponentDefinition[] = [
     "Do not use for loading or error states.",
     "Optional action may transition to create/import/search.",
     ["default", "search"],
-  )
+  ),
 ];
 
 export const componentRegistry: ComponentRegistry = {
