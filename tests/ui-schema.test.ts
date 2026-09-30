@@ -139,7 +139,9 @@ describe("typed command model", () => {
     });
 
     expect(mapped.nodes["dashboard.new"].parentId).toBe("dashboard.cta");
-    expect(mapped.nodes["dashboard.cta"].responsive?.[0]?.breakpoint).toBe("md");
+    expect(mapped.nodes["dashboard.cta"].responsive?.[0]?.breakpoint).toBe(
+      "md",
+    );
     expect(mapped.nodes["dashboard.cta"].codeMapping).toEqual({
       source: "@/components/Button",
       exportName: "Button",
