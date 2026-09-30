@@ -1,5 +1,5 @@
-import { resolveToken, toCssVariable } from "./resolve.js";
-import type { CSSVariableExport, TokenSet } from "./types.js";
+import { resolveToken, toCssVariable } from "./resolve";
+import type { CSSVariableExport, TokenSet } from "./types";
 
 export function exportCSSVariables(set: TokenSet): CSSVariableExport {
   const names = [

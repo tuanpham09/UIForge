@@ -1,4 +1,4 @@
-import type { DesignToken, TokenResolution, TokenSet } from "./types.js";
+import type { DesignToken, TokenResolution, TokenSet } from "./types";
 
 const referencePattern = /^\{([^}]+)\}$/;
 

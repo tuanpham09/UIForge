@@ -1,4 +1,4 @@
-import type { TokenSet } from "./types.js";
+import type { TokenSet } from "./types";
 
 export const defaultTokenSet: TokenSet = {
   version: "uiforge.tokens/v1",
