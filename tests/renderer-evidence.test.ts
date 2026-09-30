@@ -8,7 +8,8 @@ describe("Renderer evidence", () => {
   it("writes deterministic fixture evidence", () => {
     mkdirSync("artifacts/renderer", { recursive: true });
     const records = [dashboardFixture, loginFixture, mobileListFixture].map((document) => {
-      const screen = document.screens[0]!;
+      const screen = document.screens[0];
+      if (!screen) throw new Error(`Missing screen in fixture ${document.id}`);
       const desktop = renderScreen(document, screen.id, defaultTokenSet, { viewport: getViewport("desktop") });
       const mobile = renderScreen(document, screen.id, defaultTokenSet, { viewport: getViewport("mobile") });
       return { documentId: document.id, screenId: screen.id, desktopDiagnostics: desktop.diagnostics, mobileDiagnostics: mobile.diagnostics };
