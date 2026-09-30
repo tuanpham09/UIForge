@@ -39,11 +39,14 @@ export interface TokenSet {
 
 export interface ColorStrategyInput {
   version: string;
-  roles: Record<string, {
-    light?: string;
-    dark?: string;
-    description?: string;
-  }>;
+  roles: Record<
+    string,
+    {
+      light?: string;
+      dark?: string;
+      description?: string;
+    }
+  >;
   tonalScales?: Record<string, Record<string, string>>;
 }
 
