@@ -94,8 +94,6 @@ export function deleteToCommand(
     : null;
 }
 
-export function isCanonicalShape(
-  context: EditorMutationContext,
-): boolean {
+export function isCanonicalShape(context: EditorMutationContext): boolean {
   return metaOf(context.shape)?.documentId === context.document.id;
 }
