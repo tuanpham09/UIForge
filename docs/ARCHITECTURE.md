@@ -212,6 +212,20 @@ Design Strategy is an intermediate, versioned artifact. It must contain, at mini
 
 It must not duplicate persisted screen/node state or become a hidden second source of truth.
 
+## 5. Color Intelligence
+
+Color is established at project initialization, before screen generation. Design Intelligence produces a versioned Color Strategy containing brand anchors, semantic roles, tonal scales, light/dark mappings, status roles and chart roles.
+
+Pipeline:
+
+`Product Intent → Design Strategy → Color Strategy → UI Schema + Design Tokens`
+
+Primary and secondary are the default brand anchors. Accent is optional and requires a defined semantic purpose. The palette is shared across the project; individual screens cannot silently introduce unrelated colors.
+
+Color generation should use a perceptual representation such as OKLCH for tonal-scale construction where supported. Accessibility validation is a hard gate for applicable contrast requirements, while harmony, saturation, accent count and surface usage are explicit UIForge heuristics rather than universal laws.
+
+Dribbble-style palette exploration is treated as inspiration only. It may inform visual direction, but cannot override product meaning, role consistency or accessibility constraints.
+
 ## 5. Product Experience Graph
 
 The Experience Graph is the canonical behavioral/navigation model. It must represent:
@@ -229,7 +243,7 @@ Required graph invariants include valid references, deterministic IDs, explicit 
 
 tldraw prototype connections are an editor projection of this graph.
 
-## 6. UI Schema requirements
+## 7. UI Schema requirements
 
 Every node must have:
 
@@ -269,7 +283,7 @@ Example:
 }
 ```
 
-## 8. Change model
+## 9. Change model
 
 AI and editor mutations should become typed operations:
 
@@ -295,7 +309,7 @@ Operations should be serializable for:
 - replay tests;
 - future collaboration.
 
-## 9. Versioning
+## 10. Versioning
 
 Schema versions use explicit versions such as:
 
@@ -310,7 +324,7 @@ Breaking changes require:
 
 Design Strategy and Design Skills are separately versioned and should include fixture compatibility tests.
 
-## 10. Persistence
+## 11. Persistence
 
 Initial hosted model:
 
@@ -333,7 +347,7 @@ Project
 
 All exposed tables must have RLS and allow/deny tests.
 
-## 11. Editor strategy
+## 12. Editor strategy
 
 tldraw is an editor implementation detail.
 
@@ -341,7 +355,7 @@ We use custom semantic shapes where useful, but persistence must serialize to UI
 
 This prevents a future canvas replacement from becoming a migration disaster.
 
-## 12. Rendering strategy
+## 13. Rendering strategy
 
 The renderer must be deterministic for the same:
 
@@ -349,7 +363,7 @@ The renderer must be deterministic for the same:
 
 This enables visual and interaction regression testing.
 
-## 13. AI strategy
+## 14. AI strategy
 
 AI providers implement stable interfaces such as:
 
@@ -378,7 +392,7 @@ Input
 
 The domain layer never imports a provider SDK.
 
-## 14. Code generation strategy
+## 15. Code generation strategy
 
 Do not generate code directly from pixels.
 
@@ -399,7 +413,7 @@ MVP target:
 - Tailwind CSS v4;
 - shadcn/ui/Base UI.
 
-## 15. MCP architecture
+## 16. MCP architecture
 
 MCP is a public integration boundary.
 
@@ -413,7 +427,7 @@ Hosted transport:
 
 Local development may use stdio.
 
-## 16. Visual + Interaction QA
+## 17. Visual + Interaction QA
 
 The design preview and implementation are rendered at identical viewport/fixture settings.
 
@@ -421,7 +435,7 @@ Playwright screenshot comparison verifies visual fidelity. Interaction QA should
 
 Baselines must be generated and verified in a controlled environment because browser/OS/font differences can affect pixels.
 
-## 17. ADR rule
+## 18. ADR rule
 
 Architecture decisions with long-term consequences require an ADR under `docs/architecture/adr/`.
 
