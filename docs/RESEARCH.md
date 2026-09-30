@@ -50,6 +50,20 @@ For applicable text, WCAG 2.2 Level AA requires at least 4.5:1 contrast for norm
 
 Tailwind's current palette exposes OKLCH values and its theme system is token-oriented; shadcn/ui likewise uses semantic background/foreground pairs and OKLCH examples. This supports storing semantic roles in UIForge while using perceptual values for tonal-scale generation.
 
+## Visual craft research direction
+
+The reference systems reinforce several useful implementation principles:
+
+- Fluent uses a 4px spacing base and explicitly treats spacing as a tool for hierarchy and responsive composition.
+- Atlassian separates icon size from surrounding spacing and uses a small set of semantic icon sizes.
+- Apple emphasizes platform-aware typography, readable default text sizes, adequate control targets, simple recognizable symbols and consistent symbol weight/scale.
+- Radix treats icon accessibility and interaction semantics as first-class concerns.
+- Lucide provides lightweight, scalable SVG icons with consistent visual rules.
+
+UIForge should convert these lessons into semantic rules rather than copy one visual language. In particular, avoid an "AI design template" made of identical rounded cards, oversized headings, arbitrary spacing and mixed icon styles.
+
+The Visual Craft Strategy therefore becomes a P1 contract covering typography, spacing/density, cards, iconography, radius/elevation, responsive composition and deterministic anti-pattern lint.
+
 ## Architecture implications
 
 1. Design intelligence must be a first-class semantic layer between Product Intent and generation.
@@ -143,6 +157,18 @@ The goal is to prove the agent-native design-to-code loop before expanding the s
 ## September 2026 MCP update
 
 The official TypeScript SDK now documents v2 as the stable release line for the 2026-07-28 MCP specification. The server and client packages are split, and Streamable HTTP is the current hosted transport. UIForge should therefore isolate MCP transport/version details behind the MCP adapter rather than letting protocol details leak into the UI Schema.
+
+## Visual craft references
+
+- Fluent 2 layout: https://fluent2.microsoft.design/layout
+- Fluent 2 typography: https://fluent2.microsoft.design/typography
+- Fluent 2 iconography: https://fluent2.microsoft.design/iconography
+- Atlassian spacing: https://atlassian.design/foundations/spacing
+- Atlassian icon usage: https://atlassian.design/components/icon/usage
+- Apple Human Interface Guidelines accessibility: https://developer.apple.com/design/human-interface-guidelines/accessibility
+- Apple SF Symbols: https://developer.apple.com/design/human-interface-guidelines/sf-symbols
+- Radix accessibility: https://www.radix-ui.com/primitives/docs/overview/accessibility
+- Lucide: https://lucide.dev/
 
 ## Official references
 
