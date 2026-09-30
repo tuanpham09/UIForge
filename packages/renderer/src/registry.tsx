@@ -39,9 +39,7 @@ function input(node: UINode): ReactNode {
     <label data-node-id={node.id}>
       <span>{node.content?.label}</span>
       <input
-        aria-label={
-          node.accessibility?.accessibleName ?? node.content?.label
-        }
+        aria-label={node.accessibility?.accessibleName ?? node.content?.label}
         placeholder={node.content?.placeholder}
         defaultValue={node.content?.value}
       />
@@ -109,9 +107,9 @@ function dialog(node: UINode): ReactNode {
 
 function table(node: UINode): ReactNode {
   return (
-    <div role="table" data-node-id={node.id}>
+    <table data-node-id={node.id}>
       {text(node)}
-    </div>
+    </table>
   );
 }
 
