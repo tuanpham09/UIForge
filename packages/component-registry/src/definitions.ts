@@ -4,14 +4,22 @@ const decision = (use: string, avoid: string, graph: string) => ({
   whenToUse: [use],
   whenNotToUse: [avoid],
   contextFit: ["Dashboard", "Form", "Application shell"],
-  alternatives: ["Use the semantically adjacent registered component when the context differs."],
+  alternatives: [
+    "Use the semantically adjacent registered component when the context differs.",
+  ],
   composition: {
     allowedChildren: ["text", "icon", "custom"],
     preferredParents: ["section", "card", "form", "list-item"],
     nestingRules: ["Do not nest the same interactive component inside itself."],
   },
-  antiPatterns: ["Choosing this component from appearance alone.", "Duplicating the semantic component under another name."],
-  responsiveBehavior: ["Preserve accessible target size.", "Reflow content before truncating semantic content."],
+  antiPatterns: [
+    "Choosing this component from appearance alone.",
+    "Duplicating the semantic component under another name.",
+  ],
+  responsiveBehavior: [
+    "Preserve accessible target size.",
+    "Reflow content before truncating semantic content.",
+  ],
   experienceGraphImplications: [graph],
 });
 
@@ -38,15 +46,25 @@ const make = (
     { id: "content", description: "Semantic component content", required: true },
     { id: "actions", description: "Optional contextual actions" },
   ],
-  variants: variants.map((variant) => ({ id: variant, description: variant + " variant." })),
-  states: states.map((state) => ({ id: state, description: state + " state.", interactive: ["default", "hover", "focus", "selected"].includes(state) })),
+  variants: variants.map((variant) => ({
+    id: variant,
+    description: variant + " variant.",
+  })),
+  states: states.map((state) => ({
+    id: state,
+    description: state + " state.",
+    interactive: ["default", "hover", "focus", "selected"].includes(state),
+  })),
   tokens,
   accessibility: {
     role,
     accessibleName: namePolicy,
     keyboard: ["Tab"],
     focusable: ["button", "textbox", "dialog", "tablist", "navigation"].includes(role),
-    requirements: ["Do not rely on color alone for meaning.", "Preserve semantic labels and roles."],
+    requirements: [
+      "Do not rely on color alone for meaning.",
+      "Preserve semantic labels and roles.",
+    ],
   },
   decision: decision(use, avoid, graph),
   renderer: { bindingId, semanticType },
