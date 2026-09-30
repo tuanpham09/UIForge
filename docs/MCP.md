@@ -12,7 +12,7 @@ Expose UIForge design context to AI agents in a form that is:
 - versionable;
 - safe to mutate.
 
-The MCP server is not a raw database proxy.
+The MCP server is not a raw database proxy. It is a semantic projection of the UI Schema and Product Experience Graph.
 
 ## Resource model
 
@@ -40,9 +40,21 @@ Resolved and source token definitions.
 
 Asset index and metadata.
 
+### `ui://flows`
+
+Flow index with names, starting points and summaries.
+
 ### `ui://flow/{id}`
 
-Prototype/user-flow graph.
+Semantic user-flow graph with transitions and validation findings.
+
+### `ui://journey/{id}`
+
+User journey context across one or more flows.
+
+### `ui://screen/{id}/connections`
+
+Incoming/outgoing transitions for one screen.
 
 ## Read tools
 
@@ -82,9 +94,37 @@ Returns viewport behavior.
 
 Returns an implementation-oriented specification for a target framework.
 
+### get_flows
+
+Returns a scoped flow index.
+
+### get_flow
+
+Returns one semantic flow graph.
+
+### get_user_journey
+
+Returns a user journey and its participating flows/screens.
+
+### get_transitions
+
+Returns filtered semantic transitions.
+
+### get_screen_connections
+
+Returns incoming/outgoing connections for a screen.
+
+### get_navigation_map
+
+Returns a compact navigation graph for the requested project/flow.
+
 ### validate_design
 
 Runs schema/design-system validation and returns structured findings.
+
+### validate_flow
+
+Runs Experience Graph validation and reports broken, unreachable or ambiguous connections.
 
 ## Mutation tools
 
@@ -96,6 +136,9 @@ Mutation is opt-in.
 - update_node
 - move_node
 - update_token
+- create_transition
+- update_transition
+- delete_transition
 
 Every mutation must:
 
@@ -128,11 +171,17 @@ Never expose the entire project unless explicitly requested.
 
 Prefer:
 
-`screen → relevant components → relevant tokens → code mappings`
+`flow → relevant screens → transitions → relevant components → relevant tokens → code mappings`
+
+For a coding task, agents should receive both the visual contract and the behavioral contract so implementation does not silently omit navigation or interaction.
 
 over:
 
 `project → every node → every asset`
+
+## Flow semantics
+
+A transition response must expose explicit `from`, `trigger`, `action`, `to` and optional `condition`/`animation` fields. Do not require an agent to infer navigation from coordinates, labels or prototype wire records.
 
 ## Compatibility
 
