@@ -15,18 +15,33 @@ import {
 describe("editor projection", () => {
   it("maps every schema node to a stable semantic shape", () => {
     const projection = projectDocument(dashboardFixture);
-    expect(projection.shapes).toHaveLength(Object.keys(dashboardFixture.nodes).length);
-    expect(new Set(projection.shapes.map((item) => item.id)).size).toBe(projection.shapes.length);
-    expect(projection.shapes.find((item) => item.meta.nodeId === "dashboard.cta")?.meta.semanticType).toBe("button");
+    expect(projection.shapes).toHaveLength(
+      Object.keys(dashboardFixture.nodes).length,
+    );
+    expect(new Set(projection.shapes.map((item) => item.id)).size).toBe(
+      projection.shapes.length,
+    );
+    expect(
+      projection.shapes.find((item) => item.meta.nodeId === "dashboard.cta")
+        ?.meta.semanticType,
+    ).toBe("button");
   });
 
   it("projects interaction metadata into a reusable flow seam", () => {
-    const flow = projectDocument(dashboardFixture).flows.find((item) => item.sourceNodeId === "dashboard.cta");
-    expect(flow).toMatchObject({ destinationScreenId: "screen.mobile-list", trigger: "click", action: "navigate" });
+    const flow = projectDocument(dashboardFixture).flows.find(
+      (item) => item.sourceNodeId === "dashboard.cta",
+    );
+    expect(flow).toMatchObject({
+      destinationScreenId: "screen.mobile-list",
+      trigger: "click",
+      action: "navigate",
+    });
   });
 
   it("turns editor mutations into canonical commands", () => {
-    const projected = projectDocument(dashboardFixture).shapes.find((item) => item.meta.nodeId === "dashboard.cta");
+    const projected = projectDocument(dashboardFixture).shapes.find(
+      (item) => item.meta.nodeId === "dashboard.cta",
+    );
     if (!projected) throw new Error("dashboard CTA was not projected");
     const context = { document: dashboardFixture, shape: projected } as never;
     expect(moveToCommand(context, 120, 140)?.type).toBe("UpdateNode");
@@ -51,7 +66,9 @@ describe("editor projection", () => {
     expect(created).toHaveLength(Object.keys(dashboardFixture.nodes).length);
     expect(updated).toHaveLength(0);
     expect(deleted).toHaveLength(0);
-    expect(assertCanonicalPersistencePayload(dashboardFixture)).toBe(serializeCanonical(dashboardFixture));
+    expect(assertCanonicalPersistencePayload(dashboardFixture)).toBe(
+      serializeCanonical(dashboardFixture),
+    );
   });
 
   it("undo and redo canonical commands", () => {
@@ -64,11 +81,17 @@ describe("editor projection", () => {
       patch: { editor: { x: 400, y: 200 } },
     } as const;
     history.apply(command);
-    expect(history.document.nodes["dashboard.cta"]?.editor).toMatchObject({ x: 400, y: 200 });
+    expect(history.document.nodes["dashboard.cta"]?.editor).toMatchObject({
+      x: 400,
+      y: 200,
+    });
     history.undo();
     expect(history.document.revision.revision).toBe(before);
     history.redo();
-    expect(history.document.nodes["dashboard.cta"]?.editor).toMatchObject({ x: 400, y: 200 });
+    expect(history.document.nodes["dashboard.cta"]?.editor).toMatchObject({
+      x: 400,
+      y: 200,
+    });
   });
 
   it("replayed commands reproduce canonical state", () => {
@@ -86,8 +109,15 @@ describe("editor projection", () => {
   it("projects explicit editor bounds exactly", () => {
     const baseNode = dashboardFixture.nodes["dashboard.cta"];
     if (!baseNode) throw new Error("dashboard CTA fixture missing");
-    const node = { ...baseNode, editor: { x: 7, y: 9, width: 300, height: 120 } };
+    const node = {
+      ...baseNode,
+      editor: { x: 7, y: 9, width: 300, height: 120 },
+    };
     const projected = projectNode(dashboardFixture, node);
-    expect(projected).toMatchObject({ x: 7, y: 9, props: { w: 300, h: 120 } });
+    expect(projected).toMatchObject({
+      x: 7,
+      y: 9,
+      props: { w: 300, h: 120 },
+    });
   });
 });
