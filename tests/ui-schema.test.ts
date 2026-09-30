@@ -11,7 +11,7 @@ import {
   type NodeId,
   serializeUIDocument,
   UI_SCHEMA_VERSION,
-  UICommand,
+  type UICommand,
   UICommandError,
   type UIDocument,
   UISchemaValidationError,
@@ -185,7 +185,7 @@ describe("typed command model", () => {
         from: "uiforge.schema/v0",
         to: UI_SCHEMA_VERSION,
         migrate: (document) => ({
-          ...(document as object),
+          ...(document as UIDocument),
           schemaVersion: UI_SCHEMA_VERSION,
         }),
       },
