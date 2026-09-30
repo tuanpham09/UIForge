@@ -20,6 +20,9 @@
 | R16 | Overbuilding editor | High | features delayed by Figma parity | MVP scope guard | only roadmap capabilities accepted |
 | R17 | Documentation drift | Medium | docs disagree with code | docs in PR checklist + contract tests | docs review gate passes |
 | R18 | Vendor outage/API change | Medium | provider unavailable | provider abstraction + fallback policy | core fixtures run without live provider |
+| R19 | Flow graph diverges from screen design | High | navigation represented only in prototype/canvas | canonical Experience Graph + validation + graph-aware MCP | all canonical journeys validate and round-trip |
+| R20 | Agent implements visuals but misses behavior | High | screenshot passes while navigation is wrong | flow-aware MCP + interaction QA + benchmark | benchmark verifies screen and transition fidelity |
+| R21 | Flow model over-engineered | Medium | too many prototype concepts enter domain | narrow semantic actions/triggers + explicit non-goals | P1 supports core product journeys without canvas coupling |
 
 ## Incident rule
 
