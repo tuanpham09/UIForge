@@ -5,12 +5,6 @@ import type {
   RegistryValidationResult,
 } from "./types";
 
-  ComponentDefinition,
-  ComponentRegistry,
-  RegistryValidationIssue,
-  RegistryValidationResult,
-} from "./types";
-
 const idPattern = /^uiforge\.[a-z][a-z0-9-]*$/;
 
 function validateComponent(
@@ -44,8 +38,8 @@ function validateComponent(
     if (stateIds.has(state.id)) {
       issues.push({
         code: "DUPLICATE_STATE",
-        path: path + ".states",
-        message: "Duplicate state " + state.id + ".",
+        path: `${path}.states`,
+        message: `Duplicate state ${state.id}.`,
       });
     }
     stateIds.add(state.id);
@@ -66,8 +60,7 @@ function validateComponent(
     issues.push({
       code: "INVALID_ACCESSIBILITY",
       path: `${path}.accessibility`,
-      message:
-        "Accessibility contract requires role and accessibleName.",
+      message: "Accessibility contract requires role and accessibleName.",
     });
   }
 
@@ -126,7 +119,7 @@ export function assertValidComponentRegistry(
     throw new Error(
       result.issues
         .map((issue) => `${issue.path}: ${issue.message}`)
-        .join("\n"),
+        .join("\\n"),
     );
   }
 }
