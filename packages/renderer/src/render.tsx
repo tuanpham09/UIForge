@@ -134,7 +134,11 @@ function renderNode(
         data-semantic-type={node.type}
         style={style}
       >
-        {children.map((child) => renderNode(child, context, registry))}
+        {children.map((child) => (
+          <React.Fragment key={child.id}>
+            {renderNode(child, context, registry)}
+          </React.Fragment>
+        ))}
       </section>
     );
   }
