@@ -23,8 +23,8 @@ describe("Editor adapter evidence", () => {
       status: "passed",
     };
 
-    writeFileSync(directory + "/projection.json", JSON.stringify(projection, null, 2) + "\\n");
-    writeFileSync(directory + "/validation-report.json", JSON.stringify(evidence, null, 2) + "\\n");
+    writeFileSync(\`\${directory}/projection.json\`, JSON.stringify(projection, null, 2) + "\\n");
+    writeFileSync(\`\${directory}/validation-report.json\`, JSON.stringify(evidence, null, 2) + "\\n");
     expect(evidence.canonicalContainsTldraw).toBe(false);
     expect(evidence.shapeCount).toBe(Object.keys(dashboardFixture.nodes).length);
   });
