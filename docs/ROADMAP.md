@@ -5,7 +5,7 @@
 ~~~mermaid
 flowchart TB
     P0["P0 Foundation<br/>#1"]
-    P1["P1 Semantic Product Core + Design Intelligence<br/>#2 #3 #6 #21 #22 #4 #5"]
+    P1["P1 Semantic Product Core + Design Intelligence<br/>#2 #3 #6 #21 #22 #23 #4 #5"]
     P2["P2 AI Design<br/>#7 #8 #9"]
     P3["P3 Agent Bridge<br/>#10 #11 #12"]
     P4["P4 Design-to-Code<br/>#13 #14"]
@@ -32,7 +32,7 @@ Outputs:
 
 ## Phase 1 — Semantic Product Core + Design Intelligence
 
-**Issues #2–#6 + #21 + #22**
+**Issues #2–#6 + #21 + #22 + #23**
 
 Goal: establish the canonical design language, product-flow model and reusable design-intelligence layer. A screen is only one part of the product specification; user journeys, transitions and design strategy are first-class.
 
@@ -43,13 +43,14 @@ Outputs:
 - Product Experience Graph;
 - Design Skill Registry;
 - deterministic Design Strategy;
+- Color Intelligence + project-wide palette strategy;
 - tldraw flow-aware adapter;
 - deterministic renderer;
 - component registry.
 
 ## Phase 2 — AI Design
 
-**Issues #7–#9, consuming #22**
+**Issues #7–#9, consuming #22 + #23**
 
 Goal: safely generate and modify semantic UI from Product Intent + validated Design Strategy.
 
@@ -145,7 +146,7 @@ Outputs:
 Issue #1 complete.
 
 ### M1 — First editable product experience
-Issues #2–#6 + #21 + #22 complete:
+Issues #2–#6 + #21 + #22 + #23 complete:
 fixture → schema + experience graph → flow-aware canvas → preview/prototype.
 
 ### M2 — AI product experience
