@@ -9,10 +9,10 @@ import {
   migrateToCurrent,
   mobileListFixture,
   serializeUIDocument,
-  validateUIDocument,
   UI_SCHEMA_VERSION,
   UICommandError,
   UISchemaValidationError,
+  validateUIDocument,
 } from "../packages/ui-schema/src/index.js";
 
 describe("UI Schema v1 validation", () => {
@@ -87,16 +87,13 @@ describe("typed command model", () => {
     ] as const;
 
     const applied = applyCommands(first, commands);
-    const replayed = applyCommands(
-      first,
-      JSON.parse(JSON.stringify(commands)),
-    );
+    const replayed = applyCommands(first, JSON.parse(JSON.stringify(commands)));
 
     expect(serializeUIDocument(applied)).toBe(serializeUIDocument(replayed));
     expect(applied.revision.revision).toBe(4);
-    expect(
-      applied.nodes["dashboard.cta"].style?.tokens?.background,
-    ).toBe("color.primary");
+    expect(applied.nodes["dashboard.cta"].style?.tokens?.background).toBe(
+      "color.primary",
+    );
     expect(applied.nodes["dashboard.cta"].component?.variant).toBe("secondary");
   });
 
@@ -142,9 +139,7 @@ describe("typed command model", () => {
     });
 
     expect(mapped.nodes["dashboard.new"].parentId).toBe("dashboard.cta");
-    expect(
-      mapped.nodes["dashboard.cta"].responsive?.[0]?.breakpoint,
-    ).toBe("md");
+    expect(mapped.nodes["dashboard.cta"].responsive?.[0]?.breakpoint).toBe("md");
     expect(mapped.nodes["dashboard.cta"].codeMapping).toEqual({
       source: "@/components/Button",
       exportName: "Button",
