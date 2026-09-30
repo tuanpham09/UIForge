@@ -4,6 +4,7 @@ import type { Editor, TLShape, TLShapeId } from "tldraw";
 export const EDITOR_PROJECTION_VERSION = "uiforge.editor/v1" as const;
 
 export interface UIForgeShapeMeta {
+  [key: string]: string;
   source: "uiforge";
   projectionVersion: typeof EDITOR_PROJECTION_VERSION;
   documentId: string;
@@ -21,8 +22,8 @@ export interface ProjectedShape {
     w: number;
     h: number;
     geo: "rectangle";
-    richText: unknown;
   };
+  label: string;
   meta: UIForgeShapeMeta;
 }
 
