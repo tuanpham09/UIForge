@@ -59,9 +59,9 @@ describe("deterministic semantic renderer", () => {
     };
 
     const diagnostics = validateRendererGraph(broken);
-    expect(
-      diagnostics.some((item) => item.code === "INVALID_TRANSITION"),
-    ).toBe(true);
+    expect(diagnostics.some((item) => item.code === "INVALID_TRANSITION")).toBe(
+      true,
+    );
 
     const result = renderScreen(broken, "screen.dashboard", defaultTokenSet, {
       viewport: getViewport("desktop"),
