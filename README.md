@@ -2,9 +2,9 @@
 
 > **Design once. Let agents build it.**
 
-UIForge is an AI-native UI specification and design workspace built for software agents.
+UIForge is an AI-native product experience, UI specification and design workspace built for software agents.
 
-Instead of treating a canvas as the source of truth, UIForge treats a **versioned UI Schema** as the source of truth and uses the canvas, AI, renderers, code generators, and MCP as projections of that schema.
+Instead of treating a canvas as the source of truth, UIForge treats a **versioned UI Schema + Product Experience Graph** as the canonical domain contract. The UI Schema describes what screens and components are; the Experience Graph describes how users move between them. Canvas, AI, prototype, renderers, code generators, and MCP are projections of those semantic models.
 
 ## Why UIForge exists
 
@@ -19,7 +19,7 @@ Most design-to-code workflows lose information between design and implementation
 
 UIForge is designed around a different contract:
 
-`Intent → UI Schema → Design System → MCP → Agent → Code → Visual QA → Fix`
+`Intent → Experience Graph + UI Schema → Design System → Canvas/Prototype → MCP → Agent → Code → Visual + Interaction QA → Fix`
 
 The product is **not** "another AI UI generator". Its core asset is a machine-readable UI specification that humans can edit visually and agents can consume deterministically.
 
@@ -34,7 +34,8 @@ The product is **not** "another AI UI generator". Its core asset is a machine-re
 7. **Evidence driven** — a feature is not complete until tests and real artifacts prove it.
 8. **Small modules** — avoid monolithic editor, AI, MCP, or persistence files.
 9. **Deterministic where possible** — fixtures, snapshots, seeded examples, stable rendering.
-10. **Progressive complexity** — MVP solves one complete loop before adding collaboration or multi-framework codegen.
+10. **Progressive complexity** — MVP solves one complete product-flow loop before adding collaboration or multi-framework codegen.
+11. **Flow first-class** — a screen is not a complete product specification; every meaningful journey must be representable as semantic transitions.
 
 ## Core workflow
 
@@ -43,16 +44,18 @@ flowchart LR
     A[Product intent] --> B[AI design agent]
     B --> C[UI Schema]
     C --> D[Design tokens]
-    C --> E[Component registry]
-    C --> F[Canvas]
-    C --> G[Preview renderer]
-    C --> H[MCP]
-    H --> I[Cursor / Claude / Codex / other agents]
-    I --> J[Codebase]
-    J --> K[Browser render]
-    K --> L[Visual QA]
-    L -->|mismatch| I
-    L -->|pass| M[Evidence]
+    D --> F[Component registry]
+    C --> G[Flow Canvas / Prototype]
+    D --> H[Preview renderer]
+    C --> I[MCP]
+    D --> I
+    E --> I
+    I --> J[Cursor / Claude / Codex / other agents]
+    J --> K[Codebase]
+    K --> L[Browser render]
+    L --> M[Visual + Interaction QA]
+    M -->|mismatch| J
+    M -->|pass| N[Evidence]
 ```
 
 ## Phase roadmap
@@ -60,7 +63,7 @@ flowchart LR
 ```mermaid
 flowchart TB
     P0["P0 Foundation<br/>product contract + repo + CI"]
-    P1["P1 UI Core<br/>schema + tokens + editor + renderer"]
+    P1["P1 Semantic Product Core<br/>schema + tokens + experience graph + editor + renderer"]
     P2["P2 AI<br/>text-to-UI + screenshot-to-UI"]
     P3["P3 Agent Bridge<br/>component registry + MCP"]
     P4["P4 Code Loop<br/>React/Tailwind/shadcn code spec + generator"]
@@ -77,15 +80,17 @@ flowchart TB
 The first credible MVP is complete when a user can:
 
 1. create a project;
-2. describe a screen in natural language;
+2. define or generate a user journey/flow;
+3. describe a screen in natural language;
 3. generate an editable UI;
 4. inspect its semantic layer tree;
 5. edit components/tokens manually;
 6. expose the design through a remote MCP endpoint;
 7. ask an agent to implement the screen in React + Tailwind + shadcn/ui;
 8. render the implementation in a browser;
-9. compare it against the design;
-10. produce evidence showing the design-to-code loop works.
+9. verify the implementation follows the intended navigation and interaction flow;
+10. compare it against the design;
+11. produce evidence showing the design-to-code and flow loop works.
 
 ## Target architecture
 
@@ -95,7 +100,8 @@ apps/
   mcp-server/          # remote MCP server
 
 packages/
-  ui-schema/            # canonical schema + validators
+  ui-schema/            # canonical screen/node schema + validators
+  experience-graph/     # flows, journeys, transitions and graph validation
   design-tokens/        # token model + resolution
   component-registry/   # semantic components + code mappings
   editor/               # tldraw adapter and editor commands
@@ -146,7 +152,10 @@ The MCP server will expose three categories:
 - `ui://component/{id}`
 - `ui://tokens`
 - `ui://assets`
+- `ui://flows`
 - `ui://flow/{id}`
+- `ui://journey/{id}`
+- `ui://screen/{id}/connections`
 
 ### Read tools
 
@@ -159,7 +168,14 @@ The MCP server will expose three categories:
 - `get_code_mapping`
 - `get_responsive_rules`
 - `get_code_spec`
+- `get_flows`
+- `get_flow`
+- `get_user_journey`
+- `get_transitions`
+- `get_screen_connections`
+- `get_navigation_map`
 - `validate_design`
+- `validate_flow`
 
 ### Mutation tools
 
@@ -171,6 +187,9 @@ Mutations are gated and auditable:
 - `update_node`
 - `move_node`
 - `update_token`
+- `create_transition`
+- `update_transition`
+- `delete_transition`
 
 Production mutation requires explicit project capability and an audit trail.
 
@@ -190,6 +209,8 @@ At minimum:
 - layout uses constraints/grid/flex semantics, not only absolute coordinates;
 - mobile/tablet/desktop behavior is explicit;
 - interactive states are defined;
+- interactive triggers and destinations are explicitly modeled;
+- navigation/overlay/state transitions have valid destinations;
 - accessibility semantics are retained;
 - code mappings are part of the component contract;
 - AI-generated changes must preserve existing design-system invariants.
