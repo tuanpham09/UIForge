@@ -76,11 +76,11 @@ export const dashboardFixture = (() => {
     "screen-root",
     ["dashboard.summary", "dashboard.cta"],
   );
-  const summary = {
+  const summary: UINode = {
     ...node("dashboard.summary", "screen.dashboard", root.id, "section"),
     content: { label: "Overview" },
   };
-  const cta = {
+  const cta: UINode = {
     ...node("dashboard.cta", "screen.dashboard", root.id, "button"),
     content: { label: "Open details" },
     component: { registryId: "button", variant: "primary" },
@@ -101,13 +101,13 @@ export const loginFixture = (() => {
     "login.email",
     "login.submit",
   ]);
-  const email = {
+  const email: UINode = {
     ...node("login.email", "screen.login", root.id, "input"),
     content: { label: "Email", placeholder: "you@example.com" },
     accessibility: { accessibleName: "Email" },
     interaction: { interactive: true, trigger: "input" },
   };
-  const submit = {
+  const submit: UINode = {
     ...node("login.submit", "screen.login", root.id, "button"),
     content: { label: "Sign in" },
     component: { registryId: "button", variant: "primary" },
@@ -138,7 +138,7 @@ export const mobileListFixture = (() => {
     "list",
     ["mobile-list.item"],
   );
-  const item = {
+  const item: UINode = {
     ...node("mobile-list.item", "screen.mobile-list", list.id, "list-item"),
     content: { label: "Example item" },
   };
@@ -146,6 +146,10 @@ export const mobileListFixture = (() => {
     list,
     item,
   ]);
-  result.screens[0].viewport = { maxWidth: 767 };
+  const screen = result.screens[0];
+  if (!screen) {
+    throw new Error("mobile-list fixture screen was not created");
+  }
+  screen.viewport = { maxWidth: 767 };
   return result;
 })();
