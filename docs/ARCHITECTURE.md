@@ -183,7 +183,7 @@ Project
  └── AuditEvent
 ```
 
-All exposed tables must have RLS and allow/deny tests. Supabase explicitly recommends RLS for exposed tables and security tests for each operation. citeturn0search1turn0search20
+All exposed tables must have RLS and allow/deny tests. Supabase explicitly recommends RLS for exposed tables and security tests for each operation.
 
 ## 9. Editor strategy
 
@@ -193,7 +193,7 @@ We use custom semantic shapes where useful, but persistence must serialize to UI
 
 This prevents a future canvas replacement from becoming a migration disaster.
 
-tldraw already provides AI integration patterns and custom shape infrastructure suitable for visual AI applications. citeturn0search14
+tldraw already provides AI integration patterns and custom shape infrastructure suitable for visual AI applications.
 
 ## 10. Rendering strategy
 
@@ -238,25 +238,25 @@ MVP target:
 - Tailwind CSS v4;
 - shadcn/ui/Base UI.
 
-shadcn/ui is particularly compatible with this approach because it distributes open component source and explicitly positions itself as AI-ready. citeturn0search2turn0search17
+shadcn/ui is particularly compatible with this approach because it distributes open component source and explicitly positions itself as AI-ready.
 
 ## 13. MCP architecture
 
 MCP is a public integration boundary.
 
-Resources provide structured context; tools provide executable read/write operations. The MCP specification separates these primitives by control model. citeturn1search0
+Resources provide structured context; tools provide executable read/write operations. The MCP specification separates these primitives by control model.
 
 Hosted transport:
 
 `Streamable HTTP`
 
-because current AI SDK guidance recommends HTTP transport for production and stdio for local servers. citeturn1search2
+because current AI SDK guidance recommends HTTP transport for production and stdio for local servers.
 
 ## 14. Visual QA
 
 The design preview and implementation are rendered at identical viewport/fixture settings.
 
-Playwright `toHaveScreenshot` provides screenshot comparison. Baselines must be generated and verified in a controlled environment because browser/OS/font differences can affect pixels. citeturn1search5
+Playwright `toHaveScreenshot` provides screenshot comparison. Baselines must be generated and verified in a controlled environment because browser/OS/font differences can affect pixels.
 
 ## 15. ADR rule
 
@@ -273,3 +273,13 @@ Minimum sections:
 - Alternatives
 - Consequences
 - Revisit conditions
+
+## Official references
+
+- MCP specification: https://modelcontextprotocol.io/specification/
+- MCP TypeScript SDK: https://github.com/modelcontextprotocol/typescript-sdk
+- Figma MCP: https://developers.figma.com/docs/figma-mcp-server/
+- tldraw AI: https://tldraw.dev/docs/ai
+- shadcn/ui: https://ui.shadcn.com/docs
+- Supabase RLS: https://supabase.com/docs/guides/database/postgres/row-level-security
+- Playwright snapshots: https://playwright.dev/docs/next/test-snapshots
