@@ -1,7 +1,8 @@
+import { applyCommand, dashboardFixture } from "@uiforge/ui-schema";
 import { describe, expect, it } from "vitest";
 import {
-  CommandHistory,
   assertCanonicalPersistencePayload,
+  CommandHistory,
   deleteToCommand,
   moveToCommand,
   projectDocument,
@@ -10,23 +11,6 @@ import {
   resizeToCommand,
   serializeCanonical,
 } from "./index.js";
-import { applyCommand, dashboardFixture } from "@uiforge/ui-schema";
-
-const shape = (document: typeof dashboardFixture, nodeId: string, overrides: Record<string, unknown> = {}) => ({
-  id: \`shape:\${nodeId}\`,
-  type: "geo",
-  x: 10,
-  y: 20,
-  meta: {
-    source: "uiforge",
-    projectionVersion: "uiforge.editor/v1",
-    documentId: document.id,
-    screenId: document.nodes[nodeId]?.screenId,
-    nodeId,
-    semanticType: document.nodes[nodeId]?.type,
-  },
-  ...overrides,
-});
 
 describe("editor projection", () => {
   it("maps every schema node to a stable semantic shape", () => {
@@ -42,7 +26,9 @@ describe("editor projection", () => {
   });
 
   it("turns editor mutations into canonical commands", () => {
-    const context = { document: dashboardFixture, shape: shape(dashboardFixture, "dashboard.cta") } as never;
+    const projected = projectDocument(dashboardFixture).shapes.find((item) => item.meta.nodeId === "dashboard.cta");
+    if (!projected) throw new Error("dashboard CTA was not projected");
+    const context = { document: dashboardFixture, shape: projected } as never;
     expect(moveToCommand(context, 120, 140)?.type).toBe("UpdateNode");
     expect(resizeToCommand(context, 320, 160)?.type).toBe("UpdateNode");
     expect(deleteToCommand(context)?.type).toBe("DeleteNode");
