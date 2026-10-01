@@ -562,18 +562,19 @@ describe("UIForge MCP mutation security", () => {
     expect(security.getAuditEvents()[0]?.result).toBe("rejected");
   });
 
-  it("rejects cross-project identifiers during mutation validation", async () => {
+  it("rejects cross-project identifiers through the registered tool", async () => {
     const provider = createMutableProvider(sampleProjectProvider);
     const auth = createAuthorization(
       "agent-writer",
       ["sample-project"],
       ["design:structure"],
     );
-    const security = new MutationSecurity();
-    const result = security.execute(
-      provider,
-      auth,
-      {
+    const client = await connectClient(provider, auth);
+    const before = provider.getProject("sample-project");
+
+    const result = await client.callTool({
+      name: "create_component_instance",
+      arguments: {
         projectId: "sample-project",
         baseRevision: 7,
         idempotencyKey: "cross-project-node-001",
@@ -582,13 +583,10 @@ describe("UIForge MCP mutation security", () => {
         parentId: "dashboard.root",
         registryId: "uiforge.button",
       },
-      "design:structure",
-      "create_component_instance",
-      () => {
-        throw new Error("unknown cross-project screen");
-      },
-    );
-    expect(result.validation.valid).toBe(false);
-    expect(result.validation.findings[0]?.code).toBe("MALFORMED_COMMAND");
+    });
+
+    expect(result.isError).toBe(true);
+    expect(provider.getProject("sample-project")).toEqual(before);
+    await client.close();
   });
 });
