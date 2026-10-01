@@ -9,7 +9,7 @@ const screens = dashboardFixture.screens;
 
 export default function RendererPreview() {
   const [screenId, setScreenId] = useState(screens[0]?.id ?? "");
-  const [preset, setPreset] = useState<"desktop" | "mobile">("desktop");
+  const [preset, setPreset] = useState<"wide" | "desktop" | "tablet" | "mobile">("wide");
   const viewport = useMemo(() => getViewport(preset), [preset]);
   const result = useMemo(
     () =>
@@ -32,20 +32,17 @@ export default function RendererPreview() {
             {screen.name}
           </button>
         ))}
-        <button
-          className="rounded-md border border-slate-300 px-3 py-1.5 text-sm"
-          onClick={() => setPreset("desktop")}
-          type="button"
-        >
-          Desktop
-        </button>
-        <button
-          className="rounded-md border border-slate-300 px-3 py-1.5 text-sm"
-          onClick={() => setPreset("mobile")}
-          type="button"
-        >
-          Mobile
-        </button>
+        {(["wide", "desktop", "tablet", "mobile"] as const).map((item) => (
+          <button
+            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm"
+            data-testid={`viewport-${item}`}
+            key={item}
+            onClick={() => setPreset(item)}
+            type="button"
+          >
+            {item}
+          </button>
+        ))}
         <span
           className="ml-auto text-xs text-slate-500"
           data-testid="renderer-viewport"
