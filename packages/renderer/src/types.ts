@@ -1,10 +1,11 @@
 import type { TokenSet } from "@uiforge/design-tokens";
+import type { ViewportPreset as ResponsiveViewportPreset } from "@uiforge/responsive";
 import type { ScreenId, UIDocument, UINode } from "@uiforge/ui-schema";
 import type { CSSProperties, ReactNode } from "react";
 
 export const RENDERER_VERSION = "uiforge.renderer/v1" as const;
 
-export type ViewportPreset = "desktop" | "mobile";
+export type ViewportPreset = ResponsiveViewportPreset;
 
 export interface Viewport {
   width: number;
@@ -28,7 +29,8 @@ export interface RendererDiagnostic {
     | "INVALID_CHILD"
     | "INVALID_TRANSITION"
     | "TOKEN_ERROR"
-    | "RENDER_ERROR";
+    | "RENDER_ERROR"
+    | "RESPONSIVE_ERROR";
   severity: "warning" | "error";
   nodeId?: string;
   screenId?: string;
