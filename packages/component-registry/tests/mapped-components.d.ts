@@ -1,5 +1,5 @@
 declare namespace JSX {
-  type Element = {};
+  type Element = object;
   interface IntrinsicElements {
     [element: string]: Record<string, unknown>;
   }
