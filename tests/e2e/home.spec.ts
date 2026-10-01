@@ -11,6 +11,10 @@ test("web shell renders all canonical responsive viewports", async ({
     }),
   ).toBeVisible();
   await expect(page.getByTestId("renderer-preview")).toBeVisible();
+  await expect(page.getByTestId("renderer-controls-ready")).toHaveAttribute(
+    "data-hydrated",
+    "true",
+  );
   await expect(page.getByTestId("renderer-diagnostics")).toContainText(
     "Preview transition → screen.mobile-list",
   );
