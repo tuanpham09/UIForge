@@ -8,10 +8,11 @@ import {
   createAuthorization,
   createMutableProvider,
   MutationSecurity,
+  type MutableProjectProvider,
 } from "../src/mutations";
 import { sampleProjectProvider } from "../src/sample-project";
 import type { ProjectSnapshot } from "../src/types";
-import { createHttpHandler, createMcpServer } from "../src/server";
+import { createHttpHandler } from "../src/server";
 
 const evidenceDir = "artifacts/mcp";
 mkdirSync(evidenceDir, { recursive: true });
