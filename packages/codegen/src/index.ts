@@ -1,10 +1,7 @@
 import { resolveCodeMapping, type CodeComponentMapping, type CodeLibrary } from "@uiforge/component-registry";
 import { toCssVariable } from "@uiforge/design-tokens";
-import type { ColorStrategy } from "@uiforge/color-intelligence";
 import type { ComponentDecision } from "@uiforge/component-intelligence";
-import type { DesignStrategy } from "@uiforge/design-intelligence";
 import type { UIDocument, UINode } from "@uiforge/ui-schema";
-import type { VisualCraftStrategy } from "@uiforge/visual-craft-quality";
 import type {
   AccessibilityRequirement, CodeSpecContext, CodeSpecResult, CodeSpecification,
   CodeSpecTarget, CodeSpecWarning, ComponentRequirement, ExperienceGraphAdapter,
@@ -41,7 +38,7 @@ function buildFilePlan(document: UIDocument, target: CodeSpecTarget): FilePlanEn
     {path:"app/globals.css",kind:"style",owner:"generated",reason:"Semantic design tokens and Tailwind entry styles",screenIds:[]},
   ];
   for (const screen of [...document.screens].sort((a,b)=>a.id.localeCompare(b.id))) {
-    const route = routeForScreen(screen).replace(/^\\//,"") || "(root)";
+    const route = routeForScreen(screen).replace(/^\//,"") || "(root)";
     entries.push({path:`app/${route}/page.tsx`,kind:"page",owner:"generated",reason:`Generated page for screen ${screen.name}`,screenIds:[screen.id]});
   }
   return entries;
