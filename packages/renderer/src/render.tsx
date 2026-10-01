@@ -42,7 +42,6 @@ function layoutStyle(node: UINode, context: RendererContext): CSSProperties {
         node.id,
       ).gap
     : undefined;
-
   const padding = node.layout.padding?.block?.token
     ? tokenStyles(
         { padding: node.layout.padding.block.token },
@@ -52,12 +51,8 @@ function layoutStyle(node: UINode, context: RendererContext): CSSProperties {
       ).padding
     : undefined;
 
-  if (gap !== undefined) {
-    style.gap = gap;
-  }
-  if (padding !== undefined) {
-    style.padding = padding;
-  }
+  if (gap !== undefined) style.gap = gap;
+  if (padding !== undefined) style.padding = padding;
 
   if (node.layout.mode === "grid") {
     style.display = "grid";
@@ -66,12 +61,8 @@ function layoutStyle(node: UINode, context: RendererContext): CSSProperties {
       : undefined;
   }
 
-  if (node.editor?.width) {
-    style.width = node.editor.width;
-  }
-  if (node.editor?.height) {
-    style.minHeight = node.editor.height;
-  }
+  if (node.editor?.width) style.width = node.editor.width;
+  if (node.editor?.height) style.minHeight = node.editor.height;
 
   return style;
 }
@@ -139,13 +130,11 @@ function renderNode(
   node: UINode,
   context: RendererContext,
   registry: RendererComponentRegistry,
+  responsiveNodes: ReturnType<typeof resolveResponsive>["nodes"],
 ): ReactNode {
-  const responsive = resolveResponsive(context.document, context.viewport);
-  const resolved = responsive.nodes[node.id];
+  const resolved = responsiveNodes[node.id];
 
-  if (resolved && !resolved.visible) {
-    return null;
-  }
+  if (resolved && !resolved.visible) return null;
 
   const effectiveNode: UINode = resolved
     ? {
@@ -180,11 +169,36 @@ function renderNode(
           : node.interaction,
       }
     : node;
+
   diagnosticsForNode(effectiveNode, context);
 
   const children = nodeChildren(context.document, effectiveNode);
-  const bindingId = resolveRendererBinding(node.component?.registryId);
+  const bindingId = resolveRendererBinding(effectiveNode.component?.registryId);
   const semantic = registry[bindingId ?? effectiveNode.type];
+
+  const containerStyle: CSSProperties = {};
+  if (resolved?.container?.maxWidth !== undefined) {
+    containerStyle.maxWidth = resolved.container.maxWidth;
+  }
+  if (resolved?.container?.gutterToken) {
+    const gutter = tokenStyles(
+      { padding: resolved.container.gutterToken },
+      context.tokens,
+      context.diagnostics,
+      effectiveNode.id,
+    ).padding;
+    if (gutter !== undefined) containerStyle.paddingInline = gutter;
+  }
+  if (resolved?.typography?.token) {
+    const typography = tokenStyles(
+      { fontSize: resolved.typography.token },
+      context.tokens,
+      context.diagnostics,
+      effectiveNode.id,
+    ).fontSize;
+    if (typography !== undefined) containerStyle.fontSize = typography;
+  }
+
   const style = {
     ...layoutStyle(effectiveNode, context),
     ...containerStyle,
@@ -195,7 +209,7 @@ function renderNode(
       effectiveNode.id,
     ),
   };
-  const containerStyle: CSSProperties = {}; = {
+  const dataProps = {
     "data-node-id": effectiveNode.id,
     "data-semantic-type": effectiveNode.type,
     ...(effectiveNode.component?.registryId
@@ -217,7 +231,7 @@ function renderNode(
       <section {...dataProps} style={style}>
         {children.map((child) => (
           <React.Fragment key={child.id}>
-            {renderNode(child, context, registry)}
+            {renderNode(child, context, registry, responsiveNodes)}
           </React.Fragment>
         ))}
       </section>
@@ -260,6 +274,7 @@ export function renderScreen(
 ): { element: ReactNode; diagnostics: RendererDiagnostic[] } {
   const diagnostics = validateRendererGraph(document);
   const responsive = resolveResponsive(document, options.viewport);
+
   for (const diagnostic of responsive.diagnostics) {
     diagnostics.push({
       code: "RESPONSIVE_ERROR",
@@ -269,8 +284,8 @@ export function renderScreen(
       message: `[${diagnostic.code}] ${diagnostic.message}`,
     });
   }
-  const screen = document.screens.find((item) => item.id === screenId);
 
+  const screen = document.screens.find((item) => item.id === screenId);
   if (!screen) {
     return {
       element: <div role="alert">Screen not found: {screenId}</div>,
@@ -313,7 +328,12 @@ export function renderScreen(
           overflow: "auto",
         }}
       >
-        {renderNode(root, context, options.registry ?? defaultRegistry)}
+        {renderNode(
+          root,
+          context,
+          options.registry ?? defaultRegistry,
+          responsive.nodes,
+        )}
       </div>
     ),
     diagnostics,
