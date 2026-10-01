@@ -70,18 +70,27 @@ function finish(
 export const dashboardFixture = (() => {
   const d = base("dashboard");
   const root: UINode = {
-    ...node(
-      "screen.dashboard.root",
-      "screen.dashboard",
-      null,
-      "screen-root",
-      ["dashboard.summary", "dashboard.cta"],
-    ),
+    ...node("screen.dashboard.root", "screen.dashboard", null, "screen-root", [
+      "dashboard.summary",
+      "dashboard.cta",
+    ]),
     responsive: [
-      { breakpoint: "mobile", layout: { padding: { block: { token: "space.4" } } } },
-      { breakpoint: "tablet", layout: { padding: { block: { token: "space.6" } } } },
-      { breakpoint: "desktop", layout: { padding: { block: { token: "space.8" } } } },
-      { breakpoint: "wide", layout: { padding: { block: { token: "space.8" } } } },
+      {
+        breakpoint: "mobile",
+        layout: { padding: { block: { token: "space.4" } } },
+      },
+      {
+        breakpoint: "tablet",
+        layout: { padding: { block: { token: "space.6" } } },
+      },
+      {
+        breakpoint: "desktop",
+        layout: { padding: { block: { token: "space.8" } } },
+      },
+      {
+        breakpoint: "wide",
+        layout: { padding: { block: { token: "space.8" } } },
+      },
     ],
   };
   const summary: UINode = {
@@ -111,10 +120,22 @@ export const loginFixture = (() => {
       "login.submit",
     ]),
     responsive: [
-      { breakpoint: "mobile", layout: { padding: { block: { token: "space.4" } } } },
-      { breakpoint: "tablet", layout: { padding: { block: { token: "space.6" } } } },
-      { breakpoint: "desktop", layout: { padding: { block: { token: "space.8" } } } },
-      { breakpoint: "wide", layout: { padding: { block: { token: "space.8" } } } },
+      {
+        breakpoint: "mobile",
+        layout: { padding: { block: { token: "space.4" } } },
+      },
+      {
+        breakpoint: "tablet",
+        layout: { padding: { block: { token: "space.6" } } },
+      },
+      {
+        breakpoint: "desktop",
+        layout: { padding: { block: { token: "space.8" } } },
+      },
+      {
+        breakpoint: "wide",
+        layout: { padding: { block: { token: "space.8" } } },
+      },
     ],
   };
   const email: UINode = {
@@ -148,13 +169,9 @@ export const mobileListFixture = (() => {
     ["mobile-list.items"],
   );
   const list: UINode = {
-    ...node(
-      "mobile-list.items",
-      "screen.mobile-list",
-      root.id,
-      "list",
-      ["mobile-list.item"],
-    ),
+    ...node("mobile-list.items", "screen.mobile-list", root.id, "list", [
+      "mobile-list.item",
+    ]),
     responsive: [
       { breakpoint: "mobile", layout: { direction: "column" } },
       { breakpoint: "tablet", layout: { direction: "row" } },
