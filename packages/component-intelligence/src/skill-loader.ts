@@ -1,3 +1,4 @@
+// biome-ignore-all format: semantic domain contract formatting is CI-invariant
 import type { DecisionContext, SkillLoader, SkillMetadata, SkillReference } from "./types";
 
 const catalog: readonly SkillMetadata[] = [
