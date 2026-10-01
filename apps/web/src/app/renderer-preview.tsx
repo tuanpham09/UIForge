@@ -9,7 +9,9 @@ const screens = dashboardFixture.screens;
 
 export default function RendererPreview() {
   const [screenId, setScreenId] = useState(screens[0]?.id ?? "");
-  const [preset, setPreset] = useState<"wide" | "desktop" | "tablet" | "mobile">("wide");
+  const [preset, setPreset] = useState<
+    "wide" | "desktop" | "tablet" | "mobile"
+  >("wide");
   const viewport = useMemo(() => getViewport(preset), [preset]);
   const result = useMemo(
     () =>
