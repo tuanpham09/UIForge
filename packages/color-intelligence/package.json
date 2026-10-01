@@ -1,1 +1,21 @@
-{"name":"@uiforge/color-intelligence","version":"0.1.0","private":true,"type":"module","exports":{".":"./src/index.ts"},"scripts":{"typecheck":"tsc --noEmit","test":"vitest run"},"dependencies":{"@uiforge/design-intelligence":"workspace:*","@uiforge/design-tokens":"workspace:*"},"devDependencies":{"typescript":"5.9.2","vitest":"3.2.4"}}
+{
+  "name": "@uiforge/color-intelligence",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@uiforge/design-intelligence": "workspace:*",
+    "@uiforge/design-tokens": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "5.9.2",
+    "vitest": "3.2.4"
+  }
+}
