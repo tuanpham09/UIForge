@@ -1,4 +1,4 @@
-import type { UIDocument, UINode, ResponsiveRule } from "@uiforge/ui-schema";
+import type { ResponsiveRule, UIDocument, UINode } from "@uiforge/ui-schema";
 import type {
   Breakpoint,
   ResolvedResponsiveNode,
@@ -111,9 +111,9 @@ function resolveNode(
       return left - right || a.id.localeCompare(b.id);
     });
 
-  sourceRules.forEach((rule, index) =>
-    validateRule(node, normalizeRule(rule, index), diagnostics),
-  );
+  sourceRules.forEach((rule, index) => {
+    validateRule(node, normalizeRule(rule, index), diagnostics);
+  });
 
   const targetScreens = graphTargets(graph);
   const resolved: ResolvedResponsiveNode = {
