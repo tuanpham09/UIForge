@@ -44,6 +44,8 @@ export function tokenStyles(
     if (slot === "gap") style.gap = String(value);
     if (slot === "padding") style.padding = String(value);
     if (slot === "radius") style.borderRadius = String(value);
+    if (slot === "fontSize") style.fontSize = String(value);
+    if (slot === "lineHeight") style.lineHeight = String(value);
   }
 
   return style;

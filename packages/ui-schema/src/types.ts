@@ -83,11 +83,28 @@ export interface CodeMapping {
 }
 
 export interface ResponsiveRule {
+  /** Semantic breakpoint ID; the responsive engine owns the canonical breakpoint map. */
   breakpoint: string;
+  /** Optional explicit range for controlled/experimental viewport validation. */
+  minWidth?: number;
+  maxWidth?: number;
   layout?: Partial<LayoutSpec>;
   hidden?: boolean;
   variant?: string;
   tokenOverrides?: Record<string, TokenRef>;
+  container?: {
+    maxWidth?: number;
+    gutterToken?: TokenRef;
+  };
+  typography?: {
+    role?: string;
+    token?: TokenRef;
+  };
+  /** Navigation override only; the Experience Graph remains canonical. */
+  interaction?: {
+    targetScreenId?: ScreenId;
+    targetNodeId?: NodeId;
+  };
 }
 
 export interface AccessibilityMetadata {

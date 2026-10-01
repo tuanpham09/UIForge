@@ -7,9 +7,15 @@ import { useMemo, useState } from "react";
 
 const screens = dashboardFixture.screens;
 
-export default function RendererPreview() {
+export default function RendererPreview({
+  initialPreset = "wide",
+}: {
+  initialPreset?: "wide" | "desktop" | "tablet" | "mobile";
+}) {
   const [screenId, setScreenId] = useState(screens[0]?.id ?? "");
-  const [preset, setPreset] = useState<"desktop" | "mobile">("desktop");
+  const [preset] = useState<"wide" | "desktop" | "tablet" | "mobile">(
+    initialPreset,
+  );
   const viewport = useMemo(() => getViewport(preset), [preset]);
   const result = useMemo(
     () =>
@@ -32,20 +38,20 @@ export default function RendererPreview() {
             {screen.name}
           </button>
         ))}
-        <button
-          className="rounded-md border border-slate-300 px-3 py-1.5 text-sm"
-          onClick={() => setPreset("desktop")}
-          type="button"
-        >
-          Desktop
-        </button>
-        <button
-          className="rounded-md border border-slate-300 px-3 py-1.5 text-sm"
-          onClick={() => setPreset("mobile")}
-          type="button"
-        >
-          Mobile
-        </button>
+        <form className="flex flex-wrap gap-2" method="get">
+          {(["wide", "desktop", "tablet", "mobile"] as const).map((item) => (
+            <button
+              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm"
+              data-testid={`viewport-${item}`}
+              key={item}
+              name="viewport"
+              type="submit"
+              value={item}
+            >
+              {item}
+            </button>
+          ))}
+        </form>
         <span
           className="ml-auto text-xs text-slate-500"
           data-testid="renderer-viewport"

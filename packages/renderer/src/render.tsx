@@ -1,4 +1,5 @@
 import { componentRegistry } from "@uiforge/component-registry";
+import { resolveResponsive } from "@uiforge/responsive";
 import type { UIDocument, UINode } from "@uiforge/ui-schema";
 import React, { type CSSProperties, type ReactNode } from "react";
 import { validateRendererGraph } from "./diagnostics";
@@ -41,7 +42,6 @@ function layoutStyle(node: UINode, context: RendererContext): CSSProperties {
         node.id,
       ).gap
     : undefined;
-
   const padding = node.layout.padding?.block?.token
     ? tokenStyles(
         { padding: node.layout.padding.block.token },
@@ -51,12 +51,8 @@ function layoutStyle(node: UINode, context: RendererContext): CSSProperties {
       ).padding
     : undefined;
 
-  if (gap !== undefined) {
-    style.gap = gap;
-  }
-  if (padding !== undefined) {
-    style.padding = padding;
-  }
+  if (gap !== undefined) style.gap = gap;
+  if (padding !== undefined) style.padding = padding;
 
   if (node.layout.mode === "grid") {
     style.display = "grid";
@@ -65,12 +61,8 @@ function layoutStyle(node: UINode, context: RendererContext): CSSProperties {
       : undefined;
   }
 
-  if (node.editor?.width) {
-    style.width = node.editor.width;
-  }
-  if (node.editor?.height) {
-    style.minHeight = node.editor.height;
-  }
+  if (node.editor?.width) style.width = node.editor.width;
+  if (node.editor?.height) style.minHeight = node.editor.height;
 
   return style;
 }
@@ -138,55 +130,119 @@ function renderNode(
   node: UINode,
   context: RendererContext,
   registry: RendererComponentRegistry,
+  responsiveNodes: ReturnType<typeof resolveResponsive>["nodes"],
 ): ReactNode {
-  diagnosticsForNode(node, context);
+  const resolved = responsiveNodes[node.id];
 
-  const children = nodeChildren(context.document, node);
-  const bindingId = resolveRendererBinding(node.component?.registryId);
-  const semantic = registry[bindingId ?? node.type];
-  const style = {
-    ...layoutStyle(node, context),
-    ...tokenStyles(
-      node.style?.tokens,
+  if (resolved && !resolved.visible) return null;
+
+  const effectiveNode: UINode = resolved
+    ? {
+        ...node,
+        layout: {
+          ...node.layout,
+          ...(resolved.layout ?? {}),
+        },
+        style: {
+          ...node.style,
+          tokens: {
+            ...(node.style?.tokens ?? {}),
+            ...resolved.tokenOverrides,
+          },
+        },
+        component: node.component
+          ? {
+              ...node.component,
+              variant: resolved.variant ?? node.component.variant,
+            }
+          : node.component,
+        interaction: node.interaction
+          ? {
+              ...node.interaction,
+              targetScreenId:
+                resolved.interaction?.targetScreenId ??
+                node.interaction.targetScreenId,
+              targetNodeId:
+                resolved.interaction?.targetNodeId ??
+                node.interaction.targetNodeId,
+            }
+          : node.interaction,
+      }
+    : node;
+
+  diagnosticsForNode(effectiveNode, context);
+
+  const children = nodeChildren(context.document, effectiveNode);
+  const bindingId = resolveRendererBinding(effectiveNode.component?.registryId);
+  const semantic = registry[bindingId ?? effectiveNode.type];
+
+  const containerStyle: CSSProperties = {};
+  if (resolved?.container?.maxWidth !== undefined) {
+    containerStyle.maxWidth = resolved.container.maxWidth;
+  }
+  if (resolved?.container?.gutterToken) {
+    const gutter = tokenStyles(
+      { padding: resolved.container.gutterToken },
       context.tokens,
       context.diagnostics,
-      node.id,
+      effectiveNode.id,
+    ).padding;
+    if (gutter !== undefined) containerStyle.paddingInline = gutter;
+  }
+  if (resolved?.typography?.token) {
+    const typography = tokenStyles(
+      { fontSize: resolved.typography.token },
+      context.tokens,
+      context.diagnostics,
+      effectiveNode.id,
+    ).fontSize;
+    if (typography !== undefined) containerStyle.fontSize = typography;
+  }
+
+  const style = {
+    ...layoutStyle(effectiveNode, context),
+    ...containerStyle,
+    ...tokenStyles(
+      effectiveNode.style?.tokens,
+      context.tokens,
+      context.diagnostics,
+      effectiveNode.id,
     ),
   };
   const dataProps = {
-    "data-node-id": node.id,
-    "data-semantic-type": node.type,
-    ...(node.component?.registryId
-      ? { "data-component-id": node.component.registryId }
+    "data-node-id": effectiveNode.id,
+    "data-semantic-type": effectiveNode.type,
+    ...(effectiveNode.component?.registryId
+      ? { "data-component-id": effectiveNode.component.registryId }
       : {}),
-    ...(node.component?.variant
-      ? { "data-component-variant": node.component.variant }
+    ...(effectiveNode.component?.variant
+      ? { "data-component-variant": effectiveNode.component.variant }
       : {}),
   };
 
   if (
-    node.type === "screen-root" ||
-    node.type === "section" ||
-    node.type === "list" ||
-    node.type === "list-item" ||
-    node.type === "card"
+    effectiveNode.type === "screen-root" ||
+    effectiveNode.type === "section" ||
+    effectiveNode.type === "list" ||
+    effectiveNode.type === "list-item" ||
+    effectiveNode.type === "card"
   ) {
     return (
       <section {...dataProps} style={style}>
         {children.map((child) => (
           <React.Fragment key={child.id}>
-            {renderNode(child, context, registry)}
+            {renderNode(child, context, registry, responsiveNodes)}
           </React.Fragment>
         ))}
       </section>
     );
   }
 
-  if (node.type === "icon") {
+  if (effectiveNode.type === "icon") {
     return (
       <div
         role="img"
-        aria-label={node.accessibility?.accessibleName}
+        aria-label={effectiveNode.accessibility?.accessibleName}
         {...dataProps}
         style={style}
       >
@@ -198,14 +254,14 @@ function renderNode(
   if (semantic) {
     return (
       <div {...dataProps} style={style}>
-        {semantic(node, context)}
+        {semantic(effectiveNode, context)}
       </div>
     );
   }
 
   return (
     <div {...dataProps} data-unsupported="true" style={style}>
-      Unsupported: {node.type}
+      Unsupported: {effectiveNode.type}
     </div>
   );
 }
@@ -217,8 +273,19 @@ export function renderScreen(
   options: RendererOptions,
 ): { element: ReactNode; diagnostics: RendererDiagnostic[] } {
   const diagnostics = validateRendererGraph(document);
-  const screen = document.screens.find((item) => item.id === screenId);
+  const responsive = resolveResponsive(document, options.viewport);
 
+  for (const diagnostic of responsive.diagnostics) {
+    diagnostics.push({
+      code: "RESPONSIVE_ERROR",
+      severity: diagnostic.severity,
+      nodeId: diagnostic.nodeId,
+      screenId: diagnostic.screenId,
+      message: `[${diagnostic.code}] ${diagnostic.message}`,
+    });
+  }
+
+  const screen = document.screens.find((item) => item.id === screenId);
   if (!screen) {
     return {
       element: <div role="alert">Screen not found: {screenId}</div>,
@@ -261,7 +328,12 @@ export function renderScreen(
           overflow: "auto",
         }}
       >
-        {renderNode(root, context, options.registry ?? defaultRegistry)}
+        {renderNode(
+          root,
+          context,
+          options.registry ?? defaultRegistry,
+          responsive.nodes,
+        )}
       </div>
     ),
     diagnostics,

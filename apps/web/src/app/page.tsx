@@ -1,7 +1,25 @@
+import type { ViewportPreset } from "@uiforge/renderer";
 import EditorCanvas from "./editor-canvas";
 import RendererPreview from "./renderer-preview";
 
-export default function HomePage() {
+const viewportPresets = new Set<ViewportPreset>([
+  "wide",
+  "desktop",
+  "tablet",
+  "mobile",
+]);
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ viewport?: string }>;
+}) {
+  const params = await searchParams;
+  const requested = params.viewport;
+  const initialPreset = viewportPresets.has(requested as ViewportPreset)
+    ? (requested as ViewportPreset)
+    : "wide";
+
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
       <div className="mx-auto max-w-6xl">
@@ -19,7 +37,7 @@ export default function HomePage() {
           <h2 className="mb-3 text-lg font-semibold">
             Deterministic web preview
           </h2>
-          <RendererPreview />
+          <RendererPreview initialPreset={initialPreset} />
         </section>
         <section className="mt-8">
           <h2 className="mb-3 text-lg font-semibold">Editor projection</h2>

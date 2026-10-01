@@ -69,13 +69,30 @@ function finish(
 
 export const dashboardFixture = (() => {
   const d = base("dashboard");
-  const root = node(
-    "screen.dashboard.root",
-    "screen.dashboard",
-    null,
-    "screen-root",
-    ["dashboard.summary", "dashboard.cta"],
-  );
+  const root: UINode = {
+    ...node("screen.dashboard.root", "screen.dashboard", null, "screen-root", [
+      "dashboard.summary",
+      "dashboard.cta",
+    ]),
+    responsive: [
+      {
+        breakpoint: "mobile",
+        layout: { padding: { block: { token: "space.4" } } },
+      },
+      {
+        breakpoint: "tablet",
+        layout: { padding: { block: { token: "space.6" } } },
+      },
+      {
+        breakpoint: "desktop",
+        layout: { padding: { block: { token: "space.8" } } },
+      },
+      {
+        breakpoint: "wide",
+        layout: { padding: { block: { token: "space.8" } } },
+      },
+    ],
+  };
   const summary: UINode = {
     ...node("dashboard.summary", "screen.dashboard", root.id, "section"),
     content: { label: "Overview" },
@@ -97,10 +114,30 @@ export const dashboardFixture = (() => {
 
 export const loginFixture = (() => {
   const d = base("login");
-  const root = node("screen.login.root", "screen.login", null, "screen-root", [
-    "login.email",
-    "login.submit",
-  ]);
+  const root: UINode = {
+    ...node("screen.login.root", "screen.login", null, "screen-root", [
+      "login.email",
+      "login.submit",
+    ]),
+    responsive: [
+      {
+        breakpoint: "mobile",
+        layout: { padding: { block: { token: "space.4" } } },
+      },
+      {
+        breakpoint: "tablet",
+        layout: { padding: { block: { token: "space.6" } } },
+      },
+      {
+        breakpoint: "desktop",
+        layout: { padding: { block: { token: "space.8" } } },
+      },
+      {
+        breakpoint: "wide",
+        layout: { padding: { block: { token: "space.8" } } },
+      },
+    ],
+  };
   const email: UINode = {
     ...node("login.email", "screen.login", root.id, "input"),
     content: { label: "Email", placeholder: "you@example.com" },
@@ -131,13 +168,17 @@ export const mobileListFixture = (() => {
     "screen-root",
     ["mobile-list.items"],
   );
-  const list = node(
-    "mobile-list.items",
-    "screen.mobile-list",
-    root.id,
-    "list",
-    ["mobile-list.item"],
-  );
+  const list: UINode = {
+    ...node("mobile-list.items", "screen.mobile-list", root.id, "list", [
+      "mobile-list.item",
+    ]),
+    responsive: [
+      { breakpoint: "mobile", layout: { direction: "column" } },
+      { breakpoint: "tablet", layout: { direction: "row" } },
+      { breakpoint: "desktop", layout: { direction: "row" } },
+      { breakpoint: "wide", layout: { direction: "row" } },
+    ],
+  };
   const item: UINode = {
     ...node("mobile-list.item", "screen.mobile-list", list.id, "list-item"),
     content: { label: "Example item" },
