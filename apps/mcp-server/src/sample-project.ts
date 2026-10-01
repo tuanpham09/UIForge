@@ -1,8 +1,18 @@
-import { componentRegistry, codeMappingSet } from "@uiforge/component-registry";
+
+import { codeMappingSet, componentRegistry } from "@uiforge/component-registry";
 import { defaultTokenSet } from "@uiforge/design-tokens";
-import { dashboardFixture, loginFixture, mobileListFixture } from "@uiforge/ui-schema/fixtures";
 import type { UIDocument, UINode } from "@uiforge/ui-schema";
-import type { Flow, ProjectProvider, ProjectSnapshot, UserJourney } from "./types";
+import {
+  dashboardFixture,
+  loginFixture,
+  mobileListFixture,
+} from "@uiforge/ui-schema/fixtures";
+import type {
+  Flow,
+  ProjectProvider,
+  ProjectSnapshot,
+  UserJourney,
+} from "./types";
 
 const mergeDocuments = (...documents: UIDocument[]): UIDocument => {
   const [first, ...rest] = documents;
@@ -13,7 +23,8 @@ const mergeDocuments = (...documents: UIDocument[]): UIDocument => {
     id: "sample-project",
     metadata: {
       name: "UIForge MCP Sample Project",
-      description: "Deterministic semantic projection used by MCP contract tests.",
+      description:
+        "Deterministic semantic projection used by MCP contract tests.",
       productIntentRef: "fixture.dashboard",
       designStrategyRef: "uiforge.design-strategy/v1",
     },
@@ -29,7 +40,11 @@ const mergeDocuments = (...documents: UIDocument[]): UIDocument => {
   };
 };
 
-const document = mergeDocuments(dashboardFixture, loginFixture, mobileListFixture);
+const document = mergeDocuments(
+  dashboardFixture,
+  loginFixture,
+  mobileListFixture,
+);
 
 const flows: Flow[] = [
   {
@@ -83,7 +98,8 @@ const snapshot: ProjectSnapshot = {
   codeSpec: {
     version: "uiforge.code-spec/v1",
     status: "not-implemented",
-    reason: "Code specification is owned by #13; MCP exposes a stable read seam without inventing implementation requirements.",
+    reason:
+      "Code specification is owned by #13; MCP exposes a stable read seam without inventing implementation requirements.",
   },
 };
 
@@ -97,7 +113,10 @@ export const sampleProject = snapshot;
 
 export const codeMappings = codeMappingSet;
 
-export function getLayoutTree(document: UIDocument, screenId: string): UINode | null {
+export function getLayoutTree(
+  document: UIDocument,
+  screenId: string,
+): UINode | null {
   const screen = document.screens.find((item) => item.id === screenId);
   if (!screen) return null;
 
