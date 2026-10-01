@@ -1,4 +1,3 @@
-import type { ExperienceGraphAdapter } from "@uiforge/codegen";
 import type { UIDocument, UINode, ResponsiveRule } from "@uiforge/ui-schema";
 import type {
   Breakpoint,
@@ -9,21 +8,16 @@ import type {
   Viewport,
   ViewportPreset,
 } from "./types";
-import { RESPONSIVE_VERSION } from "./types";
+import { BREAKPOINTS, RESPONSIVE_VERSION, VIEWPORTS } from "./types";
 
-export const VIEWPORTS: Record<ViewportPreset, Viewport> = {
-  mobile: { preset: "mobile", width: 390, height: 844 },
-  tablet: { preset: "tablet", width: 768, height: 1024 },
-  desktop: { preset: "desktop", width: 1024, height: 768 },
-  wide: { preset: "wide", width: 1440, height: 900 },
-};
+export interface ResponsiveGraphAdapter {
+  transitions: readonly Array<{
+    fromScreenId: string;
+    toScreenId: string;
+  }>;
+}
 
-export const BREAKPOINTS: readonly Breakpoint[] = [
-  { id: "mobile", maxWidth: 767, order: 0 },
-  { id: "tablet", minWidth: 768, maxWidth: 1023, order: 1 },
-  { id: "desktop", minWidth: 1024, maxWidth: 1439, order: 2 },
-  { id: "wide", minWidth: 1440, order: 3 },
-];
+export { BREAKPOINTS, VIEWPORTS };
 
 export function getViewport(preset: ViewportPreset): Viewport {
   return VIEWPORTS[preset];
@@ -52,10 +46,10 @@ function normalizeRule(rule: ResponsiveRule, index: number): ResponsiveRuleV1 & 
 function validateRule(
   node: UINode,
   rule: ResponsiveRuleV1 & { id: string },
-  viewport: Viewport,
   diagnostics: ResponsiveDiagnostic[],
 ): void {
-  if (!BREAKPOINTS.some((item) => item.id === rule.breakpoint)) {
+  const breakpoint = BREAKPOINTS.find((item) => item.id === rule.breakpoint);
+  if (!breakpoint) {
     diagnostics.push({
       code: "INVALID_BREAKPOINT",
       severity: "error",
@@ -67,11 +61,9 @@ function validateRule(
     return;
   }
 
-  if (
-    rule.minWidth !== undefined &&
-    rule.maxWidth !== undefined &&
-    rule.minWidth > rule.maxWidth
-  ) {
+  const min = rule.minWidth ?? breakpoint.minWidth;
+  const max = rule.maxWidth ?? breakpoint.maxWidth;
+  if (min !== undefined && max !== undefined && min > max) {
     diagnostics.push({
       code: "INVALID_RANGE",
       severity: "error",
@@ -79,37 +71,6 @@ function validateRule(
       screenId: node.screenId,
       breakpoint: rule.breakpoint,
       message: "Responsive rule minWidth cannot exceed maxWidth",
-    });
-  }
-
-  const breakpoint = BREAKPOINTS.find((item) => item.id === rule.breakpoint);
-  if (
-    breakpoint &&
-    (rule.minWidth !== undefined || rule.maxWidth !== undefined) &&
-    (rule.minWidth ?? breakpoint.minWidth ?? 0) >
-      (rule.maxWidth ?? breakpoint.maxWidth ?? Number.POSITIVE_INFINITY)
-  ) {
-    diagnostics.push({
-      code: "INVALID_RANGE",
-      severity: "error",
-      nodeId: node.id,
-      screenId: node.screenId,
-      breakpoint: rule.breakpoint,
-      message: "Responsive rule range is empty",
-    });
-  }
-
-  if (
-    rule.interaction?.targetScreenId &&
-    !viewport
-  ) {
-    diagnostics.push({
-      code: "INVALID_NAVIGATION_TARGET",
-      severity: "error",
-      nodeId: node.id,
-      screenId: node.screenId,
-      breakpoint: rule.breakpoint,
-      message: "Responsive interaction target requires a viewport context",
     });
   }
 }
@@ -125,19 +86,23 @@ function matchesRule(rule: ResponsiveRuleV1, viewport: Viewport): boolean {
   );
 }
 
-function graphTargets(graph: ExperienceGraphAdapter | undefined): Set<string> {
+function graphTargets(graph: ResponsiveGraphAdapter | undefined): Set<string> {
   return new Set(
-    graph?.transitions.flatMap((transition) => [transition.fromScreenId, transition.toScreenId]) ?? [],
+    graph?.transitions.flatMap((transition) => [
+      transition.fromScreenId,
+      transition.toScreenId,
+    ]) ?? [],
   );
 }
 
 function resolveNode(
   node: UINode,
   viewport: Viewport,
-  graph: ExperienceGraphAdapter | undefined,
+  graph: ResponsiveGraphAdapter | undefined,
   diagnostics: ResponsiveDiagnostic[],
 ): ResolvedResponsiveNode {
-  const rules = (node.responsive ?? [])
+  const sourceRules = node.responsive ?? [];
+  const rules = sourceRules
     .map(normalizeRule)
     .filter((rule) => matchesRule(rule, viewport))
     .sort((a, b) => {
@@ -146,10 +111,9 @@ function resolveNode(
       return left - right || a.id.localeCompare(b.id);
     });
 
-  for (const rule of node.responsive ?? []) {
-    const normalized = normalizeRule(rule, (node.responsive ?? []).indexOf(rule));
-    validateRule(node, normalized, viewport, diagnostics);
-  }
+  sourceRules.forEach((rule, index) =>
+    validateRule(node, normalizeRule(rule, index), diagnostics),
+  );
 
   const targetScreens = graphTargets(graph);
   const resolved: ResolvedResponsiveNode = {
@@ -193,7 +157,7 @@ function resolveNode(
 export function resolveResponsive(
   document: UIDocument,
   viewport: Viewport,
-  graph?: ExperienceGraphAdapter,
+  graph?: ResponsiveGraphAdapter,
 ): ResponsiveProjection {
   const diagnostics: ResponsiveDiagnostic[] = [];
   const nodes: Record<string, ResolvedResponsiveNode> = {};
