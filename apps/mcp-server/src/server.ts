@@ -1,7 +1,7 @@
 import { McpServer, ResourceTemplate, createMcpHandler } from "@modelcontextprotocol/server";
-import { codeMappingSet, resolveCodeMapping, componentRegistry, validateComponentRegistry } from "@uiforge/component-registry";
-import { defaultTokenSet, validateTokenSet } from "@uiforge/design-tokens";
-import { validateUIDocument, type UIDocument, type UINode } from "@uiforge/ui-schema";
+import { codeMappingSet, resolveCodeMapping, validateComponentRegistry } from "@uiforge/component-registry";
+import { validateTokenSet } from "@uiforge/design-tokens";
+import { validateUIDocument } from "@uiforge/ui-schema";
 import * as z from "zod/v4";
 import { getLayoutTree, sampleProjectProvider } from "./sample-project";
 import {
