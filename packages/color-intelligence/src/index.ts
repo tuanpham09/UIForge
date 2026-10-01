@@ -1,4 +1,5 @@
 // biome-ignore-all format: semantic contract is intentionally compact
+// biome-ignore-all lint/correctness/noUnusedVariables: exported package API is consumed by downstream packages
 export const COLOR_STRATEGY_VERSION="uiforge.color-strategy/v1" as const;
 export type ColorRole={name:string;light:string;dark:string;description:string};
 export type ColorStrategy={version:typeof COLOR_STRATEGY_VERSION;primary:string;secondary:string;accent?:string;roles:ColorRole[];tonalScales:Record<string,Record<string,string>>;chart:string[];provenance:{source:string;designStrategyVersion:string};validation:string[]};
