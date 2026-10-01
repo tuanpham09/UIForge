@@ -34,7 +34,7 @@ export interface ResponsiveRuleV1 {
   breakpoint: ViewportPreset;
   minWidth?: number;
   maxWidth?: number;
-  layout?: Record<string, unknown>;
+  layout?: Partial<LayoutSpec>;
   hidden?: boolean;
   variant?: string;
   tokenOverrides?: Record<string, string>;
