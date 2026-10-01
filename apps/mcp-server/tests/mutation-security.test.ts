@@ -11,8 +11,8 @@ import {
   type MutableProjectProvider,
 } from "../src/mutations";
 import { sampleProjectProvider } from "../src/sample-project";
-import type { ProjectSnapshot } from "../src/types";
 import { createHttpHandler } from "../src/server";
+import type { ProjectSnapshot } from "../src/types";
 
 const evidenceDir = "artifacts/mcp";
 mkdirSync(evidenceDir, { recursive: true });
@@ -82,15 +82,30 @@ describe("UIForge MCP mutation security", () => {
       screenId: "screen.dashboard",
       patch: { name: "Dashboard from Agent" },
     };
-    const first = await client.callTool({ name: "update_screen", arguments: input });
-    const second = await client.callTool({ name: "update_screen", arguments: input });
+    const first = await client.callTool({
+      name: "update_screen",
+      arguments: input,
+    });
+    const second = await client.callTool({
+      name: "update_screen",
+      arguments: input,
+    });
 
     expect(first.isError).not.toBe(true);
     expect(second.isError).not.toBe(true);
-    expect((first.structuredContent as { replayed: boolean }).replayed).toBe(false);
-    expect((second.structuredContent as { replayed: boolean }).replayed).toBe(true);
+    expect((first.structuredContent as { replayed: boolean }).replayed).toBe(
+      false,
+    );
+    expect((second.structuredContent as { replayed: boolean }).replayed).toBe(
+      true,
+    );
     expect(provider.getProject("sample-project")?.revision).toBe(8);
-    expect(provider.getProject("sample-project")?.document.screens.find((screen) => screen.id === "screen.dashboard")?.name).toBe("Dashboard from Agent");
+    expect(
+      provider
+        .getProject("sample-project")
+        ?.document.screens.find((screen) => screen.id === "screen.dashboard")
+        ?.name,
+    ).toBe("Dashboard from Agent");
     await client.close();
   });
 
@@ -177,9 +192,7 @@ describe("UIForge MCP mutation security", () => {
       screenId: "screen.dashboard",
       patch: { name: "Dashboard v2" },
     };
-    const mutate = (
-      project: ProjectSnapshot,
-    ) => {
+    const mutate = (project: ProjectSnapshot) => {
       const next = structuredClone(project);
       const screen = next.document.screens.find(
         (candidate) => candidate.id === "screen.dashboard",
