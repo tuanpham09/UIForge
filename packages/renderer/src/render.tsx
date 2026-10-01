@@ -39,7 +39,7 @@ function layoutStyle(node: UINode, context: RendererContext): CSSProperties {
         { gap: node.layout.gap.token },
         context.tokens,
         context.diagnostics,
-        effectiveNode.id,
+        node.id,
       ).gap
     : undefined;
 
@@ -101,7 +101,7 @@ function diagnosticsForNode(node: UINode, context: RendererContext): void {
     });
   }
 
-  const bindingId = resolveRendererBinding(effectiveNode.component?.registryId);
+  const bindingId = resolveRendererBinding(node.component?.registryId);
 
   if (node.type === "custom" && !node.component?.registryId) {
     context.diagnostics.push({
@@ -187,14 +187,15 @@ function renderNode(
   const semantic = registry[bindingId ?? effectiveNode.type];
   const style = {
     ...layoutStyle(effectiveNode, context),
+    ...containerStyle,
     ...tokenStyles(
       effectiveNode.style?.tokens,
       context.tokens,
       context.diagnostics,
-      node.id,
+      effectiveNode.id,
     ),
   };
-  const dataProps = {
+  const containerStyle: CSSProperties = {}; = {
     "data-node-id": effectiveNode.id,
     "data-semantic-type": effectiveNode.type,
     ...(effectiveNode.component?.registryId
@@ -223,7 +224,7 @@ function renderNode(
     );
   }
 
-  if (node.type === "icon") {
+  if (effectiveNode.type === "icon") {
     return (
       <div
         role="img"
