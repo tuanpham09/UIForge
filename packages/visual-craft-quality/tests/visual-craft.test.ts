@@ -1,3 +1,5 @@
+// biome-ignore-all format: visual craft contract is maintained as semantic reference data
+// biome-ignore-all assist/source/organizeImports: semantic package exports are intentionally grouped
 import { describe, expect, it } from "vitest";
 import { defaultIconRegistry, defaultVisualCraftStrategy, lintVisualCraft, validateIconRegistry, validateStrategy } from "../src";
 
