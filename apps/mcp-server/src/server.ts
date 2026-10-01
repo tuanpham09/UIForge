@@ -1,10 +1,10 @@
 
 import {
+  type CallToolResult,
   createMcpHandler,
   McpServer,
-  type CallToolResult,
-  type StandardSchemaWithJSON,
   ResourceTemplate,
+  type StandardSchemaWithJSON,
 } from "@modelcontextprotocol/server";
 import {
   codeMappingSet,
@@ -69,7 +69,10 @@ function envelope<T>(
   };
 }
 
-function textResult<T>(value: ResponseEnvelope<T>, isError = false): CallToolResult {
+function textResult<T>(
+  value: ResponseEnvelope<T>,
+  isError = false,
+): CallToolResult {
   return {
     content: [{ type: "text" as const, text: JSON.stringify(value) }],
     structuredContent: value,
@@ -351,8 +354,9 @@ function registerResources(server: McpServer, provider: ProjectProvider) {
     (project, vars) => {
       const screenId = vars.screenId;
       return screenId
-        ? project.document.screens.find((screen) => screen.id === screenId) ??
-            { error: "SCREEN_NOT_FOUND" }
+        ? (project.document.screens.find(
+            (screen) => screen.id === screenId,
+          ) ?? { error: "SCREEN_NOT_FOUND" })
         : { error: "SCREEN_ID_REQUIRED" };
     },
   );
@@ -363,9 +367,9 @@ function registerResources(server: McpServer, provider: ProjectProvider) {
     (project, vars) => {
       const componentId = vars.componentId;
       return componentId
-        ? project.registry.components[componentId] ?? {
+        ? (project.registry.components[componentId] ?? {
             error: "COMPONENT_NOT_FOUND",
-          }
+          })
         : { error: "COMPONENT_ID_REQUIRED" };
     },
   );
@@ -403,9 +407,9 @@ function registerResources(server: McpServer, provider: ProjectProvider) {
     (project, vars) => {
       const flowId = vars.flowId;
       return flowId
-        ? project.flows.find((flow) => flow.id === flowId) ?? {
+        ? (project.flows.find((flow) => flow.id === flowId) ?? {
             error: "FLOW_NOT_FOUND",
-          }
+          })
         : { error: "FLOW_ID_REQUIRED" };
     },
   );
@@ -416,9 +420,9 @@ function registerResources(server: McpServer, provider: ProjectProvider) {
     (project, vars) => {
       const journeyId = vars.journeyId;
       return journeyId
-        ? project.journeys.find((journey) => journey.id === journeyId) ?? {
+        ? (project.journeys.find((journey) => journey.id === journeyId) ?? {
             error: "JOURNEY_NOT_FOUND",
-          }
+          })
         : { error: "JOURNEY_ID_REQUIRED" };
     },
   );
