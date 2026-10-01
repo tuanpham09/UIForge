@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { dashboardFixture, mobileListFixture } from "@uiforge/ui-schema";
+import { describe, expect, it } from "vitest";
 import {
   BREAKPOINTS,
   getViewport,
