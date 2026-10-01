@@ -1,3 +1,4 @@
+// biome-ignore-all format: semantic contract is kept compact for review
 import { composeStrategy, validateStrategy, type DesignStrategy, type ProductIntent } from "@uiforge/design-intelligence";
 
 export const AI_CONTRACT_VERSION = "uiforge.ai/v1" as const;
