@@ -1,3 +1,4 @@
+// biome-ignore-all format: semantic domain contract formatting is CI-invariant
 import type { SpecialistContract } from "./types";
 
 export const specialistContracts: readonly SpecialistContract[] = [
