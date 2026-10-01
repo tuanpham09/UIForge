@@ -1,0 +1,11 @@
+{
+  "version":"uiforge.icons/v1",
+  "provider":"lucide",
+  "format":"svg",
+  "decisions":[
+    {"semanticId":"search","assetRef":"lucide:search","size":16},
+    {"semanticId":"settings","assetRef":"lucide:settings","size":20},
+    {"semanticId":"menu","assetRef":"lucide:menu","size":24},
+    {"case":"icon-only control","accessibleName":"required","hitArea":"parent-controlled"}
+  ]
+}
