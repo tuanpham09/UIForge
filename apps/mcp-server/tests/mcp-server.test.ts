@@ -1,4 +1,5 @@
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
+import { spawn } from "node:child_process";
 import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
 import { describe, expect, it } from "vitest";
 import { sampleProject } from "../src/sample-project";
@@ -52,6 +53,26 @@ describe("UIForge MCP contract", () => {
       expect(tool.annotations?.readOnlyHint).toBe(true);
       expect(tool.annotations?.destructiveHint).toBe(false);
     }
+
+    await client.close();
+  });
+
+  it("advertises semantic resources and templates", async () => {
+    const client = modernClient();
+    const transport = new StreamableHTTPClientTransport(
+      new URL("http://uiforge.test/mcp"),
+      { fetch: async (url, init) => createHttpHandler().fetch(new Request(url, init)) },
+    );
+    await client.connect(transport);
+
+    const resources = await client.listResources();
+    const templates = await client.listResourceTemplates();
+    expect(resources.resources.map((item) => item.uri)).toContain("uiforge://projects/sample-project");
+    expect(templates.resourceTemplates).toHaveLength(9);
+
+    const project = await client.readResource({ uri: "uiforge://projects/sample-project" });
+    expect(project.contents[0]).toBeDefined();
+    expect(String(project.contents[0]?.text)).toContain("uiforge.mcp/v1");
 
     await client.close();
   });
@@ -145,6 +166,45 @@ describe("UIForge MCP contract", () => {
     expect(result.isError).not.toBe(true);
 
     await client.close();
+  });
+
+  it("connects through a real local Streamable HTTP process", async () => {
+    const child = spawn(
+      "pnpm",
+      ["exec", "tsx", "apps/mcp-server/src/http.ts"],
+      {
+        cwd: process.cwd(),
+        env: { ...process.env, PORT: "3123" },
+        stdio: ["ignore", "ignore", "pipe"],
+      },
+    );
+
+    await new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error("MCP HTTP server did not start within 5 seconds")), 5000);
+      child.stderr?.on("data", (chunk) => {
+        if (String(chunk).includes("UIForge MCP HTTP listening")) {
+          clearTimeout(timer);
+          resolve();
+        }
+      });
+      child.on("exit", (code) => {
+        if (code !== null && code !== 0) {
+          clearTimeout(timer);
+          reject(new Error("MCP HTTP process exited with code " + code));
+        }
+      });
+    });
+
+    const client = modernClient();
+    const transport = new StreamableHTTPClientTransport(new URL("http://127.0.0.1:3123/mcp"));
+    await client.connect(transport);
+    const result = await client.callTool({
+      name: "get_project",
+      arguments: { projectId: "sample-project" },
+    });
+    expect(result.isError).not.toBe(true);
+    await client.close();
+    child.kill("SIGTERM");
   });
 
   it("validates the deterministic sample project", () => {
