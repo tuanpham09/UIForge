@@ -95,7 +95,6 @@ function withProject<T>(
   const project = provider.getProject(projectId);
   if (!project) {
     return errorResult(
-      projectId,
       "PROJECT_SCOPE_NOT_FOUND",
       "Project scope '" + projectId + "' is not available.",
     );
