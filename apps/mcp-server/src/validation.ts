@@ -69,7 +69,7 @@ export function validateFlow(
     if (!transition.trigger || !transition.action)
       findings.push({
         code: "INCOMPLETE_TRANSITION",
-        path: "transitions." + transition.id,
+        path: `transitions.${transition.id}`,
         message: "Transition requires explicit trigger and action.",
         severity: "error",
       });
