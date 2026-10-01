@@ -531,11 +531,23 @@ export function mutateUpdateToken(
   set[input.tokenName] = { ...current, ...input.patch } as DesignToken;
   const validation = validateProject({ ...project, tokens });
   if (!validation.valid) throw new Error("token validation failed");
+  const revision = project.revision + 1;
+  const updatedAt = new Date().toISOString();
+  const document = {
+    ...project.document,
+    revision: {
+      ...project.document.revision,
+      revision,
+      updatedAt,
+      source: "ai" as const,
+    },
+  };
   return {
     ...project,
+    document,
     tokens,
-    revision: project.revision + 1,
-    updatedAt: new Date().toISOString(),
+    revision,
+    updatedAt,
   };
 }
 
