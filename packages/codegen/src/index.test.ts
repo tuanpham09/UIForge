@@ -1,3 +1,4 @@
+// biome-ignore-all format: deterministic fixture assertions are kept compact for evidence review
 import { describe, expect, it } from "vitest";
 import { dashboardFixture, loginFixture } from "@uiforge/ui-schema/fixtures";
 import { buildCodeSpecification } from "./index";
