@@ -1,4 +1,3 @@
-
 import { codeMappingSet, componentRegistry } from "@uiforge/component-registry";
 import { defaultTokenSet } from "@uiforge/design-tokens";
 import type { UIDocument, UINode } from "@uiforge/ui-schema";
