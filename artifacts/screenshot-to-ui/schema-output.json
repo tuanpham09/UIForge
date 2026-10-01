@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "uiforge.schema/v1",
+  "id": "shot",
+  "screens": [
+    {
+      "id": "screen",
+      "name": "Screen",
+      "rootNodeId": "screen.root",
+      "nodeIds": [
+        "screen.root",
+        "screen.title",
+        "screen.action"
+      ]
+    }
+  ],
+  "nodes": {
+    "screen.root": {
+      "id": "screen.root",
+      "screenId": "screen",
+      "parentId": null,
+      "childrenIds": [
+        "screen.title",
+        "screen.action"
+      ],
+      "type": "screen-root"
+    },
+    "screen.title": {
+      "id": "screen.title",
+      "screenId": "screen",
+      "parentId": "screen.root",
+      "childrenIds": [],
+      "type": "text",
+      "content": {
+        "text": "Dashboard"
+      }
+    },
+    "screen.action": {
+      "id": "screen.action",
+      "screenId": "screen",
+      "parentId": "screen.root",
+      "childrenIds": [],
+      "type": "button",
+      "content": {
+        "label": "Continue"
+      },
+      "component": {
+        "registryId": "uiforge.button",
+        "variant": "primary"
+      }
+    }
+  },
+  "reconstruction": {
+    "editable": true,
+    "reviewRequired": true
+  }
+}
