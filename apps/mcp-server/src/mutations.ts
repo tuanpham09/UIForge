@@ -133,6 +133,13 @@ export interface MutationResult {
 
 const clone = <T>(value: T): T => structuredClone(value);
 
+function stableFingerprint(value: unknown): string {
+  if (value === null || typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value)) return "[" + value.map(stableFingerprint).join(",") + "]";
+  const record = value as Record<string, unknown>;
+  return "{" + Object.keys(record).sort().map((key) => JSON.stringify(key) + ":" + stableFingerprint(record[key])).join(",") + "}";
+}
+
 export class MutationSecurity {
   private readonly idempotency = new Map<
     string,
@@ -174,7 +181,7 @@ export class MutationSecurity {
       );
     }
 
-    this.pruneIdempotency();\n    const idempotencyId = `${auth.actorId}:${input.idempotencyKey}`;\n    const fingerprint = JSON.stringify(input);\n    const replay = this.idempotency.get(idempotencyId);
+    this.pruneIdempotency();\n    const idempotencyId = `${auth.actorId}:${input.idempotencyKey}`;\n    const requestFingerprint = stableFingerprint(input);\n    const replay = this.idempotency.get(idempotencyId);
     if (replay) {
       if (
         replay.projectId !== input.projectId ||
