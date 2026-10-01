@@ -1,0 +1,25 @@
+{
+  "version": "uiforge.experience-graph/v1",
+  "nodes": [
+    {
+      "id": "dashboard",
+      "screenId": "dashboard",
+      "label": "Dashboard"
+    },
+    {
+      "id": "add",
+      "screenId": "add",
+      "label": "Add"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "dashboard-add",
+      "fromScreenId": "dashboard",
+      "toScreenId": "add",
+      "sourceNodeId": "dashboard.add",
+      "trigger": "click",
+      "kind": "navigation"
+    }
+  ]
+}
