@@ -77,7 +77,7 @@ function envelope<T>(
     updatedAt: project.updatedAt,
     projectId: project.projectId,
     data,
-    ...(warnings && warnings.length ? { warnings } : {}),
+    ...(warnings?.length ? { warnings } : {}),
   };
 }
 
