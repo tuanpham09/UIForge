@@ -1,9 +1,25 @@
-# @uiforge/component-registry
+# Component Registry
 
-Framework-neutral semantic vocabulary shared by AI, editor, renderer, MCP and codegen.
+The component registry is framework-neutral semantic vocabulary. Code mappings are a separate, framework-aware layer.
 
-Every definition contains a stable ID, anatomy, variants, states, semantic tokens, accessibility contract, contextual decision metadata, responsive behavior, Experience Graph implications, renderer binding and a project-specific code-mapping placeholder.
+## Code mapping
 
-The registry is independent of React, tldraw and repository-specific imports. Agents should consult it before selecting a component; project mappings are resolved later.
+uiforge.code-mapping/v1 maps semantic component IDs to reviewed implementation metadata:
 
-Renderer bindings identify a semantic implementation slot. They do not make the registry itself framework-specific.
+- framework/runtime/styling/library target
+- import path and export name
+- semantic prop and variant mapping
+- design-token mapping
+- dependencies and implementation version range
+- upstream source location
+- confidence and provenance
+
+The canonical registry stores upstream project-relative component paths such as components/ui/button, not consumer-specific aliases such as @/components/ui/button. A consuming project resolves its alias separately.
+
+### Query
+
+Use resolveCodeMapping(componentId, target) for deterministic lookup. A missing mapping is returned explicitly rather than falling back to a visually similar component.
+
+### Initial verified target
+
+The first verified target is React + Next.js + Tailwind v4 + shadcn/ui for Button, Card, and Input. The mappings are based on the official shadcn/ui component documentation and are intentionally versioned/provenanced.
