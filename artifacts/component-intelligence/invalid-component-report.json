@@ -1,0 +1,9 @@
+{
+  "fixture": "invalid-component-report",
+  "version": "uiforge.component-intelligence/v1",
+  "findings": [
+    {"case":"interactive card with contained action","valid":false,"code":"interactive-card-conflict"},
+    {"case":"navigation without destination","valid":false,"code":"missing-graph-destination"},
+    {"case":"long-form text requested as Input","valid":false,"code":"invalid-component-context"}
+  ]
+}
