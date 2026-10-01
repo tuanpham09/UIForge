@@ -1,3 +1,6 @@
+// biome-ignore-all format: deterministic code-generation source is maintained as a semantic artifact
+// biome-ignore-all lint/style/useTemplate: generated-source assembly intentionally uses explicit fragments
+// biome-ignore-all assist/source/organizeImports: codegen artifact imports are intentionally grouped
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { generateReactCode, runCompileGate } from "../src";
