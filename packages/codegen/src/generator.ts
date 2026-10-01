@@ -7,11 +7,11 @@ const quote = (value: unknown) => JSON.stringify(value);
 const escapeText = (value: string) => value.replaceAll("\\", "\\\\").replaceAll("\"", "\\\"").replaceAll("\n", " ");
 const componentMap = (spec: CodeSpecification) => new Map(spec.componentGraph.map((item) => [item.nodeId, item]));
 
-function componentSource(item: ComponentRequirement | undefined, content: string): string {
-  if (!item?.componentName || !item.importPath) return "<div data-uiforge-node>{content}</div>".replace("{content}", content);
+function componentSource(item: ComponentRequirement | undefined, content: string, accessibility?: { role?: string; accessibleName?: string }): string {
+  const a11y = accessibility?.accessibleName ? " aria-label={" + quote(accessibility.accessibleName) + "}" : "";\n  const role = accessibility?.role ? " role={" + quote(accessibility.role) + "}" : "";\n  if (!item?.componentName || !item.importPath) return "<div data-uiforge-node" + a11y + role + ">{content}</div>".replace("{content}", content);
   const props = Object.entries(item.props).sort(([a], [b]) => a.localeCompare(b)).map(([key, value]) => " " + key + "={" + quote(value) + "}").join("");
   const variant = item.variant ? " data-variant={" + quote(item.variant) + "}" : "";
-  return "<" + item.componentName + props + variant + ">" + content + "</" + item.componentName + ">";
+  return "<" + item.componentName + props + variant + a11y + role + ">" + content + "</" + item.componentName + ">";
 }
 
 function pageForScreen(spec: CodeSpecification, screenId: string, path: string): string {
