@@ -5,10 +5,11 @@ export type GenerationResult = { files: GeneratedFile[]; manifest: { version: "u
 
 const quote = (value: unknown) => JSON.stringify(value);
 const escapeText = (value: string) => value.replaceAll("\\", "\\\\").replaceAll("\"", "\\\"").replaceAll("\n", " ");
-const componentMap = (spec: CodeSpecification) => new Map(spec.componentGraph.map((item) => [item.nodeId, item]));
 
 function componentSource(item: ComponentRequirement | undefined, content: string, accessibility?: { role?: string; accessibleName?: string }): string {
-  const a11y = accessibility?.accessibleName ? " aria-label={" + quote(accessibility.accessibleName) + "}" : "";\n  const role = accessibility?.role ? " role={" + quote(accessibility.role) + "}" : "";\n  if (!item?.componentName || !item.importPath) return "<div data-uiforge-node" + a11y + role + ">{content}</div>".replace("{content}", content);
+  const a11y = accessibility?.accessibleName ? " aria-label={" + quote(accessibility.accessibleName) + "}" : "";
+  const role = accessibility?.role ? " role={" + quote(accessibility.role) + "}" : "";
+  if (!item?.componentName || !item.importPath) return "<div data-uiforge-node" + a11y + role + ">" + content + "</div>";
   const props = Object.entries(item.props).sort(([a], [b]) => a.localeCompare(b)).map(([key, value]) => " " + key + "={" + quote(value) + "}").join("");
   const variant = item.variant ? " data-variant={" + quote(item.variant) + "}" : "";
   return "<" + item.componentName + props + variant + a11y + role + ">" + content + "</" + item.componentName + ">";
@@ -17,9 +18,14 @@ function componentSource(item: ComponentRequirement | undefined, content: string
 function pageForScreen(spec: CodeSpecification, screenId: string, path: string): string {
   const imports = spec.importPlan.filter((item) => item.imports.length > 0).map((item) => "import { " + item.imports.join(", ") + " } from " + quote(item.source) + ";").join("\n");
   const nodes = spec.componentGraph.filter((item) => item.screenId === screenId).sort((a, b) => a.nodeId.localeCompare(b.nodeId));
-  const body = nodes.map((item) => componentSource(item, item.props.children == null ? "" : escapeText(String(item.props.children)))).join("\n      ");
+  const body = nodes.map((item) => {
+    const a11y = spec.accessibilityRequirements.find((req) => req.nodeId === item.nodeId);
+    const responsive = spec.responsiveRequirements.filter((req) => req.nodeId === item.nodeId).flatMap((req) => req.classes).sort().join(" ");
+    const rendered = componentSource(item, item.props.children == null ? "" : escapeText(String(item.props.children)), a11y ? { role: a11y.role, accessibleName: a11y.accessibleName } : undefined);
+    return responsive ? rendered.replace(">", " data-responsive-classes=" + quote(responsive) + ">") : rendered;
+  }).join("\n      ");
   return [
-    '"use client";',
+    "\"use client\";",
     imports,
     "",
     "export default function Page() {",
