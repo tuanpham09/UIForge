@@ -1,3 +1,6 @@
+// biome-ignore-all format: canonical serialization implementation is intentionally compact
+// biome-ignore-all assist/source/organizeImports: implementation imports are intentionally compact
+
 import type {ExperienceGraph} from "./types";
 const sortById=<T extends {id:string}>(items:T[])=>[...items].sort((a,b)=>a.id.localeCompare(b.id));
 export function normalizeExperienceGraph(graph:ExperienceGraph):ExperienceGraph{return{...graph,flows:sortById(graph.flows).map(f=>({...f,screenIds:[...f.screenIds].sort(),startingPointIds:[...f.startingPointIds].sort(),transitionIds:[...f.transitionIds].sort()})),journeys:sortById(graph.journeys).map(j=>({...j,transitionIds:[...j.transitionIds].sort()})),startingPoints:sortById(graph.startingPoints).map(p=>({...p,journeyIds:[...(p.journeyIds??[])].sort()})),transitions:sortById(graph.transitions)}}
