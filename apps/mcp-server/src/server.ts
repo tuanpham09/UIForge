@@ -250,7 +250,28 @@ function registerResources(server: McpServer, provider: ProjectProvider) {
       new ResourceTemplate(template, { list: async () => ({ resources: [] }) }),
       { title, mimeType: "application/json" },
       async (uri, variables) => {
-        const projectId = variables.projectId;
+        const normalizedVariables = Object.fromEntries(
+          Object.entries(variables)
+            .map(([key, value]) => [
+              key,
+              Array.isArray(value) ? value[0] : value,
+            ])
+            .filter(([, value]) => typeof value === "string"),
+        ) as Record<string, string>;
+        const projectId = normalizedVariables.projectId;
+        if (!projectId) {
+          return {
+            contents: [
+              {
+                uri: uri.href,
+                mimeType: "application/json",
+                text: JSON.stringify({
+                  error: { code: "PROJECT_SCOPE_REQUIRED" },
+                }),
+              },
+            ],
+          };
+        }
         const project = provider.getProject(projectId);
         if (!project) {
           return {
@@ -326,19 +347,26 @@ function registerResources(server: McpServer, provider: ProjectProvider) {
     "screen",
     "uiforge://projects/{projectId}/screens/{screenId}",
     "Screen",
-    (project, vars) =>
-      project.document.screens.find(
-        (screen) => screen.id === vars.screenId,
-      ) ?? { error: "SCREEN_NOT_FOUND" },
+    (project, vars) => {
+      const screenId = vars.screenId;
+      return screenId
+        ? project.document.screens.find((screen) => screen.id === screenId) ??
+            { error: "SCREEN_NOT_FOUND" }
+        : { error: "SCREEN_ID_REQUIRED" };
+    },
   );
   registerJsonTemplate(
     "component",
     "uiforge://projects/{projectId}/components/{componentId}",
     "Component",
-    (project, vars) =>
-      project.registry.components[vars.componentId] ?? {
-        error: "COMPONENT_NOT_FOUND",
-      },
+    (project, vars) => {
+      const componentId = vars.componentId;
+      return componentId
+        ? project.registry.components[componentId] ?? {
+            error: "COMPONENT_NOT_FOUND",
+          }
+        : { error: "COMPONENT_ID_REQUIRED" };
+    },
   );
   registerJsonTemplate(
     "tokens",
@@ -371,19 +399,27 @@ function registerResources(server: McpServer, provider: ProjectProvider) {
     "flow",
     "uiforge://projects/{projectId}/flows/{flowId}",
     "Flow",
-    (project, vars) =>
-      project.flows.find((flow) => flow.id === vars.flowId) ?? {
-        error: "FLOW_NOT_FOUND",
-      },
+    (project, vars) => {
+      const flowId = vars.flowId;
+      return flowId
+        ? project.flows.find((flow) => flow.id === flowId) ?? {
+            error: "FLOW_NOT_FOUND",
+          }
+        : { error: "FLOW_ID_REQUIRED" };
+    },
   );
   registerJsonTemplate(
     "journey",
     "uiforge://projects/{projectId}/journeys/{journeyId}",
     "User journey",
-    (project, vars) =>
-      project.journeys.find((journey) => journey.id === vars.journeyId) ?? {
-        error: "JOURNEY_NOT_FOUND",
-      },
+    (project, vars) => {
+      const journeyId = vars.journeyId;
+      return journeyId
+        ? project.journeys.find((journey) => journey.id === journeyId) ?? {
+            error: "JOURNEY_NOT_FOUND",
+          }
+        : { error: "JOURNEY_ID_REQUIRED" };
+    },
   );
   registerJsonTemplate(
     "screen-connections",
@@ -407,7 +443,7 @@ export function createMcpServer(
     { capabilities: { tools: {}, resources: { listChanged: false } } },
   );
 
-  const registerReadTool = <T extends z.ZodTypeAny>(
+  const registerReadTool = <T extends z.ZodObject<z.ZodRawShape>>(
     name: string,
     description: string,
     inputSchema: T,
@@ -427,7 +463,7 @@ export function createMcpServer(
           openWorldHint: false,
         },
       },
-      async (args) => handler(args),
+      async (args) => handler(args as z.infer<T>),
     );
   };
 
