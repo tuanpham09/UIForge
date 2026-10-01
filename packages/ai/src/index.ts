@@ -1,5 +1,5 @@
 // biome-ignore-all format: semantic contract is kept compact for review
-import { composeStrategy, validateStrategy, type DesignStrategy, type ProductIntent } from "@uiforge/design-intelligence";
+import { composeStrategy, type DesignStrategy, type ProductIntent, validateStrategy } from "@uiforge/design-intelligence";
 
 export const AI_CONTRACT_VERSION = "uiforge.ai/v1" as const;
 export const DEFAULT_TIMEOUT_MS = 15_000;
@@ -40,7 +40,7 @@ export function prepareDesignContext(intent: ProductIntent): { intent: ProductIn
   const normalized = normalizeIntent(intent);
   const strategy = composeStrategy(normalized);
   const errors = validateStrategy(strategy);
-  if (errors.length) throw new Error("DESIGN_STRATEGY_INVALID:" + errors.join(","));
+  if (errors.length) throw new Error(`DESIGN_STRATEGY_INVALID:${errors.join(",")}`);
   return { intent: normalized, strategy };
 }
 
@@ -100,7 +100,7 @@ export class MockAIProvider implements AIProvider {
     return { raw: { schemaVersion: "uiforge.patch/v1", operations: [{ op: "add", path: "/strategyVersion", value: input.strategy.version }] }, metadata: this.meta(input.prompt) };
   }
   async analyzeScreenshot(input: { image: string; prompt: PromptVersion }): Promise<ProviderResult<unknown>> {
-    return { raw: { schemaVersion: "uiforge.screenshot-analysis/v1", findings: [{ id: "deterministic-1", severity: "info", message: "image-bytes:" + input.image.length }] }, metadata: this.meta(input.prompt) };
+    return { raw: { schemaVersion: "uiforge.screenshot-analysis/v1", findings: [{ id: "deterministic-1", severity: "info", message: `image-bytes:${input.image.length}` }] }, metadata: this.meta(input.prompt) };
   }
   private meta(prompt: PromptVersion): ProviderMetadata {
     return { provider: "mock", model: this.metadataBase, prompt, requestId: "mock-request-1", usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0, estimatedCostUsd: 0 }, latencyMs: 0 };
@@ -117,13 +117,13 @@ export class HttpAIProvider implements AIProvider {
   analyzeScreenshot(input: { image: string; prompt: PromptVersion }, signal?: AbortSignal) { return this.call("screenshot", { input }, input.prompt, signal); }
   private async call(operation: string, body: unknown, prompt: PromptVersion, signal?: AbortSignal): Promise<ProviderResult<unknown>> {
     const started = Date.now();
-    const response = await this.fetchImpl(this.options.endpoint.replace(/\/$/, "") + "/" + operation, {
+    const response = await this.fetchImpl(`${this.options.endpoint.replace(/\/$/, "")}/${operation}`, {
       method: "POST",
-      headers: { "content-type": "application/json", ...(this.options.apiKey ? { authorization: "Bearer " + this.options.apiKey } : {}) },
+      headers: { "content-type": "application/json", ...(this.options.apiKey ? { authorization: `Bearer ${this.options.apiKey}` } : {}) },
       body: JSON.stringify(body),
       signal
     });
-    if (!response.ok) throw new Error("PROVIDER_HTTP_" + response.status);
+    if (!response.ok) throw new Error(`PROVIDER_HTTP_${response.status}`);
     const payload = await response.json() as { output: unknown; requestId?: string; usage?: UsageMetadata };
     return { raw: payload.output, metadata: { provider: this.options.model.provider, model: this.options.model, prompt, requestId: payload.requestId ?? "unknown", usage: payload.usage, latencyMs: Date.now() - started } };
   }
