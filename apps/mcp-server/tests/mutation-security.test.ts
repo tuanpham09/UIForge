@@ -7,8 +7,8 @@ import { describe, expect, it } from "vitest";
 import {
   createAuthorization,
   createMutableProvider,
-  MutationSecurity,
   type MutableProjectProvider,
+  MutationSecurity,
 } from "../src/mutations";
 import { sampleProjectProvider } from "../src/sample-project";
 import { createHttpHandler } from "../src/server";
