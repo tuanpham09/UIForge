@@ -1,0 +1,36 @@
+{
+  "version": "uiforge.screenshot-to-ui/v1",
+  "overall": 0.7466666667,
+  "thresholds": {
+    "high": 0.85,
+    "medium": 0.6,
+    "low": 0
+  },
+  "findings": [
+    {
+      "id": "title",
+      "confidence": 0.94,
+      "level": "high",
+      "registry": "uiforge.text"
+    },
+    {
+      "id": "button",
+      "confidence": 0.88,
+      "level": "high",
+      "registry": "uiforge.button"
+    },
+    {
+      "id": "interaction",
+      "confidence": 0.42,
+      "level": "low",
+      "unresolved": true,
+      "canonical": false,
+      "reason": "No destination is visible in screenshot"
+    }
+  ],
+  "unresolvedRegions": [
+    "content.behavior"
+  ],
+  "interactionPolicy": "Hints remain non-canonical until human review.",
+  "originalEvidence": "artifacts/screenshot-to-ui/original-screenshot.svg"
+}
