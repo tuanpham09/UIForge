@@ -175,5 +175,5 @@ export function resolveCodeMapping(
   componentId: ComponentId,
   target: Omit<CodeMappingQuery, "componentId"> = {},
 ): CodeMappingResolution {
-  return queryCodeMappings({ componentId, ...target })[0];
+  return (\n    queryCodeMappings({ componentId, ...target })[0] ?? {\n      componentId,\n      mapping: null,\n      reason: "missing",\n    }\n  );
 }
