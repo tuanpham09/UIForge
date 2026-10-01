@@ -224,7 +224,7 @@ describe("UIForge MCP mutation security", () => {
     ]);
 
     writeFileSync(
-      evidenceDir + "/security-audit.json",
+      `${evidenceDir}/security-audit.json`,
       JSON.stringify({ audits, first, second }, null, 2),
     );
   });
@@ -519,7 +519,7 @@ describe("UIForge MCP mutation security", () => {
     ]);
 
     writeFileSync(
-      evidenceDir + "/security-audit.json",
+      `${evidenceDir}/security-audit.json`,
       JSON.stringify({ audits, first, second }, null, 2),
     );
   });
