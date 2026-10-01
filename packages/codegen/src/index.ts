@@ -23,26 +23,26 @@ const mappingTarget = (target: CodeSpecTarget) => ({
   framework: target.framework, runtime: target.runtime, library: target.library as CodeLibrary,
 });
 function routeForScreen(screen: UIDocument["screens"][number]): string {
-  return screen.route ?? "/" + screen.id.replace(/^screen[.-]?/,"").replace(/\\./g,"/").toLowerCase();
+  return screen.route ?? `/${screen.id.replace(/^screen[.-]?/,"").replace(/\\./g,"/").toLowerCase()}`;
 }
 function classForBreakpoint(breakpoint: string): string {
   const normalized = breakpoint.toLowerCase();
   if (normalized==="mobile" || normalized==="sm") return "sm:";
   if (normalized==="tablet" || normalized==="md") return "md:";
   if (normalized==="desktop" || normalized==="lg") return "lg:";
-  if (/^\\d+$/.test(normalized)) return "min-[" + normalized + "px]:";
-  return normalized + ":";
+  if (/^\\d+$/.test(normalized)) return `min-[${normalized}px]:`;
+  return `${normalized}:`;
 }
-const tokenClass = (token:string) => "var(" + toCssVariable(token) + ")";
+const tokenClass = (token:string) => `var(${toCssVariable(token)})`;
 
 function buildFilePlan(document: UIDocument, target: CodeSpecTarget): FilePlanEntry[] {
   const entries: FilePlanEntry[] = [
-    {path:"app/layout.tsx",kind:"layout",owner:"generated",reason:"Target runtime "+target.runtime+" application shell",screenIds:[]},
+    {path:"app/layout.tsx",kind:"layout",owner:"generated",reason:`Target runtime ${target.runtime} application shell`,screenIds:[]},
     {path:"app/globals.css",kind:"style",owner:"generated",reason:"Semantic design tokens and Tailwind entry styles",screenIds:[]},
   ];
   for (const screen of [...document.screens].sort((a,b)=>a.id.localeCompare(b.id))) {
     const route = routeForScreen(screen).replace(/^\\//,"") || "(root)";
-    entries.push({path:"app/"+route+"/page.tsx",kind:"page",owner:"generated",reason:"Generated page for screen "+screen.name,screenIds:[screen.id]});
+    entries.push({path:`app/${route}/page.tsx`,kind:"page",owner:"generated",reason:`Generated page for screen ${screen.name}`,screenIds:[screen.id]});
   }
   return entries;
 }
@@ -62,7 +62,7 @@ function buildComponentGraph(document: UIDocument,target:CodeSpecTarget,warnings
     if(!resolution.mapping){
       const code=resolution.reason==="unsupported-target"?"UNSUPPORTED_TARGET":"MISSING_CODE_MAPPING";
       requirement.warnings.push(code);
-      warnings.push({code,path:"nodes."+node.id+".component",message:"No code mapping for registry component \"" + node.component.registryId + "\" targeting "+target.framework+"/"+target.runtime+"/"+target.library+".",severity:"warning"});
+      warnings.push({code,path:`nodes.${node.id}.component`,message:`No code mapping for registry component "${node.component.registryId}" targeting ${target.framework}/${target.runtime}/${target.library}.`,severity:"warning"});
     }else mappings.push(resolution.mapping);
     result.push(requirement);
   }
@@ -99,11 +99,11 @@ function buildResponsiveRequirements(document:UIDocument):ResponsiveRequirement[
   for(const node of Object.values(document.nodes).sort((a,b)=>a.id.localeCompare(b.id))){
     for(const rule of node.responsive??[]){
       const prefix=classForBreakpoint(rule.breakpoint),classes:string[]=[];
-      if(rule.hidden===true) classes.push(prefix+"hidden");
-      if(rule.variant) classes.push(prefix+'[data-variant="'+rule.variant+'"]');
+      if(rule.hidden===true) classes.push(`${prefix}hidden`);
+      if(rule.variant) classes.push(`${prefix}[data-variant="${rule.variant}"]`);
       for(const [slot,token] of Object.entries(rule.tokenOverrides??{}).sort(([a],[b])=>a.localeCompare(b))){
         const variable=slot.replace(/[^a-zA-Z0-9]+/g,"-").toLowerCase();
-        classes.push(prefix+"[--ui-"+variable+":"+tokenClass(token)+"]");
+        classes.push(`${prefix}[--ui-${variable}:${tokenClass(token)}]`);
       }
       result.push({nodeId:node.id,breakpoint:rule.breakpoint,classes,hidden:rule.hidden,variant:rule.variant,tokenOverrides:Object.fromEntries(Object.entries(rule.tokenOverrides??{}).sort(([a],[b])=>a.localeCompare(b)))});
     }
@@ -128,7 +128,7 @@ function buildInteractionRequirements(document:UIDocument,graph:ExperienceGraphA
     if(!interaction?.interactive || !interaction.trigger || !interaction.action) continue;
     const transition=transitionForNode(node,graph);
     if(interaction.action==="navigate" && !transition && !interaction.targetScreenId){
-      warnings.push({code:"MISSING_GRAPH_TRANSITION",path:"nodes."+node.id+".interaction",message:"Navigation interaction has no Experience Graph transition or explicit target.",severity:"warning"});
+      warnings.push({code:"MISSING_GRAPH_TRANSITION",path:`nodes.${node.id}.interaction`,message:"Navigation interaction has no Experience Graph transition or explicit target.",severity:"warning"});
     }
     result.push({nodeId:node.id,trigger:interaction.trigger,action:interaction.action,sourceScreenId:node.screenId,destinationScreenId:transition?.toScreenId??interaction.targetScreenId,destinationNodeId:interaction.targetNodeId,transitionId:transition?.id,kind:transition?.kind,condition:transition?.condition});
   }
@@ -164,7 +164,7 @@ export function buildCodeSpecification(context:CodeSpecContext):CodeSpecResult{
     accessibilityRequirements:buildAccessibilityRequirements(context.document),interactionRequirements:buildInteractionRequirements(context.document,context.graph,warnings),
     warnings:[...warnings].sort((a,b)=>(a.path+":"+a.code).localeCompare(b.path+":"+b.code)),strategyProvenance:buildProvenance(context),
   };
-  for(const screen of context.document.screens) if(!screen.route) warnings.push({code:"MISSING_SCREEN_ROUTE",path:"screens."+screen.id+".route",message:"Screen \""+screen.name+"\" has no explicit route; generator will derive one from the stable screen ID.",severity:"warning"});
+  for(const screen of context.document.screens) if(!screen.route) warnings.push({code:"MISSING_SCREEN_ROUTE",path:`screens.${screen.id}.route`,message:`Screen "${screen.name}" has no explicit route; generator will derive one from the stable screen ID.`,severity:"warning"});
   const normalized={...specWithoutKey,warnings:[...warnings].sort((a,b)=>(a.path+":"+a.code).localeCompare(b.path+":"+b.code))};
   const deterministicKey=JSON.stringify(normalized);
   const spec:CodeSpecification={...normalized,deterministicKey};
