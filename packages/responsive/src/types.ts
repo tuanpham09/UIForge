@@ -1,3 +1,5 @@
+import type { LayoutSpec } from "@uiforge/ui-schema";
+
 export const RESPONSIVE_VERSION = "uiforge.responsive/v1" as const;
 
 export type ViewportPreset = "wide" | "desktop" | "tablet" | "mobile";
