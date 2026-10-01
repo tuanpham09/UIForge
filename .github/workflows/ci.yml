@@ -41,9 +41,8 @@ jobs:
           set +e
           pnpm exec biome check packages/codegen --reporter=json > /tmp/uiforge-biome.json 2>&1
           status=$?
-          gh api "repos/${{ github.repository }}/issues/39/comments" -f body="```json
-$(head -c 12000 /tmp/uiforge-biome.json)
-```"
+          body="$(head -c 12000 /tmp/uiforge-biome.json)"
+          gh api "repos/${{ github.repository }}/issues/39/comments" --method POST -f body="$body"
           exit $status
 
       - name: Lint
