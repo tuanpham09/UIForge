@@ -741,7 +741,7 @@ export function createMcpServer(
           const result = mutationSecurity.execute(
             mutationProvider,
             auth,
-            args as z.infer<T>,
+            args as z.infer<T> as z.infer<T> & { projectId: string; baseRevision: number; idempotencyKey: string },
             capability,
             operation,
             mutate(args as z.infer<T>),
