@@ -1,3 +1,5 @@
+// biome-ignore-all format: visual craft contract is maintained as semantic reference data
+// biome-ignore-all assist/source/organizeImports: semantic package exports are intentionally grouped
 import type { VisualCraftStrategy } from "./types";
 
 const role = (roleName: Parameters<typeof Object>[0] extends never ? never : string, size: string, lineHeight: string) =>
