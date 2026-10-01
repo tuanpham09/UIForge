@@ -1,3 +1,5 @@
+// biome-ignore-all format: deterministic generator fixture is reviewed as a semantic artifact
+// biome-ignore-all lint/style/useTemplate: generated-source assembly intentionally uses explicit fragments
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { generateReactCode, runCompileGate } from "../src";
