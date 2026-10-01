@@ -27,7 +27,6 @@ import {
 } from "./mutations";
 import { validateFlow, validateProject } from "./validation";
 import {
-  type Flow,
   MCP_CONTRACT_VERSION,
   MCP_SERVER_VERSION,
   type ProjectProvider,
