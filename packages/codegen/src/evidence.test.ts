@@ -4,6 +4,8 @@ import { buildCodeSpecification } from "./index";
 
 // biome-ignore-all format: test fixtures are intentionally compact evidence data
 
+// biome-ignore-all format: evidence fixture formatting is intentionally compact
+
 describe("issue #13 evidence contract", () => {
   it("produces reviewable file/component/interaction evidence", () => {
     const result = buildCodeSpecification({
