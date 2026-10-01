@@ -108,7 +108,7 @@ function buildResponsiveRequirements(document:UIDocument):ResponsiveRequirement[
       result.push({nodeId:node.id,breakpoint:rule.breakpoint,classes,hidden:rule.hidden,variant:rule.variant,tokenOverrides:Object.fromEntries(Object.entries(rule.tokenOverrides??{}).sort(([a],[b])=>a.localeCompare(b)))});
     }
   }
-  return result.sort((a,b)=>(a.nodeId+":"+a.breakpoint).localeCompare(b.nodeId+":"+b.breakpoint));
+  return result.sort((a,b)=>`${a.nodeId}:${a.breakpoint}`.localeCompare(`${b.nodeId}:${b.breakpoint}`));
 }
 
 function buildAccessibilityRequirements(document:UIDocument):AccessibilityRequirement[]{
@@ -138,10 +138,10 @@ function buildProvenance(context:CodeSpecContext):StrategyProvenance{
   const strategy=context.designStrategy,color=context.colorStrategy,craft=context.visualCraftStrategy;
   const componentVersion=context.componentDecisions?.[0]?.version??"uiforge.component-intelligence/v1";
   const requirements=[
-    ...(strategy?.responsive??[]).map(v=>"responsive:"+v),
-    ...(strategy?.accessibility??[]).map(v=>"accessibility:"+v),
-    ...(craft?[ "visual-craft:"+craft.version ]:[]),
-    ...(color?color.roles.map(r=>"color-role:"+r.name):[]),
+    ...(strategy?.responsive??[]).map(v=>`responsive:${v}`),
+    ...(strategy?.accessibility??[]).map(v=>`accessibility:${v}`),
+    ...(craft?[ `visual-craft:${craft.version}` ]:[]),
+    ...(color?color.roles.map(r=>`color-role:${r.name}`):[]),
   ];
   return {
     designStrategyVersion:strategy?.version??"unprovided",colorStrategyVersion:color?.version??"unprovided",
@@ -162,10 +162,10 @@ export function buildCodeSpecification(context:CodeSpecContext):CodeSpecResult{
     filePlan:buildFilePlan(context.document,target),componentGraph,importPlan:buildImportPlan(componentGraph,context.document),
     tokenRequirements:buildTokenRequirements(context.document),responsiveRequirements:buildResponsiveRequirements(context.document),
     accessibilityRequirements:buildAccessibilityRequirements(context.document),interactionRequirements:buildInteractionRequirements(context.document,context.graph,warnings),
-    warnings:[...warnings].sort((a,b)=>(a.path+":"+a.code).localeCompare(b.path+":"+b.code)),strategyProvenance:buildProvenance(context),
+    warnings:[...warnings].sort((a,b)=>`${a.path}:${a.code}`.localeCompare(`${b.path}:${b.code}`)),strategyProvenance:buildProvenance(context),
   };
   for(const screen of context.document.screens) if(!screen.route) warnings.push({code:"MISSING_SCREEN_ROUTE",path:`screens.${screen.id}.route`,message:`Screen "${screen.name}" has no explicit route; generator will derive one from the stable screen ID.`,severity:"warning"});
-  const normalized={...specWithoutKey,warnings:[...warnings].sort((a,b)=>(a.path+":"+a.code).localeCompare(b.path+":"+b.code))};
+  const normalized={...specWithoutKey,warnings:[...warnings].sort((a,b)=>`${a.path}:${a.code}`.localeCompare(`${b.path}:${b.code}`))};
   const deterministicKey=JSON.stringify(normalized);
   const spec:CodeSpecification={...normalized,deterministicKey};
   return {spec,mappings:uniqueMappings(mappings)};
