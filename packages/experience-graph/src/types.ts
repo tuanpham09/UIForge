@@ -1,0 +1,16 @@
+export const EXPERIENCE_GRAPH_VERSION = "uiforge.experience-graph/v1" as const;
+export type Destination={screenId:string;nodeId?:string};
+export type Trigger={type:"click"|"tap"|"submit"|"hover"|"drag"|"keyboard"|"timeout"}|{type:"condition";expression:string};
+export type Action={type:"navigate"|"overlay"|"replace";destination:Destination}|{type:"back"}|{type:"scroll";targetNodeId:string}|{type:"state-change";state:string;value?:string|number|boolean|null};
+export type Condition={id:string;expression:string};
+export type TransitionAnimation={name:string;durationMs?:number;easing?:string;metadata?:Record<string,string|number|boolean|null>};
+export type Transition={id:string;source:Destination;trigger:Trigger;action:Action;condition?:Condition;animation?:TransitionAnimation;metadata?:Record<string,string|number|boolean|null>};
+export type StartingPoint={id:string;destination:Destination;journeyIds?:string[]};
+export type UserJourney={id:string;name:string;startingPointId:string;transitionIds:string[]};
+export type Flow={id:string;name:string;screenIds:string[];startingPointIds:string[];transitionIds:string[]};
+export type ExperienceGraph={version:typeof EXPERIENCE_GRAPH_VERSION;id:string;flows:Flow[];journeys:UserJourney[];startingPoints:StartingPoint[];transitions:Transition[]};
+export type GraphIssueCode="MISSING_DESTINATION"|"INVALID_SOURCE_REFERENCE"|"ORPHAN_SCREEN"|"UNREACHABLE_SCREEN"|"MISSING_STARTING_POINT"|"DEAD_END"|"DUPLICATE_TRANSITION"|"CONFLICTING_TRANSITION"|"UNKNOWN_TRANSITION";
+export type GraphIssue={code:GraphIssueCode;path:string;message:string;severity:"error"|"warning"};
+export type ValidationReport={valid:boolean;issues:GraphIssue[];reachableScreenIds:string[];orphanScreenIds:string[];unreachableScreenIds:string[]};
+export type ReplayStep={transitionId:string;from:Destination;to:Destination|null;trigger:Trigger;action:Action};
+export type ReplayResult={finalDestination:Destination;steps:ReplayStep[]};
