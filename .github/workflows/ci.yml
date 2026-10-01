@@ -88,6 +88,13 @@ jobs:
           name: renderer-report
           path: artifacts/renderer/
           if-no-files-found: error
+      - name: Upload responsive evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: responsive-report
+          path: artifacts/responsive/
+          if-no-files-found: error
       - name: Create foundation evidence
         if: always()
         shell: bash
