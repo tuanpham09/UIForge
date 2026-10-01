@@ -26,7 +26,6 @@ import {
   type UpdateTokenInput,
 } from "./mutations";
 import { validateFlow, validateProject } from "./validation";
-
 import {
   type Flow,
   MCP_CONTRACT_VERSION,
@@ -35,8 +34,6 @@ import {
   type ProjectSnapshot,
   type ResponseEnvelope,
   type ScreenConnection,
-  type ValidationFinding,
-  type ValidationReport,
 } from "./types";
 
 const PROJECT_SCOPE = z.object({ projectId: z.string().min(1).max(128) });
