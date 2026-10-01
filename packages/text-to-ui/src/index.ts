@@ -4,7 +4,6 @@ import {
   PROMPTS,
   executeWithPolicy,
   normalizeIntent,
-  type ProviderMetadata,
 } from "@uiforge/ai";
 import {
   type ColorStrategy,
@@ -86,7 +85,7 @@ export function validateExperienceGraph(graph: ExperienceGraph, document?: UIDoc
     graphNodeIds.add(node.id);
   }
   for (const transition of graph.transitions) {
-    if (!screenIds.has(transition.fromScreenId) || !screenIds.has(transition.toScreenId)) {
+    if (document && (!screenIds.has(transition.fromScreenId) || !screenIds.has(transition.toScreenId))) {
       throw new Error(`FLOW_INVALID:destination:${transition.id}`);
     }
     if (transition.sourceNodeId && document && !document.nodes[transition.sourceNodeId]) {
@@ -117,6 +116,7 @@ function contextForNode(
 ): DecisionContext {
   const target = graph.transitions.find(t => t.sourceNodeId === node.id);
   const componentIntent: DecisionContext["componentIntent"] =
+    node.interaction?.action === "navigate" ? "navigation" :
     node.type === "button" || node.type === "link" ? "action" :
     node.type === "input" || node.type === "select" ? "field" :
     node.type === "card" ? "group" :
@@ -188,7 +188,7 @@ function craftForDocument(document: UIDocument, strategy: VisualCraftStrategy): 
         typeRole: node.type === "text" ? "body" : undefined,
         spacing: node.layout.gap ? Number(node.layout.gap.token.split(".").pop()) * 4 : undefined,
         cardPurpose: node.type === "card" ? "grouping" : undefined,
-        radius: node.type === "card" ? strategy.radius.md : undefined,
+        radius: node.type === "card" && typeof strategy.radius.md === "number" ? strategy.radius.md : undefined,
         elevation: node.type === "card" ? "subtle" : undefined,
         colorRole: node.style?.tokens?.color,
         interactiveTarget: node.interaction?.interactive ? 44 : undefined,
@@ -289,7 +289,7 @@ export function previewSelectedNodePatch(
     command,
     targetNodeId: nodeId,
     before,
-    after: next.nodes[nodeId],
+    after: next.nodes[nodeId]!,
     changedNodeIds,
     unrelatedNodeIds,
   };
