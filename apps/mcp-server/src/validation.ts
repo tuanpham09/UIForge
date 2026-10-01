@@ -22,7 +22,7 @@ export function validateFlow(
     findings.push({
       code: "MISSING_STARTING_SCREEN",
       path: "startingPoint.screenId",
-      message:         `Starting screen '${flow.startingPoint.screenId}' does not exist.`,
+      message: `Starting screen '${flow.startingPoint.screenId}' does not exist.`,
       severity: "error",
     });
   }
@@ -31,14 +31,14 @@ export function validateFlow(
       findings.push({
         code: "MISSING_SOURCE_SCREEN",
         path: `transitions.${transition.id}.source.screenId`,
-        message:           `Source screen '${transition.source.screenId}' does not exist.`,
+        message: `Source screen '${transition.source.screenId}' does not exist.`,
         severity: "error",
       });
     if (transition.source.nodeId && !nodeIds.has(transition.source.nodeId))
       findings.push({
         code: "MISSING_SOURCE_NODE",
         path: `transitions.${transition.id}.source.nodeId`,
-        message:           `Source node '${transition.source.nodeId}' does not exist.`,
+        message: `Source node '${transition.source.nodeId}' does not exist.`,
         severity: "error",
       });
     if (
@@ -48,7 +48,7 @@ export function validateFlow(
       findings.push({
         code: "MISSING_DESTINATION_SCREEN",
         path: `transitions.${transition.id}.destination.screenId`,
-        message:           `Destination screen '${transition.destination.screenId}' does not exist.`,
+        message: `Destination screen '${transition.destination.screenId}' does not exist.`,
         severity: "error",
       });
     if (
@@ -58,7 +58,7 @@ export function validateFlow(
       findings.push({
         code: "MISSING_DESTINATION_NODE",
         path: `transitions.${transition.id}.destination.nodeId`,
-        message:           `Destination node '${transition.destination.nodeId}' does not exist.`,
+        message: `Destination node '${transition.destination.nodeId}' does not exist.`,
         severity: "error",
       });
     if (!transition.trigger || !transition.action)
