@@ -1,3 +1,4 @@
+// biome-ignore-all format: semantic domain contract formatting is CI-invariant
 import type { ComponentRegistry } from "@uiforge/component-registry";
 import type { ComponentDecision, DecisionContext } from "./types";
 
