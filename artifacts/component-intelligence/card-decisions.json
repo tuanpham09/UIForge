@@ -1,0 +1,9 @@
+{
+  "fixture": "card-decisions",
+  "version": "uiforge.component-intelligence/v1",
+  "decisions": [
+    {"context":"group","componentId":"uiforge.card","variant":"default","state":"default","valid":true},
+    {"context":"selectable","componentId":"uiforge.card","variant":"interactive","state":"selected","valid":true},
+    {"context":"interactive with contained action","componentId":"uiforge.card","valid":false,"finding":"Interactive card conflicts with a contained action unless an explicit interaction model exists."}
+  ]
+}

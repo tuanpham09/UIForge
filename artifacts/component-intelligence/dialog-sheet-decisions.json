@@ -1,0 +1,8 @@
+{
+  "fixture": "dialog-sheet-decisions",
+  "version": "uiforge.component-intelligence/v1",
+  "decisions": [
+    {"viewport":"desktop","componentId":"uiforge.dialog","variant":"default","state":"open","rule":"dialog.desktop"},
+    {"viewport":"mobile","componentId":"uiforge.dialog","variant":"confirmation","state":"open","rule":"dialog.mobile-sheet"}
+  ]
+}

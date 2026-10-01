@@ -1,0 +1,9 @@
+{
+  "fixture": "button-decisions",
+  "version": "uiforge.component-intelligence/v1",
+  "decisions": [
+    {"context":"primary create","componentId":"uiforge.button","variant":"primary","state":"default","rules":["button.primary"]},
+    {"context":"destructive submit loading","componentId":"uiforge.button","variant":"destructive","state":"loading","rules":["button.destructive","button.loading"]},
+    {"context":"second action","componentId":"uiforge.button","variant":"secondary","state":"default","rules":["button.secondary-conflict"]}
+  ]
+}
