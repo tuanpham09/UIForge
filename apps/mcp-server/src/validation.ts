@@ -23,7 +23,7 @@ export function validateFlow(
       code: "MISSING_STARTING_SCREEN",
       path: "startingPoint.screenId",
       message:
-        "Starting screen '" + flow.startingPoint.screenId + "' does not exist.",
+        `Starting screen '${flow.startingPoint.screenId}' does not exist.`,
       severity: "error",
     });
   }
