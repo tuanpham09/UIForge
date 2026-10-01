@@ -2,6 +2,7 @@
 import {
   createMcpHandler,
   McpServer,
+  type CallToolResult,
   ResourceTemplate,
 } from "@modelcontextprotocol/server";
 import {
