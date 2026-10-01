@@ -1,0 +1,21 @@
+{
+  "contractVersion": "uiforge.ai/v1",
+  "provider": "mock",
+  "model": {
+    "provider": "mock",
+    "model": "deterministic-v1",
+    "version": "1"
+  },
+  "prompt": {
+    "id": "ui-generation",
+    "version": "uiforge.ai-prompt/ui-generation-v1"
+  },
+  "usage": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "totalTokens": 0,
+    "estimatedCostUsd": 0
+  },
+  "timeoutMs": 15000,
+  "maxRetries": 2
+}
