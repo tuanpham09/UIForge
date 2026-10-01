@@ -1,6 +1,9 @@
 import { dashboardFixture, loginFixture } from "@uiforge/ui-schema/fixtures";
 import { describe, expect, it } from "vitest";
 import { buildCodeSpecification } from "./index";
+
+// biome-ignore-all format: test fixtures are intentionally compact evidence data
+
 describe("code specification", () => {
   const graph = {
     version: "uiforge.experience-graph/v1",
