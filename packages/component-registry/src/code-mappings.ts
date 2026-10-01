@@ -20,14 +20,37 @@ const mappings: CodeComponentMapping[] = [
     importPathKind: "project-relative",
     exportName: "Button",
     componentName: "Button",
-    propMapping: { disabled: "disabled", children: "children", "aria-label": "aria-label" },
-    variantMapping: { primary: "default", secondary: "secondary", destructive: "destructive", ghost: "ghost" },
-    tokenMapping: { "color.primary": "button.default", "color.onPrimary": "button.default.foreground", "control.radius": "radius" },
+    propMapping: {
+      disabled: "disabled",
+      children: "children",
+      "aria-label": "aria-label",
+    },
+    variantMapping: {
+      primary: "default",
+      secondary: "secondary",
+      destructive: "destructive",
+      ghost: "ghost",
+    },
+    tokenMapping: {
+      "color.primary": "button.default",
+      "color.onPrimary": "button.default.foreground",
+      "control.radius": "radius",
+    },
     dependencies: ["shadcn-ui", "tailwindcss"],
     versionRange: "current",
-    sourceLocation: { kind: "upstream", path: "components/base/button", url: `${SHADCN_BASE_URL}/base/button` },
+    sourceLocation: {
+      kind: "upstream",
+      path: "components/base/button",
+      url: `${SHADCN_BASE_URL}/base/button`,
+    },
     confidence: "high",
-    provenance: { kind: "verified-reference", source: "shadcn/ui official Button documentation", verifiedAt: "2026-10-01", notes: "Stores the upstream component path rather than a consumer alias such as @/components/ui/button." },
+    provenance: {
+      kind: "verified-reference",
+      source: "shadcn/ui official Button documentation",
+      verifiedAt: "2026-10-01",
+      notes:
+        "Stores the upstream component path rather than a consumer alias such as @/components/ui/button.",
+    },
   },
   {
     mappingId: "uiforge.card/react-nextjs/shadcn-ui",
@@ -40,14 +63,33 @@ const mappings: CodeComponentMapping[] = [
     importPathKind: "project-relative",
     exportName: "Card",
     componentName: "Card",
-    propMapping: { children: "children", className: "className" },
-    variantMapping: { default: "default", interactive: "default" },
-    tokenMapping: { "color.surface": "card.background", "color.border": "card.border", "control.radius": "radius", "shadow.subtle": "shadow-sm" },
+    propMapping: {
+      children: "children",
+      className: "className",
+    },
+    variantMapping: {
+      default: "default",
+      interactive: "default",
+    },
+    tokenMapping: {
+      "color.surface": "card.background",
+      "color.border": "card.border",
+      "control.radius": "radius",
+      "shadow.subtle": "shadow-sm",
+    },
     dependencies: ["shadcn-ui", "tailwindcss"],
     versionRange: "current",
-    sourceLocation: { kind: "upstream", path: "components/base/card", url: `${SHADCN_BASE_URL}/base/card` },
+    sourceLocation: {
+      kind: "upstream",
+      path: "components/base/card",
+      url: `${SHADCN_BASE_URL}/base/card`,
+    },
     confidence: "high",
-    provenance: { kind: "verified-reference", source: "shadcn/ui official Card documentation", verifiedAt: "2026-10-01" },
+    provenance: {
+      kind: "verified-reference",
+      source: "shadcn/ui official Card documentation",
+      verifiedAt: "2026-10-01",
+    },
   },
   {
     mappingId: "uiforge.input/react-nextjs/shadcn-ui",
@@ -60,23 +102,49 @@ const mappings: CodeComponentMapping[] = [
     importPathKind: "project-relative",
     exportName: "Input",
     componentName: "Input",
-    propMapping: { disabled: "disabled", value: "value", placeholder: "placeholder", required: "required", "aria-label": "aria-label" },
-    variantMapping: { default: "default", search: "default" },
-    tokenMapping: { "color.foreground": "input.foreground", "color.surface": "input.background", "color.border": "input.border", "control.radius": "radius" },
+    propMapping: {
+      disabled: "disabled",
+      value: "value",
+      placeholder: "placeholder",
+      required: "required",
+      "aria-label": "aria-label",
+    },
+    variantMapping: {
+      default: "default",
+      search: "default",
+    },
+    tokenMapping: {
+      "color.foreground": "input.foreground",
+      "color.surface": "input.background",
+      "color.border": "input.border",
+      "control.radius": "radius",
+    },
     dependencies: ["shadcn-ui", "tailwindcss"],
     versionRange: "current",
-    sourceLocation: { kind: "upstream", path: "components/base/input", url: `${SHADCN_BASE_URL}/base/input` },
+    sourceLocation: {
+      kind: "upstream",
+      path: "components/base/input",
+      url: `${SHADCN_BASE_URL}/base/input`,
+    },
     confidence: "high",
-    provenance: { kind: "verified-reference", source: "shadcn/ui official Input documentation", verifiedAt: "2026-10-01" },
+    provenance: {
+      kind: "verified-reference",
+      source: "shadcn/ui official Input documentation",
+      verifiedAt: "2026-10-01",
+    },
   },
 ];
 
 export const codeMappingSet: CodeMappingSet = {
   version: "uiforge.code-mapping/v1",
-  mappings: Object.fromEntries(mappings.map((mapping) => [mapping.mappingId, mapping])),
+  mappings: Object.fromEntries(
+    mappings.map((mapping) => [mapping.mappingId, mapping]),
+  ),
 };
 
-export function queryCodeMappings(query: CodeMappingQuery): CodeMappingResolution[] {
+export function queryCodeMappings(
+  query: CodeMappingQuery,
+): CodeMappingResolution[] {
   const results = Object.values(codeMappingSet.mappings).filter(
     (mapping) =>
       mapping.mappingId.startsWith(`${query.componentId}/`) &&
@@ -86,8 +154,21 @@ export function queryCodeMappings(query: CodeMappingQuery): CodeMappingResolutio
   );
 
   return results.length > 0
-    ? results.map((mapping) => ({ componentId: query.componentId, mapping, reason: "resolved" as const }))
-    : [{ componentId: query.componentId, mapping: null, reason: query.framework || query.runtime || query.library ? "unsupported-target" : "missing" }];
+    ? results.map((mapping) => ({
+        componentId: query.componentId,
+        mapping,
+        reason: "resolved" as const,
+      }))
+    : [
+        {
+          componentId: query.componentId,
+          mapping: null,
+          reason:
+            query.framework || query.runtime || query.library
+              ? "unsupported-target"
+              : "missing",
+        },
+      ];
 }
 
 export function resolveCodeMapping(
