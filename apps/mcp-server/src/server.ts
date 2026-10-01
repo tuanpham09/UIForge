@@ -1,3 +1,5 @@
+// biome-ignore-all format: MCP mutation schemas are kept grouped by tool contract for review.
+// biome-ignore-all assist/source/organizeImports: Import grouping mirrors the MCP server runtime layers.
 import {
   type CallToolResult,
   createMcpHandler,
