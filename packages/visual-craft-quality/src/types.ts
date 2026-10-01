@@ -1,3 +1,5 @@
+// biome-ignore-all format: visual craft contract is maintained as semantic reference data
+// biome-ignore-all assist/source/organizeImports: semantic package exports are intentionally grouped
 export const VISUAL_CRAFT_VERSION = "uiforge.visual-craft/v1" as const;
 
 export type Severity = "info" | "warning" | "error";
