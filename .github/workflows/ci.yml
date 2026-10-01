@@ -47,6 +47,13 @@ jobs:
           name: mcp-report
           path: artifacts/mcp/
           if-no-files-found: warn
+      - name: Upload codegen evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codegen-report
+          path: artifacts/codegen/
+          if-no-files-found: error
       - name: Build
         run: pnpm build
       - name: Upload UI Schema evidence
