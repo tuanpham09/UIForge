@@ -94,7 +94,7 @@ function withProject<T>(
   if (!project) {
     return errorResult(
       "PROJECT_SCOPE_NOT_FOUND",
-      "Project scope '" + projectId + "' is not available.",
+      `Project scope '${projectId}' is not available.`,
     );
   }
   return fn(project);
