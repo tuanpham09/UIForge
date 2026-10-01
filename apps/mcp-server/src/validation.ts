@@ -33,7 +33,7 @@ export function validateFlow(
         code: "MISSING_SOURCE_SCREEN",
         path: "transitions." + transition.id + ".source.screenId",
         message:
-          "Source screen '" + transition.source.screenId + "' does not exist.",
+          `Source screen '${transition.source.screenId}' does not exist.`,
         severity: "error",
       });
     if (transition.source.nodeId && !nodeIds.has(transition.source.nodeId))
