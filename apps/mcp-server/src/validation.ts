@@ -89,6 +89,17 @@ export function validateProject(project: ProjectSnapshot): ValidationReport {
       severity: "error",
     });
   }
+  for (const [nodeId, node] of Object.entries(project.document.nodes)) {
+    const registryId = node.component?.registryId;
+    if (registryId && !project.registry.components[registryId]) {
+      findings.push({
+        code: "UNKNOWN_COMPONENT_REGISTRY",
+        path: `nodes.${nodeId}.component.registryId`,
+        message: `Component registry ID '${registryId}' does not exist.`,
+        severity: "error",
+      });
+    }
+  }
   for (const issue of validateComponentRegistry(project.registry).issues)
     findings.push({
       code: issue.code,
