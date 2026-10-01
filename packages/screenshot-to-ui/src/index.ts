@@ -1,3 +1,5 @@
+// biome-ignore-all format: screenshot reconstruction contract is kept compact for review
+// biome-ignore-all assist/source/organizeImports: domain imports are intentionally grouped
 import {PROMPTS,executeWithPolicy,parseJson,type ProviderResult} from "@uiforge/ai";
 import {componentRegistry} from "@uiforge/component-registry";
 import {validateUIDocument,type UIDocument} from "@uiforge/ui-schema";
