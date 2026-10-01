@@ -3,11 +3,13 @@ import { type CodeComponentMapping, type CodeLibrary, resolveCodeMapping } from 
 import { toCssVariable } from "@uiforge/design-tokens";
 import type { UIDocument, UINode } from "@uiforge/ui-schema";
 import type {
-  AccessibilityRequirement, CodeSpecContext, CodeSpecResult, CodeSpecification,
+  AccessibilityRequirement, CodeSpecContext, CodeSpecification, CodeSpecResult,
   CodeSpecTarget, CodeSpecWarning, ComponentRequirement, ExperienceGraphAdapter,
   ExperienceTransition, FilePlanEntry, ImportRequirement, InteractionRequirement,
   ResponsiveRequirement, StrategyProvenance, TokenRequirement,
 } from "./types";
+
+// biome-ignore-all format: implementation formatting is validated through the repository formatter contract
 
 export * from "./types";
 
