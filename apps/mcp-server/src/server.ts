@@ -5,13 +5,7 @@ import {
   ResourceTemplate,
   type StandardSchemaWithJSON,
 } from "@modelcontextprotocol/server";
-import {
-  codeMappingSet,
-  resolveCodeMapping,
-  validateComponentRegistry,
-} from "@uiforge/component-registry";
-import { validateTokenSet } from "@uiforge/design-tokens";
-import { validateUIDocument } from "@uiforge/ui-schema";
+import { codeMappingSet, resolveCodeMapping } from "@uiforge/component-registry";
 import * as z from "zod/v4";
 import { getLayoutTree, sampleProjectProvider } from "./sample-project";
 import {
@@ -123,120 +117,28 @@ function screenConnections(project: ProjectSnapshot): ScreenConnection[] {
     }));
 }
 
-function validateFlow(project: ProjectSnapshot, flow: Flow): ValidationReport {
-  const findings: ValidationFinding[] = [];
-  const screenIds = new Set(
-    project.document.screens.map((screen) => screen.id),
-  );
-  const nodeIds = new Set(Object.keys(project.document.nodes));
-
-  if (!screenIds.has(flow.startingPoint.screenId)) {
-    findings.push({
-      code: "MISSING_STARTING_SCREEN",
-      path: "startingPoint.screenId",
-      message:
-        "Starting screen '" + flow.startingPoint.screenId + "' does not exist.",
-      severity: "error",
-    });
-  }
-
-  for (const transition of flow.transitions) {
-    if (!screenIds.has(transition.source.screenId)) {
-      findings.push({
-        code: "MISSING_SOURCE_SCREEN",
-        path: "transitions." + transition.id + ".source.screenId",
-        message:
-          "Source screen '" + transition.source.screenId + "' does not exist.",
-        severity: "error",
-      });
-    }
-    if (transition.source.nodeId && !nodeIds.has(transition.source.nodeId)) {
-      findings.push({
-        code: "MISSING_SOURCE_NODE",
-        path: "transitions." + transition.id + ".source.nodeId",
-        message:
-          "Source node '" + transition.source.nodeId + "' does not exist.",
-        severity: "error",
-      });
-    }
-    if (
-      transition.destination.screenId &&
-      !screenIds.has(transition.destination.screenId)
-    ) {
-      findings.push({
-        code: "MISSING_DESTINATION_SCREEN",
-        path: "transitions." + transition.id + ".destination.screenId",
-        message:
-          "Destination screen '" +
-          transition.destination.screenId +
-          "' does not exist.",
-        severity: "error",
-      });
-    }
-    if (
-      transition.destination.nodeId &&
-      !nodeIds.has(transition.destination.nodeId)
-    ) {
-      findings.push({
-        code: "MISSING_DESTINATION_NODE",
-        path: "transitions." + transition.id + ".destination.nodeId",
-        message:
-          "Destination node '" +
-          transition.destination.nodeId +
-          "' does not exist.",
-        severity: "error",
-      });
-    }
-    if (!transition.trigger || !transition.action) {
-      findings.push({
-        code: "INCOMPLETE_TRANSITION",
-        path: "transitions." + transition.id,
-        message: "Transition requires explicit trigger and action.",
-        severity: "error",
-      });
-    }
-  }
-
-  return { valid: findings.length === 0, findings };
-}
-
-export function validateProject(project: ProjectSnapshot): ValidationReport {
-  const findings: ValidationFinding[] = [];
-  try {
-    validateUIDocument(project.document);
-  } catch (error) {
-    findings.push({
-      code: "UI_SCHEMA_INVALID",
-      path: "document",
-      message: error instanceof Error ? error.message : String(error),
-      severity: "error",
-    });
-  }
-
-  for (const issue of validateComponentRegistry(project.registry).issues) {
-    findings.push({
-      code: issue.code,
-      path: issue.path,
-      message: issue.message,
-      severity: "error",
-    });
-  }
-
-  for (const issue of validateTokenSet(project.tokens)) {
-    findings.push({
-      code: issue.code,
-      path: issue.path,
-      message: issue.message,
-      severity: "error",
-    });
-  }
-
-  for (const flow of project.flows) {
-    findings.push(...validateFlow(project, flow).findings);
-  }
-
-  return { valid: findings.length === 0, findings };
-}
+export { validateFlow, validateProject } from "./validation";
+import { validateFlow, validateProject } from "./validation";
+import {
+  MutationSecurity,
+  createAuthorization,
+  createDefaultAuthorization,
+  createMutableProvider,
+  mutateCreateComponentInstance,
+  mutateCreateScreen,
+  mutateMoveNode,
+  mutateUpdateNode,
+  mutateUpdateScreen,
+  mutateUpdateToken,
+  type AuthorizationContext,
+  type CreateComponentInstanceInput,
+  type CreateScreenInput,
+  type MoveNodeInput,
+  type MutableProjectProvider,
+  type UpdateNodeInput,
+  type UpdateScreenInput,
+  type UpdateTokenInput,
+} from "./mutations";
 
 function registerResources(server: McpServer, provider: ProjectProvider) {
   const registerJsonTemplate = (
@@ -435,6 +337,9 @@ function registerResources(server: McpServer, provider: ProjectProvider) {
 
 export function createMcpServer(
   provider: ProjectProvider = sampleProjectProvider,
+  auth: AuthorizationContext = createDefaultAuthorization(),
+  mutationProvider?: MutableProjectProvider,
+  mutationSecurity = new MutationSecurity(),
 ): McpServer {
   const server = new McpServer(
     {
@@ -794,10 +699,185 @@ export function createMcpServer(
       }),
   );
 
+  if (mutationProvider && auth.capabilities.length > 0) {
+    const registerMutationTool = <T extends z.ZodObject<z.ZodRawShape>>(
+      name: string,
+      description: string,
+      inputSchema: T,
+      operation: string,
+      capability: "design:write" | "design:structure" | "design:tokens",
+      mutate: (input: z.infer<T>) => (project: ProjectSnapshot) => ProjectSnapshot,
+    ) => {
+      server.registerTool(
+        name,
+        {
+          title: name.replaceAll("_", " "),
+          description,
+          inputSchema: inputSchema as unknown as StandardSchemaWithJSON,
+          outputSchema: z.object({
+            operation: z.string(),
+            idempotencyKey: z.string(),
+            revision: z.number(),
+            replayed: z.boolean(),
+            auditEventId: z.string(),
+            validation: z.object({
+              valid: z.boolean(),
+              findings: z.array(z.object({
+                code: z.string(),
+                path: z.string(),
+                message: z.string(),
+                severity: z.enum(["error", "warning"]),
+              })),
+            }),
+          }),
+          annotations: {
+            readOnlyHint: false,
+            destructiveHint: false,
+            idempotentHint: true,
+            openWorldHint: false,
+          },
+        },
+        async (args) => {
+          const result = mutationSecurity.execute(
+            mutationProvider,
+            auth,
+            args as z.infer<T>,
+            capability,
+            operation,
+            mutate(args as z.infer<T>),
+          );
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify(result) }],
+            structuredContent: result,
+            ...(result.validation.valid ? {} : { isError: true }),
+          };
+        },
+      );
+    };
+
+    const mutationBase = z.object({
+      projectId: z.string().min(1).max(128),
+      baseRevision: z.number().int().nonnegative(),
+      idempotencyKey: z.string().min(8).max(128),
+    });
+
+    registerMutationTool(
+      "create_screen",
+      "Create a semantic screen with a validated root node.",
+      mutationBase.extend({
+        screenId: z.string().min(1).max(128),
+        name: z.string().min(1).max(200),
+        route: z.string().max(500).optional(),
+        rootNodeId: z.string().min(1).max(128),
+        rootLayout: z.object({
+          mode: z.enum(["stack", "flex", "grid", "absolute"]),
+          direction: z.enum(["row", "column"]).optional(),
+        }).optional(),
+        metadata: z.record(z.string(), z.string()).optional(),
+      }),
+      "create_screen",
+      "design:structure",
+      (input) => (project) => mutateCreateScreen(project, input as CreateScreenInput),
+    );
+
+    registerMutationTool(
+      "update_screen",
+      "Update editable semantic screen metadata.",
+      mutationBase.extend({
+        screenId: z.string().min(1).max(128),
+        patch: z.object({
+          name: z.string().min(1).max(200).optional(),
+          route: z.string().max(500).optional(),
+          metadata: z.record(z.string(), z.string()).optional(),
+        }),
+      }),
+      "update_screen",
+      "design:write",
+      (input) => (project) => mutateUpdateScreen(project, input as UpdateScreenInput),
+    );
+
+    registerMutationTool(
+      "create_component_instance",
+      "Create a registry-backed component instance inside an existing parent.",
+      mutationBase.extend({
+        nodeId: z.string().min(1).max(128),
+        screenId: z.string().min(1).max(128),
+        parentId: z.string().min(1).max(128),
+        registryId: z.string().min(1).max(128),
+        variant: z.string().max(128).optional(),
+        props: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])).optional(),
+        type: z.enum(["section","text","image","icon","button","link","input","select","checkbox","radio","list","list-item","table","card","dialog-trigger","custom"]).optional(),
+        content: z.object({
+          text: z.string().optional(),
+          placeholder: z.string().optional(),
+          alt: z.string().optional(),
+          src: z.string().optional(),
+          value: z.string().optional(),
+          label: z.string().optional(),
+          description: z.string().optional(),
+        }).optional(),
+      }),
+      "create_component_instance",
+      "design:structure",
+      (input) => (project) => mutateCreateComponentInstance(project, input as CreateComponentInstanceInput),
+    );
+
+    registerMutationTool(
+      "update_node",
+      "Patch one semantic node without changing its identity or screen.",
+      mutationBase.extend({
+        nodeId: z.string().min(1).max(128),
+        patch: z.record(z.string(), z.unknown()),
+      }),
+      "update_node",
+      "design:write",
+      (input) => (project) => mutateUpdateNode(project, input as UpdateNodeInput),
+    );
+
+    registerMutationTool(
+      "move_node",
+      "Move a node within its existing parent ordering.",
+      mutationBase.extend({
+        nodeId: z.string().min(1).max(128),
+        toIndex: z.number().int().min(0).max(10000),
+      }),
+      "move_node",
+      "design:structure",
+      (input) => (project) => mutateMoveNode(project, input as MoveNodeInput),
+    );
+
+    registerMutationTool(
+      "update_token",
+      "Update one existing design token and validate the complete token set before commit.",
+      mutationBase.extend({
+        scope: z.enum(["semantic", "primitives"]),
+        tokenName: z.string().min(1).max(128),
+        patch: z.object({
+          kind: z.enum(["color","spacing","typography","radius","shadow","border","breakpoint","motion"]).optional(),
+          value: z.union([z.string(), z.number()]).optional(),
+          description: z.string().optional(),
+          semanticRole: z.string().optional(),
+          primitiveRef: z.string().optional(),
+          theme: z.enum(["light","dark","all"]).optional(),
+          themes: z.record(z.enum(["light","dark"]), z.union([z.string(), z.number()])).optional(),
+        }),
+      }),
+      "update_token",
+      "design:tokens",
+      (input) => (project) => mutateUpdateToken(project, input as UpdateTokenInput),
+    );
+  }
+
   registerResources(server, provider);
   return server;
 }
 
 export const createHttpHandler = (
   provider: ProjectProvider = sampleProjectProvider,
-) => createMcpHandler(() => createMcpServer(provider), { legacy: "stateless" });
+  auth: AuthorizationContext = createDefaultAuthorization(),
+  mutationProvider?: MutableProjectProvider,
+) =>
+  createMcpHandler(
+    () => createMcpServer(provider, auth, mutationProvider),
+    { legacy: "stateless" },
+  );
