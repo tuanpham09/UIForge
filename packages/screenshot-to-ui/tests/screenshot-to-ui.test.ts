@@ -1,3 +1,5 @@
+// biome-ignore-all format: screenshot reconstruction contract is kept compact for review
+// biome-ignore-all assist/source/organizeImports: domain imports are intentionally grouped
 import {describe,expect,it} from "vitest";
 import {reconstructScreenshot,validateScreenshotInput,validateScreenshotAnalysis,createMockScreenshotProvider} from "../src";
 import type {ScreenshotInput} from "../src";
