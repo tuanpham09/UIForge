@@ -1,14 +1,22 @@
 {
-  "name":"@uiforge/screenshot-to-ui",
-  "version":"0.1.0",
-  "private":true,
-  "type":"module",
-  "exports":{".":"./src/index.ts"},
-  "scripts":{"typecheck":"tsc --noEmit","test":"vitest run"},
-  "dependencies":{
-    "@uiforge/ai":"workspace:*",
-    "@uiforge/component-registry":"workspace:*",
-    "@uiforge/ui-schema":"workspace:*"
+  "name": "@uiforge/screenshot-to-ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
   },
-  "devDependencies":{"typescript":"5.9.2","vitest":"3.2.4"}
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@uiforge/ai": "workspace:*",
+    "@uiforge/component-registry": "workspace:*",
+    "@uiforge/ui-schema": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "5.9.2",
+    "vitest": "3.2.4"
+  }
 }
