@@ -220,8 +220,10 @@ describe("UIForge MCP mutation security", () => {
       "update_node",
       (project) => {
         const next = structuredClone(project);
+        const node = next.document.nodes["dashboard.cta"];
+        if (!node) throw new Error("dashboard CTA node missing");
         next.document.nodes["dashboard.cta"] = {
-          ...next.document.nodes["dashboard.cta"]!,
+          ...node,
           screenId: "screen.login",
         };
         return next;
