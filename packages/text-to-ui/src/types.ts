@@ -1,3 +1,5 @@
+// biome-ignore-all format: canonical contract formatting is review-invariant
+// biome-ignore-all assist/source/organizeImports: contract imports are intentionally grouped
 import type { ProviderMetadata, AIProvider } from "@uiforge/ai";
 import type { ColorStrategy } from "@uiforge/color-intelligence";
 import type { ComponentDecision } from "@uiforge/component-intelligence";
