@@ -41,7 +41,7 @@ export function validateFlow(
         code: "MISSING_SOURCE_NODE",
         path: "transitions." + transition.id + ".source.nodeId",
         message:
-          "Source node '" + transition.source.nodeId + "' does not exist.",
+          `Source node '${transition.source.nodeId}' does not exist.`,
         severity: "error",
       });
     if (
