@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  composeStrategy,
-  discoverSkills,
-  validateStrategy,
-} from "../src";
+import { composeStrategy, discoverSkills, validateStrategy } from "../src";
 
 describe("design intelligence", () => {
   const finance = {
