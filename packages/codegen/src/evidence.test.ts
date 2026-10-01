@@ -1,7 +1,7 @@
-// biome-ignore-all format: evidence assertions are kept compact for CI review
-import { describe, expect, it } from "vitest";
 import { dashboardFixture } from "@uiforge/ui-schema/fixtures";
+import { describe, expect, it } from "vitest";
 import { buildCodeSpecification } from "./index";
+// biome-ignore-all format: evidence assertions are kept compact for CI review
 
 describe("issue #13 evidence contract", () => {
   it("produces reviewable file/component/interaction evidence", () => {
