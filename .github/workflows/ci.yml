@@ -13,34 +13,33 @@ jobs:
   quality:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24.21.0
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 12.7.0
           run_install: false
-
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
-
       - name: Lint
         run: pnpm lint
-
       - name: Typecheck
         run: pnpm typecheck
-
       - name: Unit tests
         run: pnpm test:unit
-
+      - name: Upload Experience Graph evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: experience-graph-report
+          path: artifacts/experience-graph/
+          if-no-files-found: error
       - name: Upload MCP evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -48,10 +47,8 @@ jobs:
           name: mcp-report
           path: artifacts/mcp/
           if-no-files-found: warn
-
       - name: Build
         run: pnpm build
-
       - name: Upload UI Schema evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -59,7 +56,6 @@ jobs:
           name: ui-schema-report
           path: artifacts/ui-schema/
           if-no-files-found: error
-
       - name: Upload design token evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -67,7 +63,6 @@ jobs:
           name: design-token-report
           path: artifacts/design-tokens/
           if-no-files-found: error
-
       - name: Upload editor evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -75,13 +70,10 @@ jobs:
           name: editor-report
           path: artifacts/editor/
           if-no-files-found: error
-
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
-
       - name: E2E
         run: pnpm test:e2e
-
       - name: Upload renderer evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -89,7 +81,6 @@ jobs:
           name: renderer-report
           path: artifacts/renderer/
           if-no-files-found: error
-
       - name: Create foundation evidence
         if: always()
         shell: bash
@@ -99,7 +90,6 @@ jobs:
           pnpm --version >> artifacts/foundation/toolchain.txt
           node -e "const p=require('./package.json'); console.log(JSON.stringify({name:p.name,packageManager:p.packageManager,engines:p.engines},null,2))" > artifacts/foundation/package-metadata.json
           git ls-files apps packages tests .github/workflows > artifacts/foundation/repository-tree.txt
-
       - name: Upload foundation evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -107,7 +97,6 @@ jobs:
           name: foundation-report
           path: artifacts/foundation/
           if-no-files-found: error
-
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
