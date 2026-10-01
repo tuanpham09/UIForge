@@ -62,8 +62,7 @@ export function validateCodeMappings(
       issues.push({
         code: "INVALID_SOURCE_LOCATION",
         path: `${mapping.mappingId}.sourceLocation`,
-        message:
-          "Canonical mappings require a verified upstream HTTPS source.",
+        message: "Canonical mappings require a verified upstream HTTPS source.",
       });
     }
 
