@@ -1,0 +1,26 @@
+{
+  "name": "@uiforge/text-to-ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@uiforge/ai": "workspace:*",
+    "@uiforge/color-intelligence": "workspace:*",
+    "@uiforge/component-intelligence": "workspace:*",
+    "@uiforge/component-registry": "workspace:*",
+    "@uiforge/design-intelligence": "workspace:*",
+    "@uiforge/ui-schema": "workspace:*",
+    "@uiforge/visual-craft-quality": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "5.9.2",
+    "vitest": "3.2.4"
+  }
+}

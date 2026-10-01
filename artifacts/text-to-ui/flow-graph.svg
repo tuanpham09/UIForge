@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="360" viewBox="0 0 900 360">
+<rect width="900" height="360" fill="#ffffff"/>
+<text x="40" y="48" font-family="Arial" font-size="24" fill="#111111">Experience Graph</text>
+<rect x="80" y="120" width="280" height="120" rx="12" fill="#f8fafc" stroke="#d4d4d4"/>
+<text x="120" y="175" font-family="Arial" font-size="22" fill="#111111">Dashboard</text>
+<text x="120" y="208" font-family="Arial" font-size="14" fill="#475569">dashboard</text>
+<rect x="540" y="120" width="280" height="120" rx="12" fill="#f8fafc" stroke="#d4d4d4"/>
+<text x="580" y="175" font-family="Arial" font-size="22" fill="#111111">Add</text>
+<text x="580" y="208" font-family="Arial" font-size="14" fill="#475569">add</text>
+<path d="M360 180 H540" stroke="#2563eb" stroke-width="3" fill="none"/>
+<polygon points="540,180 524,171 524,189" fill="#2563eb"/>
+<text x="405" y="164" font-family="Arial" font-size="14" fill="#475569">click / navigation</text>
+<text x="40" y="325" font-family="Arial" font-size="13" fill="#64748b">All transition destinations resolve to generated or existing screens.</text>
+</svg>

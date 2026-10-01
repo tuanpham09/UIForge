@@ -1,0 +1,52 @@
+{
+  "contractVersion": "uiforge.ai/v1",
+  "prompt": {
+    "id": "ui-generation",
+    "version": "uiforge.ai-prompt/ui-generation-v1"
+  },
+  "input": {
+    "domain": "finance",
+    "productType": "expense manager",
+    "primaryTasks": [
+      "view spending",
+      "add transaction"
+    ],
+    "platforms": [
+      "web",
+      "mobile"
+    ]
+  },
+  "selectedDesignStrategy": {
+    "version": "uiforge.design-strategy/v1",
+    "skills": [
+      "dashboard",
+      "quick-entry",
+      "personal-finance",
+      "responsive-navigation",
+      "accessibility"
+    ]
+  },
+  "outputContract": "uiforge.text-to-ui-output/v1",
+  "validationPipeline": [
+    "parse",
+    "validate-ui-schema",
+    "validate-experience-graph",
+    "validate-color-roles",
+    "component-intelligence",
+    "visual-craft"
+  ],
+  "provider": {
+    "provider": "mock",
+    "model": "text-to-ui-deterministic",
+    "version": "1",
+    "requestId": "text-to-ui-evidence-1",
+    "usage": {
+      "inputTokens": 10,
+      "outputTokens": 20,
+      "totalTokens": 30,
+      "estimatedCostUsd": 0
+    },
+    "latencyMs": 1
+  },
+  "replayable": true
+}

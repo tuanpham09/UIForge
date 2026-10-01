@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+<rect width="1200" height="720" fill="#ffffff"/>
+<rect x="0" y="0" width="1200" height="64" fill="#f8fafc"/>
+<text x="48" y="40" font-family="Arial" font-size="24" fill="#111111">Expense Manager</text>
+<text x="48" y="118" font-family="Arial" font-size="32" fill="#111111">Spending</text>
+<text x="48" y="152" font-family="Arial" font-size="16" fill="#475569">Overview and primary task navigation</text>
+<rect x="48" y="200" width="1104" height="120" rx="8" fill="#ffffff" stroke="#d4d4d4"/>
+<text x="76" y="246" font-family="Arial" font-size="18" fill="#111111">Monthly spending</text>
+<text x="76" y="286" font-family="Arial" font-size="28" fill="#111111">₫ 8,420,000</text>
+<rect x="48" y="352" width="220" height="48" rx="8" fill="#2563eb"/>
+<text x="84" y="383" font-family="Arial" font-size="16" fill="#ffffff">Add transaction</text>
+<text x="48" y="670" font-family="Arial" font-size="13" fill="#64748b">UIForge Text → UI evidence fixture • schema v1 • color strategy v1</text>
+</svg>
