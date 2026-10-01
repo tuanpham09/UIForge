@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { dashboardFixture, mobileListFixture } from "@uiforge/ui-schema";
-import { BREAKPOINTS, getViewport, resolveBreakpoint, resolveResponsive } from "../src";
+import {
+  BREAKPOINTS,
+  getViewport,
+  resolveBreakpoint,
+  resolveResponsive,
+} from "../src";
 
 describe("responsive rule engine", () => {
   it("resolves the four canonical viewport presets", () => {
@@ -18,9 +23,19 @@ describe("responsive rule engine", () => {
 
   it("applies visibility, layout, variant and token overrides deterministically", () => {
     const document = structuredClone(dashboardFixture);
-    document.nodes["dashboard.summary"]!.responsive = [
-      { breakpoint: "mobile", hidden: true, tokenOverrides: { padding: "space.2" } },
-      { breakpoint: "tablet", layout: { direction: "row" }, variant: "compact" },
+    const summary = document.nodes["dashboard.summary"];
+    if (!summary) throw new Error("dashboard summary fixture is missing");
+    summary.responsive = [
+      {
+        breakpoint: "mobile",
+        hidden: true,
+        tokenOverrides: { padding: "space.2" },
+      },
+      {
+        breakpoint: "tablet",
+        layout: { direction: "row" },
+        variant: "compact",
+      },
       { breakpoint: "wide", layout: { direction: "row" } },
     ];
 
@@ -29,10 +44,16 @@ describe("responsive rule engine", () => {
     const wide = resolveResponsive(document, getViewport("wide"));
 
     expect(mobile.nodes["dashboard.summary"]?.visible).toBe(false);
-    expect(mobile.nodes["dashboard.summary"]?.tokenOverrides).toEqual({ padding: "space.2" });
-    expect(tablet.nodes["dashboard.summary"]?.layout).toEqual({ direction: "row" });
+    expect(mobile.nodes["dashboard.summary"]?.tokenOverrides).toEqual({
+      padding: "space.2",
+    });
+    expect(tablet.nodes["dashboard.summary"]?.layout).toEqual({
+      direction: "row",
+    });
     expect(tablet.nodes["dashboard.summary"]?.variant).toBe("compact");
-    expect(wide.nodes["dashboard.summary"]?.layout).toEqual({ direction: "row" });
+    expect(wide.nodes["dashboard.summary"]?.layout).toEqual({
+      direction: "row",
+    });
   });
 
   it("does not invent transformations when no rule exists", () => {
@@ -43,9 +64,14 @@ describe("responsive rule engine", () => {
 
   it("rejects invalid ranges and graph destinations", () => {
     const document = structuredClone(dashboardFixture);
-    document.nodes["dashboard.summary"]!.responsive = [
+    const summary = document.nodes["dashboard.summary"];
+    if (!summary) throw new Error("dashboard summary fixture is missing");
+    summary.responsive = [
       { breakpoint: "mobile", minWidth: 800, maxWidth: 700 },
-      { breakpoint: "mobile", interaction: { targetScreenId: "screen.missing" } },
+      {
+        breakpoint: "mobile",
+        interaction: { targetScreenId: "screen.missing" },
+      },
     ];
     const graph = {
       version: "uiforge.experience-graph/v1",
@@ -58,8 +84,14 @@ describe("responsive rule engine", () => {
       ],
     };
     const result = resolveResponsive(document, getViewport("mobile"), graph);
-    expect(result.diagnostics.some((item) => item.code === "INVALID_RANGE")).toBe(true);
-    expect(result.diagnostics.some((item) => item.code === "INVALID_NAVIGATION_TARGET")).toBe(true);
+    expect(
+      result.diagnostics.some((item) => item.code === "INVALID_RANGE"),
+    ).toBe(true);
+    expect(
+      result.diagnostics.some(
+        (item) => item.code === "INVALID_NAVIGATION_TARGET",
+      ),
+    ).toBe(true);
   });
 
   it("keeps mobile-list viewport contract explicit", () => {
