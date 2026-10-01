@@ -1,4 +1,5 @@
 // biome-ignore-all format: semantic domain contract formatting is CI-invariant
+// biome-ignore-all assist/source/organizeImports: import grouping is intentionally explicit
 import type { ComponentRegistry } from "@uiforge/component-registry";
 import { matchingRules, registrySupports } from "./rules";
 import { specialistContracts } from "./specialists";
