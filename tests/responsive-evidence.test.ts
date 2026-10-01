@@ -1,12 +1,12 @@
 import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+import { getViewport, resolveResponsive } from "../packages/responsive/src/index";
 import {
   dashboardFixture,
   loginFixture,
   mobileListFixture,
 } from "../packages/ui-schema/src/index";
-import { getViewport, resolveResponsive } from "../packages/responsive/src/index";
-import { describe, expect, it } from "vitest";
 
 describe("Responsive evidence", () => {
   it("writes deterministic responsive rule and four-viewport evidence", () => {
@@ -68,6 +68,8 @@ describe("Responsive evidence", () => {
     );
 
     expect(records).toHaveLength(12);
-    expect(records.every((record) => record.diagnostics.length === 0)).toBe(true);
+    expect(records.every((record) => record.diagnostics.length === 0)).toBe(
+      true,
+    );
   });
 });
