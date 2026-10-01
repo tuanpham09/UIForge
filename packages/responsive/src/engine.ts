@@ -8,7 +8,7 @@ import type {
   Viewport,
   ViewportPreset,
 } from "./types";
-import { BREAKPOINTS, RESPONSIVE_VERSION, VIEWPORTS } from "./types";
+import { RESPONSIVE_VERSION } from "./types";
 
 export interface ResponsiveGraphAdapter {
   transitions: readonly Array<{
