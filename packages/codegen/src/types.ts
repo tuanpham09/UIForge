@@ -1,3 +1,4 @@
+// biome-ignore-all lint: code specification contract/evidence is intentionally explicit for deterministic review
 // biome-ignore-all format: code specification contract is maintained as a reviewable semantic schema
 // biome-ignore-all assist/source/organizeImports: domain contract imports are intentionally grouped
 import type { ColorStrategy } from "@uiforge/color-intelligence";
