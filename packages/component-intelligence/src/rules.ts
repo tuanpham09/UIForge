@@ -23,7 +23,7 @@ export const componentRules: readonly DesignRule[] = [
 
   r("input.search", "component", 700, "component-designer", "Search fields use the search input variant.", c => c.componentIntent === "field" && c.fieldKind === "search", { variant: "search" }, ["uiforge.input"]),
   r("input.long-form", "normative", 1200, "accessibility-reviewer", "Long-form content should not be represented by a scalar input.", c => c.componentIntent === "field" && c.fieldKind === "long-form", { forbidden: true, message: "Use a long-form text control instead of Input." }, ["uiforge.input"]),
-  r("form.submission", "component", 800, "interaction-reviewer", "Related controls submitted as one task belong to a Form.", c => c.componentIntent === "form" && c.task === "submit", { variant: "default", state: c => "submitting" } as never, ["uiforge.form"]),
+  r("form.submission", "component", 800, "interaction-reviewer", "Related controls submitted as one task belong to a Form.", c => c.componentIntent === "form" && c.task === "submit" && c.loading === true, { variant: "default", state: "submitting" }, ["uiforge.form"]),
   r("form.invalid", "normative", 1100, "accessibility-reviewer", "Invalid form submission exposes an invalid state.", c => c.componentIntent === "form" && c.task === "submit" && c.requiredStates?.includes("invalid") === true, { state: "invalid" }, ["uiforge.form"]),
 
   r("dialog.desktop", "component", 600, "ux-pattern-designer", "Desktop focused interruption uses a dialog.", c => c.componentIntent === "overlay" && c.viewport !== "mobile", { variant: "default", state: "open" }, ["uiforge.dialog"]),
