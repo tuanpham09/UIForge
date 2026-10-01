@@ -43,9 +43,9 @@ describe("deterministic React generator", () => {
     const page = result.files.find((file) => file.path === "app/dashboard/page.tsx")?.content ?? "";
     const css = result.files.find((file) => file.path === "app/globals.css")?.content ?? "";
     expect(page).toContain('import { Button } from "@/components/ui/button";');
-    expect(page).toContain('className="sm:hidden var(--ui-color-primary)"');
+    expect(page).toContain("sm:hidden text-[var(--ui-color-primary)]");
     expect(page).toContain('aria-label="Create"');
-    expect(css).toContain("--ui-color-primary: var(--ui-color-primary);");
+    expect(css).toContain("--uiforge-color-primary: var(--ui-color-primary);");
     expect(result.manifest.files.map((file) => file.path)).toEqual(["app/dashboard/page.tsx", "app/globals.css", "app/layout.tsx"]);
   });
 
