@@ -1,0 +1,16 @@
+{
+  "fixture": "decision-records",
+  "version": "uiforge.component-intelligence/v1",
+  "records": [
+    {
+      "decisionId":"expense:save:uiforge.button:primary:default",
+      "componentId":"uiforge.button",
+      "variant":"primary",
+      "state":"default",
+      "ruleIds":["button.primary"],
+      "skillIds":["skill.accessibility"],
+      "rationale":"The primary task action uses the primary variant.",
+      "note":"Concise provenance only; no private chain-of-thought is stored."
+    }
+  ]
+}
