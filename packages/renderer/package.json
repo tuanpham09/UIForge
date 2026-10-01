@@ -14,7 +14,8 @@
     "@uiforge/component-registry": "workspace:*",
     "@uiforge/design-tokens": "workspace:*",
     "@uiforge/ui-schema": "workspace:*",
-    "react": "19.3.0"
+    "react": "19.3.0",
+    "@uiforge/responsive": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "19.1.13",
