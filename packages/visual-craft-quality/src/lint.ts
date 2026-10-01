@@ -16,7 +16,7 @@ export function lintVisualCraft(screen: CraftScreen, strategy: VisualCraftStrate
     ...lintResponsive(screen,strategy)
   ];
   if ((screen.visibleColors?.length ?? 0) > strategy.decorationBudget.maxAccentColors)
-    findings.push(finding("craft.color-budget","warning",screen.id,"Too many visible accent colors.","Reduce accent colors or assign semantic color roles."));
+    findings.push(finding("craft.color-budget","warning",[screen.id],"Too many visible accent colors.","Reduce accent colors or assign semantic color roles."));
   const stable = findings.map(f => [f.ruleId,f.severity,[...f.affectedIds].sort(),f.message,f.recommendation]);
   const fingerprint = stable.map(v => JSON.stringify(v)).sort().join("|");
   return { version:"uiforge.visual-craft/v1", valid:!findings.some(f=>f.severity==="error"), findings, fingerprint };
