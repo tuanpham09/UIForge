@@ -210,6 +210,15 @@ describe("UIForge MCP mutation security", () => {
     expect(first.replayed).toBe(false);
     expect(second.replayed).toBe(true);
     expect(second.revision).toBe(first.revision);
+    const reused = security.execute(
+      provider,
+      auth,
+      { ...input, patch: { name: "Different payload" } },
+      "design:write",
+      "update_screen",
+      mutate,
+    );
+    expect(reused.validation.findings[0]?.code).toBe("IDEMPOTENCY_KEY_REUSED");
     expect(provider.getProject("sample-project")?.revision).toBe(8);
     expect(
       provider
