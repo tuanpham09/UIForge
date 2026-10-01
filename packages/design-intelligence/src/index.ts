@@ -1,3 +1,4 @@
+// biome-ignore-all format: semantic contract is kept compact for review
 export const DESIGN_SKILL_VERSION="uiforge.design-skill/v1" as const;
 export const DESIGN_STRATEGY_VERSION="uiforge.design-strategy/v1" as const;
 export type ProductIntent={domain:string;productType:string;primaryTasks:string[];platforms:("web"|"mobile")[]};
