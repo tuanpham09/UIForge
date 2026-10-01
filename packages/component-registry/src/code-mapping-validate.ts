@@ -83,9 +83,7 @@ export function validateCodeMappings(
     if (component) {
       for (const semanticVariant of Object.keys(mapping.variantMapping)) {
         if (
-          !component.variants.some(
-            (variant) => variant.id === semanticVariant,
-          )
+          !component.variants.some((variant) => variant.id === semanticVariant)
         ) {
           issues.push({
             code: "INVALID_VARIANT_MAPPING",
