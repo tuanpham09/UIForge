@@ -4,6 +4,8 @@ import { buildCodeSpecification } from "./index";
 
 // biome-ignore-all format: test fixtures are intentionally compact evidence data
 
+// biome-ignore-all format: evidence fixture formatting is intentionally compact
+
 describe("code specification", () => {
   const graph = {
     version: "uiforge.experience-graph/v1",
