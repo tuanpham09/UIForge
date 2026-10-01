@@ -96,7 +96,10 @@ describe("UIForge MCP contract", () => {
       uri: "uiforge://projects/sample-project",
     });
     expect(project.contents[0]).toBeDefined();
-    const projectContent = project.contents[0];\n    expect(projectContent && "text" in projectContent ? projectContent.text : "").toContain("uiforge.mcp/v1");
+    const projectContent = project.contents[0];
+    expect(
+      projectContent && "text" in projectContent ? projectContent.text : "",
+    ).toContain("uiforge.mcp/v1");
 
     await client.close();
   });
@@ -166,7 +169,12 @@ describe("UIForge MCP contract", () => {
 
   it("returns structured findings for broken flow references", async () => {
     const broken = structuredClone(sampleProject);
-    const firstFlow = broken.flows[0];\n    const firstTransition = firstFlow?.transitions[0];\n    if (!firstTransition) throw new Error("Sample flow fixture is missing a transition.");\n    firstTransition.destination.screenId = "screen.missing";
+    const firstFlow = broken.flows[0];
+    const firstTransition = firstFlow?.transitions[0];
+    if (!firstTransition) {
+      throw new Error("Sample flow fixture is missing a transition.");
+    }
+    firstTransition.destination.screenId = "screen.missing";
     const provider: ProjectProvider = {
       getProject: (projectId) =>
         projectId === broken.projectId ? broken : null,
