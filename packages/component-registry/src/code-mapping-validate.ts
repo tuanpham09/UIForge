@@ -25,7 +25,7 @@ export function validateCodeMappings(
     }
     seen.add(mapping.mappingId);
 
-    const componentId = mapping.mappingId.split("/")[0];
+    const componentId = mapping.mappingId.split("/")[0] ?? "";
     if (!registry.components[componentId]) {
       issues.push({
         code: "INVALID_COMPONENT_ID",
