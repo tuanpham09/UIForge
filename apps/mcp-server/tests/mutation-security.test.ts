@@ -1,0 +1,236 @@
+import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
+import { describe, expect, it } from "vitest";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { createMcpServer, createHttpHandler } from "../src/server";
+import {
+  createAuthorization,
+  createMutableProvider,
+  MutationSecurity,
+  type MutableProjectProvider,
+} from "../src/mutations";
+import { sampleProjectProvider } from "../src/sample-project";
+
+const evidenceDir = "artifacts/mcp";
+mkdirSync(evidenceDir, { recursive: true });
+
+const mutationTools = [
+  "create_screen",
+  "update_screen",
+  "create_component_instance",
+  "update_node",
+  "move_node",
+  "update_token",
+];
+
+function clientFor(
+  provider: MutableProjectProvider,
+  auth: ReturnType<typeof createAuthorization>,
+) {
+  return new Client(
+    { name: "uiforge-mutation-security-test", version: "0.1.0" },
+    { versionNegotiation: { mode: { pin: "2026-07-28" } } },
+  );
+}
+
+async function connectClient(
+  provider: MutableProjectProvider,
+  auth: ReturnType<typeof createAuthorization>,
+) {
+  const client = clientFor(provider, auth);
+  await client.connect(
+    new StreamableHTTPClientTransport(
+      new URL("http://uiforge.test/mcp"),
+      {
+        fetch: async (url, init) =>
+          createHttpHandler(provider, auth, provider).fetch(
+            new Request(url, init),
+          ),
+      },
+    ),
+  );
+  return client;
+}
+
+describe("UIForge MCP mutation security", () => {
+  it("keeps mutation tools hidden for read-only connections", async () => {
+    const provider = createMutableProvider(sampleProjectProvider);
+    const client = await connectClient(
+      provider,
+      createAuthorization("agent-read-only", ["sample-project"], []),
+    );
+    const tools = await client.listTools();
+    expect(tools.tools.map((tool) => tool.name)).not.toEqual(
+      expect.arrayContaining(mutationTools),
+    );
+    await client.close();
+  });
+
+  it("requires explicit capability and project authorization", async () => {
+    const provider = createMutableProvider(sampleProjectProvider);
+    const deniedAuth = createAuthorization("agent-denied", ["sample-project"], []);
+    const deniedClient = await connectClient(provider, deniedAuth);
+    const deniedTools = await deniedClient.listTools();
+    expect(deniedTools.tools.map((tool) => tool.name)).not.toContain("update_screen");
+    await deniedClient.close();
+
+    const wrongProjectAuth = createAuthorization(
+      "agent-cross-project",
+      ["other-project"],
+      ["design:write"],
+    );
+    const security = new MutationSecurity(() => "2026-10-01T09:00:00.000Z");
+    const result = security.execute(
+      provider,
+      wrongProjectAuth,
+      {
+        projectId: "sample-project",
+        baseRevision: 7,
+        idempotencyKey: "cross-project-001",
+        screenId: "screen.dashboard",
+        patch: { name: "No access" },
+      },
+      "design:write",
+      "update_screen",
+      (project) => project,
+    );
+    expect(result.validation.valid).toBe(false);
+    expect(result.validation.findings[0]?.code).toBe("CAPABILITY_DENIED");
+    expect(security.getAuditEvents()).toHaveLength(1);
+  });
+
+  it("rejects stale revisions before mutation", async () => {
+    const provider = createMutableProvider(sampleProjectProvider);
+    const auth = createAuthorization(
+      "agent-writer",
+      ["sample-project"],
+      ["design:write"],
+    );
+    const security = new MutationSecurity(() => "2026-10-01T09:00:00.000Z");
+    const result = security.execute(
+      provider,
+      auth,
+      {
+        projectId: "sample-project",
+        baseRevision: 6,
+        idempotencyKey: "stale-revision-001",
+        screenId: "screen.dashboard",
+        patch: { name: "Should not commit" },
+      },
+      "design:write",
+      "update_screen",
+      (project) => {
+        throw new Error("mutation must not execute");
+      },
+    );
+    expect(result.validation.valid).toBe(false);
+    expect(result.validation.findings[0]?.code).toBe("STALE_REVISION");
+    expect(provider.getProject("sample-project")?.revision).toBe(7);
+  });
+
+  it("replays idempotent mutations without duplicating the write", async () => {
+    const provider = createMutableProvider(sampleProjectProvider);
+    const auth = createAuthorization(
+      "agent-writer",
+      ["sample-project"],
+      ["design:write"],
+    );
+    const security = new MutationSecurity(() => "2026-10-01T09:00:00.000Z");
+    const input = {
+      projectId: "sample-project",
+      baseRevision: 7,
+      idempotencyKey: "update-screen-replay-001",
+      screenId: "screen.dashboard",
+      patch: { name: "Dashboard v2" },
+    };
+    const mutate = (project: Parameters<Parameters<typeof security.execute>[6]>[0]) => {
+      const next = structuredClone(project);
+      next.document.screens.find((screen) => screen.id === "screen.dashboard")!.name =
+        "Dashboard v2";
+      next.revision = 8;
+      return next;
+    };
+
+    const first = security.execute(provider, auth, input, "design:write", "update_screen", mutate);
+    const second = security.execute(provider, auth, input, "design:write", "update_screen", mutate);
+
+    expect(first.replayed).toBe(false);
+    expect(second.replayed).toBe(true);
+    expect(second.revision).toBe(first.revision);
+    expect(provider.getProject("sample-project")?.revision).toBe(8);
+    expect(provider.getProject("sample-project")?.document.screens.find((s) => s.id === "screen.dashboard")?.name).toBe("Dashboard v2");
+
+    const audits = security.getAuditEvents();
+    expect(audits.map((event) => event.result)).toEqual(["committed", "replayed"]);
+
+    writeFileSync(
+      evidenceDir + "/security-audit.json",
+      JSON.stringify({ audits, first, second }, null, 2),
+    );
+  });
+
+  it("validates mutations before commit and records rejection", async () => {
+    const provider = createMutableProvider(sampleProjectProvider);
+    const auth = createAuthorization(
+      "agent-writer",
+      ["sample-project"],
+      ["design:write"],
+    );
+    const security = new MutationSecurity(() => "2026-10-01T09:00:00.000Z");
+    const result = security.execute(
+      provider,
+      auth,
+      {
+        projectId: "sample-project",
+        baseRevision: 7,
+        idempotencyKey: "malformed-command-001",
+        nodeId: "dashboard.cta",
+        patch: { screenId: "screen.login" },
+      },
+      "design:write",
+      "update_node",
+      (project) => {
+        const next = structuredClone(project);
+        next.document.nodes["dashboard.cta"] = {
+          ...next.document.nodes["dashboard.cta"]!,
+          screenId: "screen.login",
+        };
+        return next;
+      },
+    );
+
+    expect(result.validation.valid).toBe(false);
+    expect(result.validation.findings[0]?.code).toBe("VALIDATION_FAILED");
+    expect(provider.getProject("sample-project")?.revision).toBe(7);
+    expect(security.getAuditEvents()[0]?.result).toBe("rejected");
+  });
+
+  it("rejects cross-project identifiers during mutation validation", async () => {
+    const provider = createMutableProvider(sampleProjectProvider);
+    const auth = createAuthorization(
+      "agent-writer",
+      ["sample-project"],
+      ["design:structure"],
+    );
+    const security = new MutationSecurity();
+    const result = security.execute(
+      provider,
+      auth,
+      {
+        projectId: "sample-project",
+        baseRevision: 7,
+        idempotencyKey: "cross-project-node-001",
+        nodeId: "node.other-project",
+        screenId: "screen.other-project",
+        parentId: "dashboard.root",
+        registryId: "uiforge.button",
+      },
+      "design:structure",
+      "create_component_instance",
+      (project) => {
+        throw new Error("unknown cross-project screen");
+      },
+    );
+    expect(result.validation.valid).toBe(false);
+    expect(result.validation.findings[0]?.code).toBe("MALFORMED_COMMAND");
+  });
+});
