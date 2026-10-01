@@ -1,0 +1,9 @@
+{
+  "version":"uiforge.visual-craft/v1",
+  "cards":[
+    {"purpose":"summary","density":"compact","padding":12},
+    {"purpose":"grouping","density":"standard","padding":16},
+    {"purpose":"media","density":"standard","padding":16},
+    {"purpose":"interactive","density":"compact","padding":12}
+  ]
+}

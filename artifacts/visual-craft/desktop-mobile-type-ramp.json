@@ -1,0 +1,5 @@
+{
+  "version":"uiforge.visual-craft/v1",
+  "desktop":{"display":"36/44","page-title":"32/40","section-title":"24/32","subsection-title":"20/28","body":"14/20","body-large":"16/24","label":"12/16","control":"14/20","metric":"28/36"},
+  "mobile":{"display":"30/38","page-title":"28/36","section-title":"22/28","subsection-title":"18/24","body":"14/20","body-large":"16/24","label":"12/16","control":"14/20","metric":"24/32"}
+}

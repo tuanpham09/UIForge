@@ -1,0 +1,7 @@
+{
+  "fixture":"expense-manager",
+  "version":"uiforge.visual-craft/v1",
+  "desktop":{"typeRamp":"desktop","cardStrategy":["compact summary","standard grouping","table/list for dense records"],"gutter":32},
+  "mobile":{"typeRamp":"mobile","cardStrategy":["compact summary","recomposed list/grid"],"gutter":16},
+  "antiPatternAvoided":["repeated generic dashboard card grid","oversized metric cards","arbitrary spacing"]
+}
