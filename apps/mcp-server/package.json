@@ -1,0 +1,28 @@
+{
+  "name": "@uiforge/mcp-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/http.ts",
+    "stdio": "tsx src/stdio.ts",
+    "http": "tsx src/http.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/node": "2.0.0",
+    "@modelcontextprotocol/server": "2.2.0",
+    "@uiforge/component-registry": "workspace:*",
+    "@uiforge/design-tokens": "workspace:*",
+    "@uiforge/ui-schema": "workspace:*",
+    "zod": "^4.2.0"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.0.0",
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "vitest": "3.2.4"
+  }
+}

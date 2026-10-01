@@ -41,6 +41,14 @@ jobs:
       - name: Unit tests
         run: pnpm test:unit
 
+      - name: Upload MCP evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-report
+          path: artifacts/mcp/
+          if-no-files-found: warn
+
       - name: Build
         run: pnpm build
 
