@@ -3,3 +3,4 @@ export * from "./rules";
 export * from "./specialists";
 export * from "./validate";
 export * from "./orchestrator";
+export * from "./skill-loader";
