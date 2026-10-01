@@ -3,6 +3,7 @@ import {
   createMcpHandler,
   McpServer,
   type CallToolResult,
+  type StandardSchemaWithJSON,
   ResourceTemplate,
 } from "@modelcontextprotocol/server";
 import {
@@ -454,7 +455,7 @@ export function createMcpServer(
       {
         title: name.replaceAll("_", " "),
         description,
-        inputSchema: inputSchema.shape,
+        inputSchema: inputSchema as unknown as StandardSchemaWithJSON,
         outputSchema: envelopeSchema,
         annotations: {
           readOnlyHint: true,
