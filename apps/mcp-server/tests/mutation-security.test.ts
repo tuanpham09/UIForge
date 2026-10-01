@@ -122,7 +122,7 @@ describe("UIForge MCP mutation security", () => {
       },
       "design:write",
       "update_screen",
-      (project) => {
+      () => {
         throw new Error("mutation must not execute");
       },
     );
@@ -258,7 +258,7 @@ describe("UIForge MCP mutation security", () => {
       },
       "design:structure",
       "create_component_instance",
-      (project) => {
+      () => {
         throw new Error("unknown cross-project screen");
       },
     );
