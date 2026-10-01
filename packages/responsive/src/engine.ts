@@ -30,12 +30,17 @@ export function resolveBreakpoint(viewport: Viewport): Breakpoint {
       (item.maxWidth === undefined || viewport.width <= item.maxWidth),
   );
   if (!match) {
-    throw new Error(`No responsive breakpoint matches viewport width ${viewport.width}`);
+    throw new Error(
+      `No responsive breakpoint matches viewport width ${viewport.width}`,
+    );
   }
   return match;
 }
 
-function normalizeRule(rule: ResponsiveRule, index: number): ResponsiveRuleV1 & { id: string } {
+function normalizeRule(
+  rule: ResponsiveRule,
+  index: number,
+): ResponsiveRuleV1 & { id: string } {
   return {
     ...rule,
     id: `${rule.breakpoint}:${index}`,
@@ -106,8 +111,10 @@ function resolveNode(
     .map(normalizeRule)
     .filter((rule) => matchesRule(rule, viewport))
     .sort((a, b) => {
-      const left = BREAKPOINTS.find((item) => item.id === a.breakpoint)?.order ?? -1;
-      const right = BREAKPOINTS.find((item) => item.id === b.breakpoint)?.order ?? -1;
+      const left =
+        BREAKPOINTS.find((item) => item.id === a.breakpoint)?.order ?? -1;
+      const right =
+        BREAKPOINTS.find((item) => item.id === b.breakpoint)?.order ?? -1;
       return left - right || a.id.localeCompare(b.id);
     });
 
