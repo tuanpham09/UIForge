@@ -1,13 +1,13 @@
 import type { ComponentDecision } from "@uiforge/component-intelligence";
 import { type CodeComponentMapping, type CodeLibrary, resolveCodeMapping } from "@uiforge/component-registry";
 import { toCssVariable } from "@uiforge/design-tokens";
+import type { UIDocument, UINode } from "@uiforge/ui-schema";
 import type {
   AccessibilityRequirement, CodeSpecContext, CodeSpecResult, CodeSpecification,
   CodeSpecTarget, CodeSpecWarning, ComponentRequirement, ExperienceGraphAdapter,
   ExperienceTransition, FilePlanEntry, ImportRequirement, InteractionRequirement,
   ResponsiveRequirement, StrategyProvenance, TokenRequirement,
 } from "./types";
-import type { UIDocument, UINode } from "@uiforge/ui-schema";
 
 export * from "./types";
 
