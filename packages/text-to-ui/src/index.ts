@@ -71,7 +71,7 @@ function validateOutputShape(value: unknown): TextToUIProviderOutput {
     throw new Error("SCHEMA_INVALID:text-to-ui-output");
   }
   validateUIDocument(v.document);
-  validateExperienceGraph(v.experienceGraph);
+  validateExperienceGraph(v.experienceGraph as ExperienceGraph);
   return value as TextToUIProviderOutput;
 }
 
@@ -285,11 +285,13 @@ export function previewSelectedNodePatch(
   );
   const unrelatedNodeIds = changedNodeIds.filter(id => id !== nodeId);
   if (unrelatedNodeIds.length) throw new Error(`PATCH_SCOPE_INVALID:${unrelatedNodeIds.join(",")}`);
+  const after = next.nodes[nodeId];
+  if (!after) throw new Error(`PATCH_SCOPE_INVALID:missing-target:${nodeId}`);
   return {
     command,
     targetNodeId: nodeId,
     before,
-    after: next.nodes[nodeId]!,
+    after,
     changedNodeIds,
     unrelatedNodeIds,
   };
