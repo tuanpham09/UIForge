@@ -1,3 +1,4 @@
+// biome-ignore-all format: test contract is kept compact for review
 import { describe, expect, it } from "vitest";
 import { MockAIProvider, PROMPTS, executeWithPolicy, parseJson, prepareDesignContext, runGeneration, validateUIOutput } from "../src/index";
 
