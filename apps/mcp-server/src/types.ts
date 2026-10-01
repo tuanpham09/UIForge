@@ -1,4 +1,8 @@
-import type { ComponentRegistry, CodeMappingResolution } from "@uiforge/component-registry";
+
+import type {
+  CodeMappingResolution,
+  ComponentRegistry,
+} from "@uiforge/component-registry";
 import type { TokenSet } from "@uiforge/design-tokens";
 import type { UIDocument } from "@uiforge/ui-schema";
 
@@ -54,7 +58,12 @@ export interface ScreenConnection {
 
 export interface ResponsiveRulesProjection {
   screenId: string;
-  rules: Array<{ nodeId: string; breakpoint: string; hidden?: boolean; variant?: string }>;
+  rules: Array<{
+    nodeId: string;
+    breakpoint: string;
+    hidden?: boolean;
+    variant?: string;
+  }>;
 }
 
 export interface ProjectSnapshot {
