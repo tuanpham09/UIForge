@@ -42,7 +42,7 @@ function canonicalDocument(): UIDocument {
     nodes: {
       "dashboard.root": { id: "dashboard.root", screenId: "dashboard", parentId: null, childrenIds: ["dashboard.title", "dashboard.add"], type: "screen-root", layout: { mode: "stack", direction: "column", gap: { token: "space.4" } } },
       "dashboard.title": { id: "dashboard.title", screenId: "dashboard", parentId: "dashboard.root", childrenIds: [], type: "text", layout: { mode: "flex" }, content: { text: "Spending" }, style: { tokens: { color: "color.foreground" } } },
-      "dashboard.add": { id: "dashboard.add", screenId: "dashboard", parentId: "dashboard.root", childrenIds: [], type: "button", layout: { mode: "flex", padding: { block: { token: "space.4" }, inline: { token: "space.4" } } }, content: { label: "Add transaction" }, component: { registryId: "uiforge.button", variant: "primary" }, accessibility: { accessibleName: "Add transaction" }, interaction: { interactive: true, trigger: "click", action: "navigate", targetScreenId: "add" }, style: { tokens: { color: "color.primary" } } },
+      "dashboard.add": { id: "dashboard.add", screenId: "dashboard", parentId: "dashboard.root", childrenIds: [], type: "link", layout: { mode: "flex", padding: { block: { token: "space.4" }, inline: { token: "space.4" } } }, content: { label: "Add transaction" }, component: { registryId: "uiforge.navigation", variant: "default" }, accessibility: { accessibleName: "Add transaction" }, interaction: { interactive: true, trigger: "click", action: "navigate", targetScreenId: "add" }, style: { tokens: { color: "color.primary" } } },
     },
     assets: {},
   };
@@ -115,8 +115,8 @@ describe("text-to-ui", () => {
       provider: provider({ schemaVersion: "uiforge.text-to-ui-output/v1", document, experienceGraph: graph }),
     });
     const button = result.componentDecisions.find(d => d.componentId === "uiforge.button");
-    expect(button?.variant).toBe("primary");
-    expect(result.document.nodes["dashboard.add"]?.component?.registryId).toBe("uiforge.button");
+    expect(button).toBeUndefined();
+    expect(result.document.nodes["dashboard.add"]?.component?.registryId).toBe("uiforge.navigation");
   });
 
   it("patch preview changes only the selected node and does not apply until requested", () => {
