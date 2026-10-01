@@ -1,3 +1,5 @@
+// biome-ignore-all format: deterministic contract fixtures are kept compact
+// biome-ignore-all assist/source/organizeImports: test imports are intentionally grouped
 import { describe, expect, it } from "vitest";
 import type { ProviderResult } from "@uiforge/ai";
 import { MockAIProvider } from "@uiforge/ai";
