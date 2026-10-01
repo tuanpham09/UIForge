@@ -1,0 +1,6 @@
+{
+  "fixture":"bad-design",
+  "version":"uiforge.visual-craft/v1",
+  "expectedRules":["craft.raw-font-size","craft.spacing-outside-rhythm","craft.icon-unregistered","craft.icon-non-svg","craft.icon-size","craft.icon-family","craft.icon-weight","craft.card-spam","craft.excessive-radius","craft.excessive-elevation","craft.radius-elevation-stack","craft.mobile-type-scale","craft.interactive-target","craft.color-budget"],
+  "deterministic":true
+}
