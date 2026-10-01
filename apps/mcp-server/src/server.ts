@@ -75,7 +75,7 @@ function textResult<T>(value: ResponseEnvelope<T>, isError = false): CallToolRes
   };
 }
 
-function errorResult(projectId: string, code: string, message: string): CallToolResult {
+function errorResult(code: string, message: string): CallToolResult {
   return {
     content: [
       {
