@@ -1,5 +1,4 @@
 // biome-ignore-all format: code specification contract is maintained as a reviewable semantic schema
-// biome-ignore-all assist/source/organizeImports: domain contract imports are intentionally grouped
 import type { ColorStrategy } from "@uiforge/color-intelligence";
 import type { ComponentDecision } from "@uiforge/component-intelligence";
 import type { CodeComponentMapping } from "@uiforge/component-registry";
