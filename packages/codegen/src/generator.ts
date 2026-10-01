@@ -41,6 +41,13 @@ function componentSource(
   return "<" + item.componentName + props + variant + a11y + role + classes + ">" + content + "</" + item.componentName + ">";
 }
 
+function tokenToTailwindClass(slot: string, value: string): string {
+  if (!value) return "";
+  if (!value.startsWith("var(")) return value;
+  const property = slot === "background" || slot === "background-color" ? "bg" : slot === "border-color" ? "border" : slot === "font-size" ? "text" : slot === "radius" ? "rounded" : "text";
+  return property + "-[" + value + "]";
+}
+
 function pageForScreen(spec: CodeSpecification, screenId: string, path: string): string {
   const imports = spec.importPlan
     .filter((item) => item.imports.length > 0)
@@ -62,7 +69,7 @@ function pageForScreen(spec: CodeSpecification, screenId: string, path: string):
         .filter(Boolean);
       const tokenClasses = spec.tokenRequirements
         .filter((req) => req.nodeId === item.nodeId)
-        .map((req) => req.tailwindValue)
+         .map((req) => tokenToTailwindClass(req.slot, req.tailwindValue))
         .filter(Boolean);
       const classes = [...new Set([...responsive, ...tokenClasses])].sort().join(" ");
       const children = item.props.children == null ? "" : String(item.props.children);
@@ -88,11 +95,11 @@ function pageForScreen(spec: CodeSpecification, screenId: string, path: string):
 }
 
 function globals(spec: CodeSpecification): string {
-  const vars = spec.tokenRequirements
-    .map((item) => "  " + item.cssVariable + ": " + item.tailwindValue + ";")
+  const theme = spec.tokenRequirements
+    .map((item) => "  --uiforge-" + item.token.replace(/[^a-zA-Z0-9]+/g, "-") + ": " + item.tailwindValue + ";")
     .filter((item, index, all) => all.indexOf(item) === index)
     .sort();
-  return ['@import "tailwindcss";', "", ":root {", ...vars, "}", ""].join("\n");
+  return ['@import "tailwindcss";', "", "@theme inline {", ...theme, "}", ""].join("\n");
 }
 
 export function generateReactCode(spec: CodeSpecification): GenerationResult {
