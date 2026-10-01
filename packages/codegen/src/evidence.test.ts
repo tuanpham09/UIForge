@@ -1,3 +1,4 @@
+// biome-ignore-all format: evidence assertions are kept compact for CI review
 import { describe, expect, it } from "vitest";
 import { dashboardFixture } from "@uiforge/ui-schema/fixtures";
 import { buildCodeSpecification } from "./index";
