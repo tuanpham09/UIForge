@@ -10,14 +10,26 @@ import type {
 } from "./types";
 import { RESPONSIVE_VERSION } from "./types";
 
+export const VIEWPORTS: Record<ViewportPreset, Viewport> = {
+  mobile: { preset: "mobile", width: 390, height: 844 },
+  tablet: { preset: "tablet", width: 768, height: 1024 },
+  desktop: { preset: "desktop", width: 1024, height: 768 },
+  wide: { preset: "wide", width: 1440, height: 900 },
+};
+
+export const BREAKPOINTS: readonly Breakpoint[] = [
+  { id: "mobile", maxWidth: 767, order: 0 },
+  { id: "tablet", minWidth: 768, maxWidth: 1023, order: 1 },
+  { id: "desktop", minWidth: 1024, maxWidth: 1439, order: 2 },
+  { id: "wide", minWidth: 1440, order: 3 },
+];
+
 export interface ResponsiveGraphAdapter {
-  transitions: readonly Array<{
+  transitions: ReadonlyArray<{
     fromScreenId: string;
     toScreenId: string;
   }>;
 }
-
-export { BREAKPOINTS, VIEWPORTS };
 
 export function getViewport(preset: ViewportPreset): Viewport {
   return VIEWPORTS[preset];
