@@ -52,9 +52,7 @@ export function validateFlow(
         code: "MISSING_DESTINATION_SCREEN",
         path: "transitions." + transition.id + ".destination.screenId",
         message:
-          "Destination screen '" +
-          transition.destination.screenId +
-          "' does not exist.",
+          `Destination screen '${transition.destination.screenId}' does not exist.`,
         severity: "error",
       });
     if (
