@@ -1,14 +1,17 @@
-import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
-import { describe, expect, it } from "vitest";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { createMcpServer, createHttpHandler } from "../src/server";
+import {
+  Client,
+  StreamableHTTPClientTransport,
+} from "@modelcontextprotocol/client";
+import { describe, expect, it } from "vitest";
 import {
   createAuthorization,
   createMutableProvider,
-  MutationSecurity,
   type MutableProjectProvider,
+  MutationSecurity,
 } from "../src/mutations";
 import { sampleProjectProvider } from "../src/sample-project";
+import { createHttpHandler, createMcpServer } from "../src/server";
 
 const evidenceDir = "artifacts/mcp";
 mkdirSync(evidenceDir, { recursive: true });
@@ -38,15 +41,12 @@ async function connectClient(
 ) {
   const client = clientFor(provider, auth);
   await client.connect(
-    new StreamableHTTPClientTransport(
-      new URL("http://uiforge.test/mcp"),
-      {
-        fetch: async (url, init) =>
-          createHttpHandler(provider, auth, provider).fetch(
-            new Request(url, init),
-          ),
-      },
-    ),
+    new StreamableHTTPClientTransport(new URL("http://uiforge.test/mcp"), {
+      fetch: async (url, init) =>
+        createHttpHandler(provider, auth, provider).fetch(
+          new Request(url, init),
+        ),
+    }),
   );
   return client;
 }
@@ -67,10 +67,16 @@ describe("UIForge MCP mutation security", () => {
 
   it("requires explicit capability and project authorization", async () => {
     const provider = createMutableProvider(sampleProjectProvider);
-    const deniedAuth = createAuthorization("agent-denied", ["sample-project"], []);
+    const deniedAuth = createAuthorization(
+      "agent-denied",
+      ["sample-project"],
+      [],
+    );
     const deniedClient = await connectClient(provider, deniedAuth);
     const deniedTools = await deniedClient.listTools();
-    expect(deniedTools.tools.map((tool) => tool.name)).not.toContain("update_screen");
+    expect(deniedTools.tools.map((tool) => tool.name)).not.toContain(
+      "update_screen",
+    );
     await deniedClient.close();
 
     const wrongProjectAuth = createAuthorization(
@@ -142,25 +148,49 @@ describe("UIForge MCP mutation security", () => {
       screenId: "screen.dashboard",
       patch: { name: "Dashboard v2" },
     };
-    const mutate = (project: Parameters<Parameters<typeof security.execute>[6]>[0]) => {
+    const mutate = (
+      project: Parameters<Parameters<typeof security.execute>[6]>[0],
+    ) => {
       const next = structuredClone(project);
-      next.document.screens.find((screen) => screen.id === "screen.dashboard")!.name =
-        "Dashboard v2";
+      next.document.screens.find(
+        (screen) => screen.id === "screen.dashboard",
+      )!.name = "Dashboard v2";
       next.revision = 8;
       return next;
     };
 
-    const first = security.execute(provider, auth, input, "design:write", "update_screen", mutate);
-    const second = security.execute(provider, auth, input, "design:write", "update_screen", mutate);
+    const first = security.execute(
+      provider,
+      auth,
+      input,
+      "design:write",
+      "update_screen",
+      mutate,
+    );
+    const second = security.execute(
+      provider,
+      auth,
+      input,
+      "design:write",
+      "update_screen",
+      mutate,
+    );
 
     expect(first.replayed).toBe(false);
     expect(second.replayed).toBe(true);
     expect(second.revision).toBe(first.revision);
     expect(provider.getProject("sample-project")?.revision).toBe(8);
-    expect(provider.getProject("sample-project")?.document.screens.find((s) => s.id === "screen.dashboard")?.name).toBe("Dashboard v2");
+    expect(
+      provider
+        .getProject("sample-project")
+        ?.document.screens.find((s) => s.id === "screen.dashboard")?.name,
+    ).toBe("Dashboard v2");
 
     const audits = security.getAuditEvents();
-    expect(audits.map((event) => event.result)).toEqual(["committed", "replayed"]);
+    expect(audits.map((event) => event.result)).toEqual([
+      "committed",
+      "replayed",
+    ]);
 
     writeFileSync(
       evidenceDir + "/security-audit.json",
