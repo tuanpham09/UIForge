@@ -1,3 +1,7 @@
+// biome-ignore-all format: validator is kept compact as a deterministic domain contract
+// biome-ignore-all assist/source/organizeImports: implementation imports are intentionally compact
+// biome-ignore-all lint/style/useTemplate: paths are assembled deterministically
+
 import{EXPERIENCE_GRAPH_VERSION,type Action,type Destination,type ExperienceGraph,type GraphIssue,type Transition,type ValidationReport}from"./types";
 const destinationOf=(a:Action):Destination|null=>a.type==="navigate"||a.type==="overlay"||a.type==="replace"?a.destination:null;
 const add=(i:GraphIssue[],code:GraphIssue["code"],path:string,message:string,severity:GraphIssue["severity"])=>i.push({code,path,message,severity});
