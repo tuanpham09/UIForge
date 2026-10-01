@@ -1,7 +1,10 @@
 import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { getViewport, resolveResponsive } from "../packages/responsive/src/index";
+import {
+  getViewport,
+  resolveResponsive,
+} from "../packages/responsive/src/index";
 import {
   dashboardFixture,
   loginFixture,
