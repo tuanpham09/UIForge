@@ -1,4 +1,4 @@
-# UIForge read-only MCP server
+# UIForge MCP server
 
 Issue #11 exposes UIForge semantic design context to external coding agents without exposing raw canvas/database records.
 
@@ -33,3 +33,29 @@ pnpm --filter @uiforge/mcp-server stdio
 pnpm --filter @uiforge/mcp-server http
 
 HTTP endpoint: http://127.0.0.1:3100/mcp
+
+
+## Write capability boundary
+
+Issue #12 adds opt-in mutation tools:
+
+- `create_screen`
+- `update_screen`
+- `create_component_instance`
+- `update_node`
+- `move_node`
+- `update_token`
+
+Mutation tools are **not registered** for read-only connections. A caller must be authorized by the server with both a project scope and the required capability (`design:write`, `design:structure`, or `design:tokens`). Client-provided capability claims are never trusted.
+
+Every mutation requires:
+
+1. explicit project scope;
+2. base schema revision;
+3. idempotency key;
+4. server authorization;
+5. semantic/UI/token validation before commit.
+
+Rejected stale revisions, cross-project access, malformed commands, capability failures and validation failures do not commit. Every accepted, replayed or rejected mutation creates an audit event. Mutation responses contain operation, revision, replay state, audit event ID and validation findings.
+
+The current implementation uses a `MutableProjectProvider` seam and deterministic in-memory persistence for contract tests. Production persistence/authentication remains an integration boundary; the MCP contract does not expose database credentials or internals.

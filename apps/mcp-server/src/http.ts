@@ -28,6 +28,6 @@ const server = createServer(async (req, res) => {
 const port = Number(process.env.PORT ?? 3100);
 server.listen(port, "127.0.0.1", () => {
   process.stderr.write(
-    "UIForge MCP HTTP listening on http://127.0.0.1:" + port + "/mcp\n",
+    `UIForge MCP HTTP listening on http://127.0.0.1:${port}/mcp\n`,
   );
 });
