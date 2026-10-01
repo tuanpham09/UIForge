@@ -23,3 +23,5 @@ Use resolveCodeMapping(componentId, target) for deterministic lookup. A missing 
 ### Initial verified target
 
 The first verified target is React + Next.js + Tailwind v4 + shadcn/ui for Button, Card, and Input. The mappings are based on the official shadcn/ui component documentation and are intentionally versioned/provenanced.
+
+The read-only MCP layer in #11 will expose these query functions without changing the mapping contract.
