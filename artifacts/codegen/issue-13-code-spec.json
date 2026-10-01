@@ -1,0 +1,10 @@
+{
+  "version":"uiforge.code-spec/v1",
+  "target":{"framework":"react","runtime":"nextjs","styling":"tailwind-v4","library":"shadcn-ui"},
+  "documentId":"fixture-dashboard",
+  "documentRevision":1,
+  "filePlan":["app/layout.tsx","app/globals.css","app/dashboard/page.tsx"],
+  "componentMapping":"uiforge.button/react-nextjs/shadcn-ui",
+  "interaction":{"sourceNodeId":"dashboard.cta","destinationScreenId":"screen.mobile-list","kind":"navigation"},
+  "determinism":"Same semantic input produces byte-identical specification output."
+}
