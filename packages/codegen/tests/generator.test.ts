@@ -1,3 +1,4 @@
+import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { generateReactCode, runCompileGate } from "../src";
 import type { CodeSpecification } from "../src";
@@ -42,5 +43,9 @@ describe("deterministic React generator", () => {
     const gate = runCompileGate(result.files);
     expect(gate.passed).toBe(true);
     expect(gate.filesChecked).toBe(2);
+    mkdirSync("artifacts/codegen", { recursive: true });
+    writeFileSync("artifacts/codegen/generated-source.json", JSON.stringify(result.files, null, 2));
+    writeFileSync("artifacts/codegen/generated-manifest.json", JSON.stringify(result.manifest, null, 2));
+    writeFileSync("artifacts/codegen/compile-gate.json", JSON.stringify(gate, null, 2));
   });
 });
