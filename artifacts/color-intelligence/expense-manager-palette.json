@@ -1,0 +1,1 @@
+{"fixture":"expense-manager","version":"uiforge.color-strategy/v1","primary":"#2563eb","secondary":"#7c3aed","roles":["primary","secondary","surface","foreground","border","success","warning","error","info"],"deterministic":true}
