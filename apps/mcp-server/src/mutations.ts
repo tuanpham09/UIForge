@@ -2,7 +2,6 @@ import type { DesignToken } from "@uiforge/design-tokens";
 import {
   applyCommand,
   type LayoutSpec,
-  type NodePatch,
   type SemanticNodeType,
   type UINode,
 } from "@uiforge/ui-schema";
@@ -135,9 +134,9 @@ const clone = <T>(value: T): T => structuredClone(value);
 
 function stableFingerprint(value: unknown): string {
   if (value === null || typeof value !== "object") return JSON.stringify(value);
-  if (Array.isArray(value)) return "[" + value.map(stableFingerprint).join(",") + "]";
+  if (Array.isArray(value)) return `[${value.map(stableFingerprint).join(",")}]`;
   const record = value as Record<string, unknown>;
-  return "{" + Object.keys(record).sort().map((key) => JSON.stringify(key) + ":" + stableFingerprint(record[key])).join(",") + "}";
+  return `{${Object.keys(record).sort().map((key) => `${JSON.stringify(key)}:${stableFingerprint(record[key])}`).join(",")}}`;
 }
 
 export class MutationSecurity {
@@ -147,6 +146,8 @@ export class MutationSecurity {
       projectId: string;
       operation: string;
       baseRevision: number;
+      fingerprint: string;
+      createdAt: number;
       result: MutationResult;
     }
   >();
@@ -181,12 +182,16 @@ export class MutationSecurity {
       );
     }
 
-    this.pruneIdempotency();\n    const idempotencyId = `${auth.actorId}:${input.idempotencyKey}`;\n    const requestFingerprint = stableFingerprint(input);\n    const replay = this.idempotency.get(idempotencyId);
+    this.pruneIdempotency();
+    const idempotencyId = `${auth.actorId}:${input.idempotencyKey}`;
+    const requestFingerprint = stableFingerprint(input);
+    const replay = this.idempotency.get(idempotencyId);
     if (replay) {
       if (
         replay.projectId !== input.projectId ||
         replay.operation !== operation ||
-        replay.baseRevision !== input.baseRevision
+        replay.baseRevision !== input.baseRevision ||
+        replay.fingerprint !== requestFingerprint
       ) {
         return this.reject(
           auth,
@@ -263,13 +268,28 @@ export class MutationSecurity {
       ),
       validation: { valid: true, findings: [] },
     };
-    this.idempotency.set(input.idempotencyKey, {
+    this.idempotency.set(idempotencyId, {
       projectId: input.projectId,
       operation,
       baseRevision: input.baseRevision,
+      fingerprint: requestFingerprint,
+      createdAt: Date.now(),
       result,
     });
     return result;
+  }
+
+  private pruneIdempotency(): void {
+    const now = Date.now();
+    const ttlMs = 24 * 60 * 60 * 1000;
+    for (const [key, entry] of this.idempotency) {
+      if (now - entry.createdAt >= ttlMs) this.idempotency.delete(key);
+    }
+    while (this.idempotency.size > 1000) {
+      const oldest = this.idempotency.keys().next().value;
+      if (oldest === undefined) break;
+      this.idempotency.delete(oldest);
+    }
   }
 
   private reject(
