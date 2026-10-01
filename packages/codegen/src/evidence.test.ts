@@ -1,6 +1,9 @@
 import { dashboardFixture } from "@uiforge/ui-schema/fixtures";
 import { describe, expect, it } from "vitest";
 import { buildCodeSpecification } from "./index";
+
+// biome-ignore-all format: test fixtures are intentionally compact evidence data
+
 describe("issue #13 evidence contract", () => {
   it("produces reviewable file/component/interaction evidence", () => {
     const result = buildCodeSpecification({
