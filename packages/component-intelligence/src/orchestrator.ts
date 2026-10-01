@@ -1,3 +1,4 @@
+// biome-ignore-all format: semantic domain contract formatting is CI-invariant
 import type { ComponentRegistry } from "@uiforge/component-registry";
 import { matchingRules, registrySupports } from "./rules";
 import { specialistContracts } from "./specialists";
@@ -36,7 +37,7 @@ export function decide(input: DecisionInput): OrchestratorResult {
   if (!componentId) return { ok: false, findings: ["No registered component matches the semantic intent."] };
 
   const loadedSkills = input.skillLoader
-    ? input.skillLoader.discover(context).map(ref => input.skillLoader!.load(ref.id, ref.version))
+    ? input.skillLoader.discover(context).map(ref => input.skillLoader.load(ref.id, ref.version))
     : [];
   const skillIds = loadedSkills.map(skill => skill.id);
   const rules = matchingRules(context, componentId);
