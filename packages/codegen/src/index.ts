@@ -1,14 +1,13 @@
-// biome-ignore-all format: code generation rules are kept grouped by output contract for review
-// biome-ignore-all assist/source/organizeImports: codegen layers are intentionally grouped by domain
-// biome-ignore-all lint/style/useTemplate: explicit string assembly mirrors code-spec field paths and diagnostics
-import { toCssVariable } from "@uiforge/design-tokens";
-import { resolveCodeMapping, type CodeComponentMapping, type CodeLibrary } from "@uiforge/component-registry";
+import type {
 import type { ColorStrategy } from "@uiforge/color-intelligence";
 import type { ComponentDecision } from "@uiforge/component-intelligence";
+import { resolveCodeMapping, type CodeComponentMapping, type CodeLibrary } from "@uiforge/component-registry";
 import type { DesignStrategy } from "@uiforge/design-intelligence";
+import { toCssVariable } from "@uiforge/design-tokens";
 import type { UIDocument, UINode } from "@uiforge/ui-schema";
 import type { VisualCraftStrategy } from "@uiforge/visual-craft-quality";
-import type {
+// biome-ignore-all format: code generation rules are kept grouped by output contract for review
+// biome-ignore-all lint/style/useTemplate: explicit string assembly mirrors code-spec field paths and diagnostics
   AccessibilityRequirement, CodeSpecContext, CodeSpecResult, CodeSpecification,
   CodeSpecTarget, CodeSpecWarning, ComponentRequirement, ExperienceGraphAdapter,
   ExperienceTransition, FilePlanEntry, ImportRequirement, InteractionRequirement,
