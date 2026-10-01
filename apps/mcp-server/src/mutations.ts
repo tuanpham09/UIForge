@@ -10,7 +10,7 @@ import {
 } from "@uiforge/ui-schema";
 import type { DesignToken, TokenKind } from "@uiforge/design-tokens";
 import type { ProjectSnapshot, ProjectProvider, ValidationReport } from "./types";
-import { validateProject } from "./server";
+import { validateProject } from "./validation";
 
 export const MCP_MUTATION_VERSION = "uiforge.mcp-mutations/v1" as const;
 
@@ -106,7 +106,7 @@ export interface MutationResult {
 const clone = <T>(value: T): T => structuredClone(value);
 
 export class MutationSecurity {
-  private readonly idempotency = new Map<string, MutationResult>();
+  private readonly idempotency = new Map<string, { projectId: string; operation: string; baseRevision: number; result: MutationResult }>();
   private readonly audits: AuditEvent[] = [];
 
   constructor(private readonly now: () => string = () => new Date().toISOString()) {}
@@ -129,11 +129,21 @@ export class MutationSecurity {
 
     const replay = this.idempotency.get(input.idempotencyKey);
     if (replay) {
-      if (replay.revision !== input.baseRevision && replay.revision !== replay.revision) {
-        return this.reject(auth, input, capability, operation, "IDEMPOTENCY_KEY_REUSED");
+      if (
+        replay.projectId !== input.projectId ||
+        replay.operation !== operation ||
+        replay.baseRevision !== input.baseRevision
+      ) {
+        return this.reject(
+          auth,
+          input,
+          capability,
+          operation,
+          "IDEMPOTENCY_KEY_REUSED",
+        );
       }
-      this.audit(auth, input, capability, operation, "replayed", replay.revision);
-      return { ...replay, replayed: true };
+      this.audit(auth, input, capability, operation, "replayed", replay.result.revision);
+      return { ...replay.result, replayed: true };
     }
 
     const current = provider.getProject(input.projectId);
@@ -172,7 +182,7 @@ export class MutationSecurity {
       auditEventId: this.audit(auth, input, capability, operation, "committed", next.revision),
       validation: { valid: true, findings: [] },
     };
-    this.idempotency.set(input.idempotencyKey, result);
+    this.idempotency.set(input.idempotencyKey, { projectId: input.projectId, operation, baseRevision: input.baseRevision, result });
     return result;
   }
 
