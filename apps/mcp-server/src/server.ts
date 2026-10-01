@@ -9,6 +9,25 @@ import { codeMappingSet, resolveCodeMapping } from "@uiforge/component-registry"
 import * as z from "zod/v4";
 import { getLayoutTree, sampleProjectProvider } from "./sample-project";
 import {
+  MutationSecurity,
+  createDefaultAuthorization,
+  mutateCreateComponentInstance,
+  mutateCreateScreen,
+  mutateMoveNode,
+  mutateUpdateNode,
+  mutateUpdateScreen,
+  mutateUpdateToken,
+  type AuthorizationContext,
+  type CreateComponentInstanceInput,
+  type CreateScreenInput,
+  type MutableProjectProvider,
+  type UpdateNodeInput,
+  type UpdateScreenInput,
+  type UpdateTokenInput,
+} from "./mutations";
+import { validateFlow, validateProject } from "./validation";
+
+import {
   type Flow,
   MCP_CONTRACT_VERSION,
   MCP_SERVER_VERSION,
@@ -116,29 +135,6 @@ function screenConnections(project: ProjectSnapshot): ScreenConnection[] {
         : {}),
     }));
 }
-
-export { validateFlow, validateProject } from "./validation";
-import { validateFlow, validateProject } from "./validation";
-import {
-  MutationSecurity,
-  createAuthorization,
-  createDefaultAuthorization,
-  createMutableProvider,
-  mutateCreateComponentInstance,
-  mutateCreateScreen,
-  mutateMoveNode,
-  mutateUpdateNode,
-  mutateUpdateScreen,
-  mutateUpdateToken,
-  type AuthorizationContext,
-  type CreateComponentInstanceInput,
-  type CreateScreenInput,
-  type MoveNodeInput,
-  type MutableProjectProvider,
-  type UpdateNodeInput,
-  type UpdateScreenInput,
-  type UpdateTokenInput,
-} from "./mutations";
 
 function registerResources(server: McpServer, provider: ProjectProvider) {
   const registerJsonTemplate = (
@@ -881,3 +877,5 @@ export const createHttpHandler = (
     () => createMcpServer(provider, auth, mutationProvider),
     { legacy: "stateless" },
   );
+
+export { validateFlow, validateProject } from "./validation";
