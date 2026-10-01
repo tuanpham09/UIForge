@@ -1,8 +1,9 @@
+// biome-ignore-all format: semantic orchestration contract is kept reviewable
+// biome-ignore-all assist/source/organizeImports: domain imports are intentionally grouped
 import {
   PROMPTS,
   executeWithPolicy,
   normalizeIntent,
-  type AIProvider,
   type ProviderMetadata,
 } from "@uiforge/ai";
 import {
@@ -19,7 +20,6 @@ import {
   composeStrategy,
   validateStrategy,
   type DesignStrategy,
-  type ProductIntent,
 } from "@uiforge/design-intelligence";
 import {
   applyCommand,
@@ -112,7 +112,6 @@ function validateColorUsage(document: UIDocument, strategy: ColorStrategy): void
 
 function contextForNode(
   node: UINode,
-  document: UIDocument,
   strategy: DesignStrategy,
   graph: ExperienceGraph,
 ): DecisionContext {
@@ -158,7 +157,7 @@ function decideComponents(
   const decisions: ComponentDecision[] = [];
   for (const node of Object.values(document.nodes)) {
     if (node.type === "screen-root" || node.type === "text" || node.type === "image" || node.type === "icon") continue;
-    const context = contextForNode(node, document, strategy, graph);
+    const context = contextForNode(node, strategy, graph);
     const result = decide({ context, registry: componentRegistry });
     if (!result.ok) throw new Error(`COMPONENT_DECISION_INVALID:${node.id}:${result.findings.join("|")}`);
     node.component = {
