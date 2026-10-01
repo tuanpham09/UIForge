@@ -1,4 +1,3 @@
-// biome-ignore-all lint: code specification contract/evidence is intentionally explicit for deterministic review
 // biome-ignore-all format: deterministic fixture assertions are kept compact for evidence review
 import { describe, expect, it } from "vitest";
 import { dashboardFixture, loginFixture } from "@uiforge/ui-schema/fixtures";
