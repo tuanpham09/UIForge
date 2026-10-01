@@ -1,3 +1,5 @@
+// biome-ignore-all format: deterministic generator fixture is reviewed as a semantic artifact
+// biome-ignore-all lint/style/useTemplate: generated-source assembly intentionally uses explicit fragments
 import ts from "typescript";
 
 export type CompileDiagnostic = { file: string; message: string; line?: number; character?: number };
