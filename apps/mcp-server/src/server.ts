@@ -824,7 +824,83 @@ export function createMcpServer(
       "Patch one semantic node without changing its identity or screen.",
       mutationBase.extend({
         nodeId: z.string().min(1).max(128),
-        patch: z.record(z.string(), z.unknown()),
+        patch: z.object({
+          layout: z
+            .object({
+              mode: z.enum(["stack", "flex", "grid", "absolute"]),
+              direction: z.enum(["row", "column"]).optional(),
+            })
+            .optional(),
+          editor: z
+            .object({
+              x: z.number().optional(),
+              y: z.number().optional(),
+              width: z.number().optional(),
+              height: z.number().optional(),
+              zIndex: z.number().optional(),
+            })
+            .optional(),
+          content: z
+            .object({
+              text: z.string().optional(),
+              placeholder: z.string().optional(),
+              alt: z.string().optional(),
+              src: z.string().optional(),
+              value: z.string().optional(),
+              label: z.string().optional(),
+              description: z.string().optional(),
+              data: z.record(
+                z.string(),
+                z.union([z.string(), z.number(), z.boolean(), z.null()]),
+              ).optional(),
+            })
+            .optional(),
+          style: z.object({
+            tokens: z.record(z.string(), z.string()).optional(),
+          }).optional(),
+          component: z.object({
+            registryId: z.string().min(1),
+            variant: z.string().optional(),
+            props: z.record(
+              z.string(),
+              z.union([z.string(), z.number(), z.boolean(), z.null()]),
+            ).optional(),
+          }).optional(),
+          codeMapping: z.object({
+            source: z.string(),
+            exportName: z.string(),
+            componentName: z.string(),
+          }).optional(),
+          responsive: z.array(z.object({
+            breakpoint: z.string(),
+            hidden: z.boolean().optional(),
+            variant: z.string().optional(),
+          })).optional(),
+          accessibility: z.object({
+            role: z.string().optional(),
+            accessibleName: z.string().optional(),
+            description: z.string().optional(),
+            required: z.boolean().optional(),
+            invalid: z.boolean().optional(),
+            disabled: z.boolean().optional(),
+            keyboard: z.array(z.string()).optional(),
+            describedBy: z.array(z.string()).optional(),
+            labelledBy: z.array(z.string()).optional(),
+          }).optional(),
+          assets: z.array(z.object({
+            id: z.string(),
+            kind: z.enum(["image", "icon", "font", "file"]),
+            source: z.string(),
+            alt: z.string().optional(),
+          })).optional(),
+          interaction: z.object({
+            interactive: z.boolean(),
+            trigger: z.enum(["click", "submit", "change", "input", "focus", "hover", "keyboard"]).optional(),
+            action: z.string().optional(),
+            targetScreenId: z.string().optional(),
+            targetNodeId: z.string().optional(),
+          }).optional(),
+        })
       }),
       "update_node",
       "design:write",
@@ -873,9 +949,10 @@ export const createHttpHandler = (
   provider: ProjectProvider = sampleProjectProvider,
   auth: AuthorizationContext = createDefaultAuthorization(),
   mutationProvider?: MutableProjectProvider,
+  mutationSecurity = new MutationSecurity(),
 ) =>
   createMcpHandler(
-    () => createMcpServer(provider, auth, mutationProvider),
+    () => createMcpServer(provider, auth, mutationProvider, mutationSecurity),
     { legacy: "stateless" },
   );
 
