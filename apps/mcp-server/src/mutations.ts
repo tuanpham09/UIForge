@@ -1,3 +1,4 @@
+import type { DesignToken, TokenKind } from "@uiforge/design-tokens";
 import {
   applyCommand,
   type CodeMapping,
@@ -8,8 +9,11 @@ import {
   type UIDocument,
   type UINode,
 } from "@uiforge/ui-schema";
-import type { DesignToken, TokenKind } from "@uiforge/design-tokens";
-import type { ProjectSnapshot, ProjectProvider, ValidationReport } from "./types";
+import type {
+  ProjectProvider,
+  ProjectSnapshot,
+  ValidationReport,
+} from "./types";
 import { validateProject } from "./validation";
 
 export const MCP_MUTATION_VERSION = "uiforge.mcp-mutations/v1" as const;
@@ -91,7 +95,18 @@ export interface MoveNodeInput extends MutationEnvelope {
 export interface UpdateTokenInput extends MutationEnvelope {
   scope: "semantic" | "primitives";
   tokenName: string;
-  patch: Partial<Pick<DesignToken, "kind" | "value" | "description" | "semanticRole" | "primitiveRef" | "theme" | "themes">>;
+  patch: Partial<
+    Pick<
+      DesignToken,
+      | "kind"
+      | "value"
+      | "description"
+      | "semanticRole"
+      | "primitiveRef"
+      | "theme"
+      | "themes"
+    >
+  >;
 }
 
 export interface MutationResult {
@@ -106,10 +121,20 @@ export interface MutationResult {
 const clone = <T>(value: T): T => structuredClone(value);
 
 export class MutationSecurity {
-  private readonly idempotency = new Map<string, { projectId: string; operation: string; baseRevision: number; result: MutationResult }>();
+  private readonly idempotency = new Map<
+    string,
+    {
+      projectId: string;
+      operation: string;
+      baseRevision: number;
+      result: MutationResult;
+    }
+  >();
   private readonly audits: AuditEvent[] = [];
 
-  constructor(private readonly now: () => string = () => new Date().toISOString()) {}
+  constructor(
+    private readonly now: () => string = () => new Date().toISOString(),
+  ) {}
 
   getAuditEvents(): readonly AuditEvent[] {
     return this.audits.map(clone);
@@ -123,8 +148,17 @@ export class MutationSecurity {
     operation: string,
     mutate: (project: ProjectSnapshot) => ProjectSnapshot,
   ): MutationResult {
-    if (!auth.capabilities.includes(capability) || !auth.authorizeProject(input.projectId, capability)) {
-      return this.reject(auth, input, capability, operation, "CAPABILITY_DENIED");
+    if (
+      !auth.capabilities.includes(capability) ||
+      !auth.authorizeProject(input.projectId, capability)
+    ) {
+      return this.reject(
+        auth,
+        input,
+        capability,
+        operation,
+        "CAPABILITY_DENIED",
+      );
     }
 
     const replay = this.idempotency.get(input.idempotencyKey);
@@ -142,13 +176,26 @@ export class MutationSecurity {
           "IDEMPOTENCY_KEY_REUSED",
         );
       }
-      this.audit(auth, input, capability, operation, "replayed", replay.result.revision);
+      this.audit(
+        auth,
+        input,
+        capability,
+        operation,
+        "replayed",
+        replay.result.revision,
+      );
       return { ...replay.result, replayed: true };
     }
 
     const current = provider.getProject(input.projectId);
     if (!current) {
-      return this.reject(auth, input, capability, operation, "PROJECT_SCOPE_NOT_FOUND");
+      return this.reject(
+        auth,
+        input,
+        capability,
+        operation,
+        "PROJECT_SCOPE_NOT_FOUND",
+      );
     }
     if (current.revision !== input.baseRevision) {
       return this.reject(auth, input, capability, operation, "STALE_REVISION");
@@ -159,7 +206,14 @@ export class MutationSecurity {
       next = mutate(clone(current));
       const validation = validateProject(next);
       if (!validation.valid) {
-        return this.reject(auth, input, capability, operation, "VALIDATION_FAILED", validation);
+        return this.reject(
+          auth,
+          input,
+          capability,
+          operation,
+          "VALIDATION_FAILED",
+          validation,
+        );
       }
     } catch (error) {
       return this.reject(
@@ -179,10 +233,22 @@ export class MutationSecurity {
       idempotencyKey: input.idempotencyKey,
       revision: next.revision,
       replayed: false,
-      auditEventId: this.audit(auth, input, capability, operation, "committed", next.revision),
+      auditEventId: this.audit(
+        auth,
+        input,
+        capability,
+        operation,
+        "committed",
+        next.revision,
+      ),
       validation: { valid: true, findings: [] },
     };
-    this.idempotency.set(input.idempotencyKey, { projectId: input.projectId, operation, baseRevision: input.baseRevision, result });
+    this.idempotency.set(input.idempotencyKey, {
+      projectId: input.projectId,
+      operation,
+      baseRevision: input.baseRevision,
+      result,
+    });
     return result;
   }
 
@@ -195,7 +261,15 @@ export class MutationSecurity {
     validation?: ValidationReport,
     message?: string,
   ): MutationResult {
-    const auditEventId = this.audit(auth, input, capability, operation, "rejected", undefined, code);
+    const auditEventId = this.audit(
+      auth,
+      input,
+      capability,
+      operation,
+      "rejected",
+      undefined,
+      code,
+    );
     return {
       operation,
       idempotencyKey: input.idempotencyKey,
@@ -329,7 +403,12 @@ export function mutateCreateScreen(
     updatedAt: new Date().toISOString(),
     source: "ai",
   };
-  return { ...project, document, revision: document.revision.revision, updatedAt: document.revision.updatedAt };
+  return {
+    ...project,
+    document,
+    revision: document.revision.revision,
+    updatedAt: document.revision.updatedAt,
+  };
 }
 
 export function mutateUpdateScreen(
@@ -346,7 +425,12 @@ export function mutateUpdateScreen(
     updatedAt: new Date().toISOString(),
     source: "ai",
   };
-  return { ...project, document, revision: document.revision.revision, updatedAt: document.revision.updatedAt };
+  return {
+    ...project,
+    document,
+    revision: document.revision.revision,
+    updatedAt: document.revision.updatedAt,
+  };
 }
 
 export function mutateCreateComponentInstance(
@@ -434,7 +518,12 @@ export function mutateUpdateToken(
   set[input.tokenName] = { ...current, ...input.patch } as DesignToken;
   const validation = validateProject({ ...project, tokens });
   if (!validation.valid) throw new Error("token validation failed");
-  return { ...project, tokens, revision: project.revision + 1, updatedAt: new Date().toISOString() };
+  return {
+    ...project,
+    tokens,
+    revision: project.revision + 1,
+    updatedAt: new Date().toISOString(),
+  };
 }
 
 export function mutationEnvelopeSchema(z: typeof import("zod/v4")) {
