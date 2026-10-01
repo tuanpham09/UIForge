@@ -301,7 +301,7 @@ export class MutationSecurity {
     revision?: number,
     errorCode?: string,
   ): string {
-    const id = "audit." + (this.audits.length + 1);
+    const id = `audit.${this.audits.length + 1}`;
     this.audits.push({
       id,
       timestamp: this.now(),
