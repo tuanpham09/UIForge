@@ -454,7 +454,7 @@ export function createMcpServer(
       {
         title: name.replaceAll("_", " "),
         description,
-        inputSchema,
+        inputSchema: inputSchema.shape,
         outputSchema: envelopeSchema,
         annotations: {
           readOnlyHint: true,
