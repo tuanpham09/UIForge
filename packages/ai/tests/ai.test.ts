@@ -1,6 +1,6 @@
 // biome-ignore-all format: test contract is kept compact for review
 import { describe, expect, it } from "vitest";
-import { MockAIProvider, PROMPTS, executeWithPolicy, parseJson, prepareDesignContext, runGeneration, validateUIOutput } from "../src/index";
+import { executeWithPolicy, MockAIProvider, PROMPTS, parseJson, prepareDesignContext, runGeneration, validateUIOutput } from "../src/index";
 
 const intent = { domain: "Finance", productType: "Expense Manager", primaryTasks: ["Add transaction", "Review spending"], platforms: ["web", "mobile"] as ("web" | "mobile")[] };
 
