@@ -1,0 +1,27 @@
+{
+  "version": "uiforge.visual-craft/v1",
+  "screens": [
+    {
+      "id": "dashboard",
+      "viewport": "desktop",
+      "semanticTypography": [
+        "body"
+      ],
+      "spacingRhythm": "4px",
+      "cardPolicy": "no repeated decorative card stack",
+      "interactiveTargetBaseline": "44px"
+    },
+    {
+      "id": "add",
+      "viewport": "desktop",
+      "semanticTypography": [
+        "body"
+      ],
+      "spacingRhythm": "4px",
+      "interactiveTargetBaseline": "44px"
+    }
+  ],
+  "colorStrategy": "uiforge.color-strategy/v1",
+  "componentRegistry": "uiforge.components/v1",
+  "status": "valid"
+}
