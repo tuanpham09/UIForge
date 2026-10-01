@@ -1,4 +1,5 @@
 import { componentRegistry } from "@uiforge/component-registry";
+import { resolveResponsive } from "@uiforge/responsive";
 import type { UIDocument, UINode } from "@uiforge/ui-schema";
 import React, { type CSSProperties, type ReactNode } from "react";
 import { validateRendererGraph } from "./diagnostics";
@@ -38,7 +39,7 @@ function layoutStyle(node: UINode, context: RendererContext): CSSProperties {
         { gap: node.layout.gap.token },
         context.tokens,
         context.diagnostics,
-        node.id,
+        effectiveNode.id,
       ).gap
     : undefined;
 
@@ -100,7 +101,7 @@ function diagnosticsForNode(node: UINode, context: RendererContext): void {
     });
   }
 
-  const bindingId = resolveRendererBinding(node.component?.registryId);
+  const bindingId = resolveRendererBinding(effectiveNode.component?.registryId);
 
   if (node.type === "custom" && !node.component?.registryId) {
     context.diagnostics.push({
@@ -139,37 +140,77 @@ function renderNode(
   context: RendererContext,
   registry: RendererComponentRegistry,
 ): ReactNode {
-  diagnosticsForNode(node, context);
+  const responsive = resolveResponsive(context.document, context.viewport);
+  const resolved = responsive.nodes[node.id];
 
-  const children = nodeChildren(context.document, node);
+  if (resolved && !resolved.visible) {
+    return null;
+  }
+
+  const effectiveNode: UINode = resolved
+    ? {
+        ...node,
+        layout: {
+          ...node.layout,
+          ...(resolved.layout ?? {}),
+        },
+        style: {
+          ...node.style,
+          tokens: {
+            ...(node.style?.tokens ?? {}),
+            ...resolved.tokenOverrides,
+          },
+        },
+        component: node.component
+          ? {
+              ...node.component,
+              variant: resolved.variant ?? node.component.variant,
+            }
+          : node.component,
+        interaction: node.interaction
+          ? {
+              ...node.interaction,
+              targetScreenId:
+                resolved.interaction?.targetScreenId ??
+                node.interaction.targetScreenId,
+              targetNodeId:
+                resolved.interaction?.targetNodeId ??
+                node.interaction.targetNodeId,
+            }
+          : node.interaction,
+      }
+    : node;
+  diagnosticsForNode(effectiveNode, context);
+
+  const children = nodeChildren(context.document, effectiveNode);
   const bindingId = resolveRendererBinding(node.component?.registryId);
-  const semantic = registry[bindingId ?? node.type];
+  const semantic = registry[bindingId ?? effectiveNode.type];
   const style = {
-    ...layoutStyle(node, context),
+    ...layoutStyle(effectiveNode, context),
     ...tokenStyles(
-      node.style?.tokens,
+      effectiveNode.style?.tokens,
       context.tokens,
       context.diagnostics,
       node.id,
     ),
   };
   const dataProps = {
-    "data-node-id": node.id,
-    "data-semantic-type": node.type,
-    ...(node.component?.registryId
-      ? { "data-component-id": node.component.registryId }
+    "data-node-id": effectiveNode.id,
+    "data-semantic-type": effectiveNode.type,
+    ...(effectiveNode.component?.registryId
+      ? { "data-component-id": effectiveNode.component.registryId }
       : {}),
-    ...(node.component?.variant
-      ? { "data-component-variant": node.component.variant }
+    ...(effectiveNode.component?.variant
+      ? { "data-component-variant": effectiveNode.component.variant }
       : {}),
   };
 
   if (
-    node.type === "screen-root" ||
-    node.type === "section" ||
-    node.type === "list" ||
-    node.type === "list-item" ||
-    node.type === "card"
+    effectiveNode.type === "screen-root" ||
+    effectiveNode.type === "section" ||
+    effectiveNode.type === "list" ||
+    effectiveNode.type === "list-item" ||
+    effectiveNode.type === "card"
   ) {
     return (
       <section {...dataProps} style={style}>
@@ -186,7 +227,7 @@ function renderNode(
     return (
       <div
         role="img"
-        aria-label={node.accessibility?.accessibleName}
+        aria-label={effectiveNode.accessibility?.accessibleName}
         {...dataProps}
         style={style}
       >
@@ -198,14 +239,14 @@ function renderNode(
   if (semantic) {
     return (
       <div {...dataProps} style={style}>
-        {semantic(node, context)}
+        {semantic(effectiveNode, context)}
       </div>
     );
   }
 
   return (
     <div {...dataProps} data-unsupported="true" style={style}>
-      Unsupported: {node.type}
+      Unsupported: {effectiveNode.type}
     </div>
   );
 }
@@ -217,6 +258,16 @@ export function renderScreen(
   options: RendererOptions,
 ): { element: ReactNode; diagnostics: RendererDiagnostic[] } {
   const diagnostics = validateRendererGraph(document);
+  const responsive = resolveResponsive(document, options.viewport);
+  for (const diagnostic of responsive.diagnostics) {
+    diagnostics.push({
+      code: "RESPONSIVE_ERROR",
+      severity: diagnostic.severity,
+      nodeId: diagnostic.nodeId,
+      screenId: diagnostic.screenId,
+      message: `[${diagnostic.code}] ${diagnostic.message}`,
+    });
+  }
   const screen = document.screens.find((item) => item.id === screenId);
 
   if (!screen) {
