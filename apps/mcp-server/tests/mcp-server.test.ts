@@ -1,10 +1,14 @@
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 import { spawn } from "node:child_process";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
 import { describe, expect, it } from "vitest";
 import { sampleProject } from "../src/sample-project";
 import { createHttpHandler, createMcpServer, validateProject } from "../src/server";
 import type { ProjectProvider } from "../src/types";
+
+const evidenceDir = "artifacts/mcp";
+mkdirSync(evidenceDir, { recursive: true });
 
 const expectedTools = [
   "get_project",
@@ -47,6 +51,7 @@ describe("UIForge MCP contract", () => {
     const result = await client.listTools();
     expect(result.tools.map((tool) => tool.name)).toEqual(expectedTools);
     expect(result.tools).toHaveLength(expectedTools.length);
+    writeFileSync(evidenceDir + "/tool-schema-artifact.json", JSON.stringify({ tools: result.tools }, null, 2));
     for (const tool of result.tools) {
       expect(tool.inputSchema).toBeDefined();
       expect(tool.outputSchema).toBeDefined();
@@ -95,7 +100,10 @@ describe("UIForge MCP contract", () => {
     const body = result.structuredContent as { data: { transitions: unknown[] }; revision: number };
     expect(body.revision).toBe(7);
     expect(body.data.transitions).toHaveLength(1);
-    expect(JSON.stringify(body).length).toBeLessThan(12000);
+    const contextBytes = Buffer.byteLength(JSON.stringify(body), "utf8");
+    expect(contextBytes).toBeLessThan(12000);
+    writeFileSync(evidenceDir + "/mcp-transcript.json", JSON.stringify({ tool: "get_flow", result: body, contextBytes }, null, 2));
+    writeFileSync(evidenceDir + "/context-size-benchmark.json", JSON.stringify({ maxBytes: 12000, measuredBytes: contextBytes, status: "pass" }, null, 2));
 
     await client.close();
   });
