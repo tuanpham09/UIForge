@@ -37,16 +37,20 @@ export function decide(input: DecisionInput): OrchestratorResult {
   const componentId = chooseComponent(context, registry);
   if (!componentId) return { ok: false, findings: ["No registered component matches the semantic intent."] };
 
-  const loadedSkills = input.skillLoader
-    ? input.skillLoader.discover(context).map(ref => input.skillLoader.load(ref.id, ref.version))
+  const loader = input.skillLoader;
+  const loadedSkills = loader
+    ? loader.discover(context).map((ref) => loader.load(ref.id, ref.version))
     : [];
   const skillIds = loadedSkills.map(skill => skill.id);
+  const component = registry.components[componentId];
+  if (!component) return { ok: false, findings: [`Unknown registered component: ${componentId}`] };
+
   const rules = matchingRules(context, componentId);
   const forbidden = rules.find(rule => rule.outcome.forbidden);
   if (forbidden) return { ok: false, findings: [forbidden.outcome.message ?? forbidden.description] };
 
   const variant = rules.find(rule => rule.outcome.variant)?.outcome.variant
-    ?? registry.components[componentId].variants[0]?.id ?? "default";
+    ?? component.variants[0]?.id ?? "default";
   const state = rules.find(rule => rule.outcome.state)?.outcome.state
     ?? (context.loading ? "loading" : context.disabled ? "disabled" : "default");
 
