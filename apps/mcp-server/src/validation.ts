@@ -63,9 +63,7 @@ export function validateFlow(
         code: "MISSING_DESTINATION_NODE",
         path: "transitions." + transition.id + ".destination.nodeId",
         message:
-          "Destination node '" +
-          transition.destination.nodeId +
-          "' does not exist.",
+          `Destination node '${transition.destination.nodeId}' does not exist.`,
         severity: "error",
       });
     if (!transition.trigger || !transition.action)
