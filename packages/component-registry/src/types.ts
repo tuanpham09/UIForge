@@ -1,4 +1,6 @@
 export const COMPONENT_REGISTRY_VERSION = "uiforge.components/v1" as const;
+export const CODE_MAPPING_VERSION = "uiforge.code-mapping/v1" as const;
+
 export type ComponentId = string;
 
 export interface ComponentAnatomyPart {
@@ -42,6 +44,67 @@ export interface RendererBinding {
   bindingId: string;
   semanticType: string;
 }
+
+export type CodeFramework = "react";
+export type CodeRuntime = "nextjs";
+export type CodeStyling = "tailwind-v4";
+export type CodeLibrary = "shadcn-ui" | "base-ui";
+export type MappingConfidence = "high" | "medium" | "low";
+export type ImportPathKind = "project-relative" | "package";
+
+export interface CodeSourceLocation {
+  kind: "upstream";
+  path: string;
+  url: string;
+  revision?: string;
+}
+
+export interface CodeMappingProvenance {
+  kind: "verified-reference" | "manual-review";
+  source: string;
+  verifiedAt: string;
+  notes?: string;
+}
+
+export interface CodeComponentMapping {
+  mappingId: string;
+  version: typeof CODE_MAPPING_VERSION;
+  framework: CodeFramework;
+  runtime: CodeRuntime;
+  styling: CodeStyling;
+  library: CodeLibrary;
+  importPath: string;
+  importPathKind: ImportPathKind;
+  exportName: string;
+  componentName: string;
+  propMapping: Record<string, string>;
+  variantMapping: Record<string, string>;
+  tokenMapping: Record<string, string>;
+  dependencies: string[];
+  versionRange: string;
+  sourceLocation: CodeSourceLocation;
+  confidence: MappingConfidence;
+  provenance: CodeMappingProvenance;
+}
+
+export interface CodeMappingSet {
+  version: typeof CODE_MAPPING_VERSION;
+  mappings: Record<string, CodeComponentMapping>;
+}
+
+export interface CodeMappingQuery {
+  componentId: ComponentId;
+  framework?: CodeFramework;
+  runtime?: CodeRuntime;
+  library?: CodeLibrary;
+}
+
+export interface CodeMappingResolution {
+  componentId: ComponentId;
+  mapping: CodeComponentMapping | null;
+  reason: "resolved" | "missing" | "unsupported-target";
+}
+
 export interface CodeMappingPlaceholder {
   strategy: "project-mapping";
   componentName: string;
@@ -80,4 +143,21 @@ export interface RegistryValidationIssue {
 export interface RegistryValidationResult {
   valid: boolean;
   issues: RegistryValidationIssue[];
+}
+export interface CodeMappingValidationIssue {
+  code:
+    | "DUPLICATE_MAPPING_ID"
+    | "INVALID_MAPPING_ID"
+    | "INVALID_IMPORT_PATH"
+    | "INVALID_EXPORT_NAME"
+    | "INVALID_SOURCE_LOCATION"
+    | "INVALID_PROVENANCE"
+    | "INVALID_VARIANT_MAPPING"
+    | "INVALID_COMPONENT_ID";
+  path: string;
+  message: string;
+}
+export interface CodeMappingValidationResult {
+  valid: boolean;
+  issues: CodeMappingValidationIssue[];
 }

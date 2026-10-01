@@ -1,0 +1,16 @@
+{
+  "version": "uiforge.code-mapping/v1",
+  "target": {
+    "framework": "react",
+    "runtime": "nextjs",
+    "styling": "tailwind-v4",
+    "library": "shadcn-ui"
+  },
+  "mappings": [
+    {"componentId":"uiforge.button","importPath":"components/ui/button","exportName":"Button","variants":{"primary":"default","secondary":"secondary","destructive":"destructive","ghost":"ghost"},"confidence":"high"},
+    {"componentId":"uiforge.card","importPath":"components/ui/card","exportName":"Card","variants":{"default":"default","interactive":"default"},"confidence":"high"},
+    {"componentId":"uiforge.input","importPath":"components/ui/input","exportName":"Input","variants":{"default":"default","search":"default"},"confidence":"high"}
+  ],
+  "missingMappingExample": {"componentId":"uiforge.navigation","reason":"missing"},
+  "projectPathPolicy":"Consumer aliases such as @/components/ui/* are resolved outside the canonical registry."
+}
