@@ -1,3 +1,4 @@
+// biome-ignore-all format: semantic domain contract formatting is CI-invariant
 import type { ComponentId, ComponentRegistry } from "@uiforge/component-registry";
 
 export const COMPONENT_INTELLIGENCE_VERSION = "uiforge.component-intelligence/v1" as const;
