@@ -32,18 +32,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      - name: Temporary MCP formatter
-        run: pnpm exec biome check --write apps/mcp-server
-
       - name: Lint
         run: pnpm lint
-
-      - name: Print MCP formatted sources
-        run: |
-          for f in apps/mcp-server/src/*.ts apps/mcp-server/tests/*.ts; do
-            echo "===== $f ====="
-            cat "$f"
-          done
 
       - name: Typecheck
         run: pnpm typecheck
