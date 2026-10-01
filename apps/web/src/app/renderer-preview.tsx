@@ -3,12 +3,14 @@
 import { defaultTokenSet } from "@uiforge/design-tokens";
 import { getViewport, renderScreen } from "@uiforge/renderer";
 import { dashboardFixture } from "@uiforge/ui-schema";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const screens = dashboardFixture.screens;
 
 export default function RendererPreview() {
   const [screenId, setScreenId] = useState(screens[0]?.id ?? "");
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
   const [preset, setPreset] = useState<
     "wide" | "desktop" | "tablet" | "mobile"
   >("wide");
@@ -45,6 +47,7 @@ export default function RendererPreview() {
             {item}
           </button>
         ))}
+        <span data-testid="renderer-controls-ready" data-hydrated={hydrated} />
         <span
           className="ml-auto text-xs text-slate-500"
           data-testid="renderer-viewport"
