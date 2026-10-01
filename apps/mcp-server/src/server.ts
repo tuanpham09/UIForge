@@ -1,4 +1,3 @@
-
 import {
   type CallToolResult,
   createMcpHandler,
