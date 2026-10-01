@@ -32,19 +32,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      - name: Debug Issue 13 Biome diagnostics
-        if: github.event.pull_request.number == 39
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set +e
-          pnpm exec biome check packages/codegen --reporter=json > /tmp/uiforge-biome.json 2>&1
-          status=$?
-          body="$(head -c 12000 /tmp/uiforge-biome.json)"
-          gh api "repos/${{ github.repository }}/issues/39/comments" --method POST -f body="$body"
-          exit $status
-
       - name: Lint
         run: pnpm lint
 
