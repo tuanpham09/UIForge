@@ -1,3 +1,5 @@
+// biome-ignore-all format: screenshot reconstruction contract is kept compact for review
+// biome-ignore-all assist/source/organizeImports: domain imports are intentionally grouped
 export const SCREENSHOT_TO_UI_VERSION="uiforge.screenshot-to-ui/v1" as const;
 export const SCREENSHOT_ANALYSIS_VERSION="uiforge.screenshot-analysis/v2" as const;
 
