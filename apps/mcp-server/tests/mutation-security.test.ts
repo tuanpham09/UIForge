@@ -7,10 +7,10 @@ import { describe, expect, it } from "vitest";
 import {
   createAuthorization,
   createMutableProvider,
-  type MutableProjectProvider,
   MutationSecurity,
 } from "../src/mutations";
 import { sampleProjectProvider } from "../src/sample-project";
+import type { ProjectSnapshot } from "../src/types";
 import { createHttpHandler, createMcpServer } from "../src/server";
 
 const evidenceDir = "artifacts/mcp";
@@ -25,10 +25,7 @@ const mutationTools = [
   "update_token",
 ];
 
-function clientFor(
-  provider: MutableProjectProvider,
-  auth: ReturnType<typeof createAuthorization>,
-) {
+function clientFor() {
   return new Client(
     { name: "uiforge-mutation-security-test", version: "0.1.0" },
     { versionNegotiation: { mode: { pin: "2026-07-28" } } },
@@ -39,7 +36,7 @@ async function connectClient(
   provider: MutableProjectProvider,
   auth: ReturnType<typeof createAuthorization>,
 ) {
-  const client = clientFor(provider, auth);
+  const client = clientFor();
   await client.connect(
     new StreamableHTTPClientTransport(new URL("http://uiforge.test/mcp"), {
       fetch: async (url, init) =>
@@ -149,12 +146,14 @@ describe("UIForge MCP mutation security", () => {
       patch: { name: "Dashboard v2" },
     };
     const mutate = (
-      project: Parameters<Parameters<typeof security.execute>[6]>[0],
+      project: ProjectSnapshot,
     ) => {
       const next = structuredClone(project);
-      next.document.screens.find(
-        (screen) => screen.id === "screen.dashboard",
-      )!.name = "Dashboard v2";
+      const screen = next.document.screens.find(
+        (candidate) => candidate.id === "screen.dashboard",
+      );
+      if (!screen) throw new Error("dashboard screen missing");
+      screen.name = "Dashboard v2";
       next.revision = 8;
       return next;
     };
