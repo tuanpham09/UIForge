@@ -1,3 +1,5 @@
+// biome-ignore-all format: deterministic generator fixture is reviewed as a semantic artifact
+// biome-ignore-all lint/style/useTemplate: generated-source assembly intentionally uses explicit fragments
 import type { CodeSpecification, ComponentRequirement, FilePlanEntry } from "./types";
 
 export type GeneratedFile = { path: string; content: string; owner: "generated" | "preserved" | "review-required"; kind: FilePlanEntry["kind"] };
