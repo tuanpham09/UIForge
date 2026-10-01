@@ -1,3 +1,6 @@
+// biome-ignore-all format: compact domain contract is intentionally reviewable
+// biome-ignore-all assist/source/organizeImports: contract imports are intentionally compact
+
 export const EXPERIENCE_GRAPH_VERSION = "uiforge.experience-graph/v1" as const;
 export type Destination={screenId:string;nodeId?:string};
 export type Trigger={type:"click"|"tap"|"submit"|"hover"|"drag"|"keyboard"|"timeout"}|{type:"condition";expression:string};
