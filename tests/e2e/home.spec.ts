@@ -1,8 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("web shell renders deterministic preview and editor projection", async ({
-  page,
-}) => {
+test("web shell renders all canonical responsive viewports", async ({ page }) => {
   await page.goto("/");
 
   await expect(
@@ -11,7 +9,6 @@ test("web shell renders deterministic preview and editor projection", async ({
     }),
   ).toBeVisible();
   await expect(page.getByTestId("renderer-preview")).toBeVisible();
-  await expect(page.getByTestId("renderer-viewport")).toHaveText("1440×900");
   await expect(page.getByTestId("renderer-diagnostics")).toContainText(
     "Preview transition → screen.mobile-list",
   );
@@ -21,7 +18,18 @@ test("web shell renders deterministic preview and editor projection", async ({
   );
   await expect(page).toHaveTitle("UIForge");
 
-  await page.getByTestId("renderer-preview").screenshot({
-    path: "artifacts/renderer/runtime-preview.png",
-  });
+  const viewports = [
+    ["wide", "1440×900"],
+    ["desktop", "1024×768"],
+    ["tablet", "768×1024"],
+    ["mobile", "390×844"],
+  ] as const;
+
+  for (const [preset, label] of viewports) {
+    await page.getByTestId(`viewport-${preset}`).click();
+    await expect(page.getByTestId("renderer-viewport")).toHaveText(label);
+    await page.getByTestId("renderer-preview").screenshot({
+      path: `artifacts/renderer/viewport-${label.replace("×", "x")}.png`,
+    });
+  }
 });
