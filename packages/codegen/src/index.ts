@@ -1,13 +1,11 @@
-import type {
+import { resolveCodeMapping, type CodeComponentMapping, type CodeLibrary } from "@uiforge/component-registry";
+import { toCssVariable } from "@uiforge/design-tokens";
 import type { ColorStrategy } from "@uiforge/color-intelligence";
 import type { ComponentDecision } from "@uiforge/component-intelligence";
-import { resolveCodeMapping, type CodeComponentMapping, type CodeLibrary } from "@uiforge/component-registry";
 import type { DesignStrategy } from "@uiforge/design-intelligence";
-import { toCssVariable } from "@uiforge/design-tokens";
 import type { UIDocument, UINode } from "@uiforge/ui-schema";
 import type { VisualCraftStrategy } from "@uiforge/visual-craft-quality";
-// biome-ignore-all format: code generation rules are kept grouped by output contract for review
-// biome-ignore-all lint/style/useTemplate: explicit string assembly mirrors code-spec field paths and diagnostics
+import type {
   AccessibilityRequirement, CodeSpecContext, CodeSpecResult, CodeSpecification,
   CodeSpecTarget, CodeSpecWarning, ComponentRequirement, ExperienceGraphAdapter,
   ExperienceTransition, FilePlanEntry, ImportRequirement, InteractionRequirement,
@@ -15,6 +13,7 @@ import type { VisualCraftStrategy } from "@uiforge/visual-craft-quality";
 } from "./types";
 
 export * from "./types";
+
 
 const DEFAULT_TARGET: CodeSpecTarget = {
   framework: "react", runtime: "nextjs", styling: "tailwind-v4", library: "shadcn-ui",
