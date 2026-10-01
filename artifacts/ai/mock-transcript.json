@@ -1,0 +1,33 @@
+{
+  "contractVersion": "uiforge.ai/v1",
+  "provider": "mock",
+  "model": "deterministic-v1",
+  "prompt": "uiforge.ai-prompt/ui-generation-v1",
+  "input": {
+    "domain": "finance",
+    "productType": "expense manager",
+    "primaryTasks": [
+      "add transaction",
+      "review spending"
+    ],
+    "platforms": [
+      "web",
+      "mobile"
+    ]
+  },
+  "strategyVersion": "uiforge.design-strategy/v1",
+  "output": {
+    "schemaVersion": "uiforge.ui-output/v1",
+    "commands": [
+      {
+        "type": "create-screen",
+        "id": "screen-1",
+        "props": {
+          "domain": "finance",
+          "productType": "expense manager"
+        }
+      }
+    ]
+  },
+  "deterministic": true
+}

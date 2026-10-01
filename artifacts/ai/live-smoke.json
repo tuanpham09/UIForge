@@ -1,0 +1,9 @@
+{
+  "contractVersion": "uiforge.ai/v1",
+  "adapter": "HttpAIProvider",
+  "mode": "live-adapter-contract-smoke",
+  "providerSdkDependency": false,
+  "requestShapeVerified": true,
+  "responseMetadataShapeVerified": true,
+  "note": "The adapter uses standard fetch and supports an injected gateway; vendor SDKs and secrets are not required by the package."
+}
