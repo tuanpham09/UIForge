@@ -79,9 +79,25 @@ export interface CreateComponentInstanceInput extends MutationEnvelope {
   content?: UINode["content"];
 }
 
+export type EditableNodePatch = Partial<
+  Pick<
+    UINode,
+    | "layout"
+    | "editor"
+    | "content"
+    | "style"
+    | "component"
+    | "codeMapping"
+    | "responsive"
+    | "accessibility"
+    | "assets"
+    | "interaction"
+  >
+>;
+
 export interface UpdateNodeInput extends MutationEnvelope {
   nodeId: string;
-  patch: NodePatch;
+  patch: EditableNodePatch;
 }
 
 export interface MoveNodeInput extends MutationEnvelope {
@@ -158,7 +174,7 @@ export class MutationSecurity {
       );
     }
 
-    const replay = this.idempotency.get(input.idempotencyKey);
+    this.pruneIdempotency();\n    const idempotencyId = `${auth.actorId}:${input.idempotencyKey}`;\n    const fingerprint = JSON.stringify(input);\n    const replay = this.idempotency.get(idempotencyId);
     if (replay) {
       if (
         replay.projectId !== input.projectId ||
