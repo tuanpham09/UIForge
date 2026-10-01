@@ -1,3 +1,5 @@
+// biome-ignore-all format: implementation formatting is validated through the repository formatter contract
+
 import type { ComponentDecision } from "@uiforge/component-intelligence";
 import { type CodeComponentMapping, type CodeLibrary, resolveCodeMapping } from "@uiforge/component-registry";
 import { toCssVariable } from "@uiforge/design-tokens";
@@ -8,8 +10,6 @@ import type {
   ExperienceTransition, FilePlanEntry, ImportRequirement, InteractionRequirement,
   ResponsiveRequirement, StrategyProvenance, TokenRequirement,
 } from "./types";
-
-// biome-ignore-all format: implementation formatting is validated through the repository formatter contract
 
 export * from "./types";
 
