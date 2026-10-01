@@ -1,6 +1,6 @@
-// biome-ignore-all format: deterministic generator fixture is reviewed as a semantic artifact
+// biome-ignore-all format: deterministic code-generation source is maintained as a semantic artifact
 // biome-ignore-all lint/style/useTemplate: generated-source assembly intentionally uses explicit fragments
-// biome-ignore-all assist/source/organizeImports: test import grouping is intentional
+// biome-ignore-all assist/source/organizeImports: codegen artifact imports are intentionally grouped
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { generateReactCode, runCompileGate } from "../src";
@@ -16,7 +16,20 @@ const spec: CodeSpecification = {
     { path: "app/globals.css", kind: "style", owner: "generated", reason: "tokens", screenIds: [] },
     { path: "app/dashboard/page.tsx", kind: "page", owner: "generated", reason: "dashboard", screenIds: ["screen.dashboard"] },
   ],
-  componentGraph: [{ nodeId: "node.button", screenId: "screen.dashboard", registryId: "uiforge.button", mappingId: "shadcn.button", componentName: "Button", importPath: "@/components/ui/button", variant: "primary", props: { children: "Create" }, requiredStates: [], warnings: [] }],
+  componentGraph: [
+    {
+      nodeId: "node.button",
+      screenId: "screen.dashboard",
+      registryId: "uiforge.button",
+      mappingId: "shadcn.button",
+      componentName: "Button",
+      importPath: "@/components/ui/button",
+      variant: "primary",
+      props: { children: "Create" },
+      requiredStates: [],
+      warnings: [],
+    },
+  ],
   importPlan: [{ source: "@/components/ui/button", imports: ["Button"], kind: "component", requiredBy: ["node.button"] }],
   tokenRequirements: [{ nodeId: "node.button", slot: "color", token: "color.primary", cssVariable: "--ui-color-primary", tailwindValue: "var(--ui-color-primary)" }],
   responsiveRequirements: [{ nodeId: "node.button", breakpoint: "mobile", classes: ["sm:hidden"], hidden: true, tokenOverrides: {} }],
@@ -31,9 +44,11 @@ describe("deterministic React generator", () => {
   it("emits mapped components, semantic tokens, responsive and accessibility requirements", () => {
     const result = generateReactCode(spec);
     const page = result.files.find((file) => file.path === "app/dashboard/page.tsx")?.content ?? "";
+    const css = result.files.find((file) => file.path === "app/globals.css")?.content ?? "";
     expect(page).toContain('import { Button } from "@/components/ui/button";');
-    expect(page).toContain("data-responsive-classes");
-    expect(page).toContain("aria-label");
+    expect(page).toContain("sm:hidden text-[var(--ui-color-primary)]");
+    expect(page).toContain('aria-label="Create"');
+    expect(css).toContain("--uiforge-color-primary: var(--ui-color-primary);");
     expect(result.manifest.files.map((file) => file.path)).toEqual(["app/dashboard/page.tsx", "app/globals.css", "app/layout.tsx"]);
   });
 
@@ -50,5 +65,11 @@ describe("deterministic React generator", () => {
     writeFileSync("artifacts/codegen/generated-source.json", JSON.stringify(result.files, null, 2));
     writeFileSync("artifacts/codegen/generated-manifest.json", JSON.stringify(result.manifest, null, 2));
     writeFileSync("artifacts/codegen/compile-gate.json", JSON.stringify(gate, null, 2));
+  });
+
+  it("rejects syntactically invalid generated source", () => {
+    const gate = runCompileGate([{ path: "app/broken/page.tsx", content: "export default function Page( {" }]);
+    expect(gate.passed).toBe(false);
+    expect(gate.diagnostics[0]?.file).toBe("/app/broken/page.tsx");
   });
 });
