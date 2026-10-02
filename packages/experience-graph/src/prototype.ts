@@ -1,4 +1,4 @@
-import type { ExperienceGraph, Destination, Transition } from "./types";
+import type { Destination, ExperienceGraph, Transition } from "./types";
 
 export interface PrototypeSession {
   current: Destination;
@@ -31,7 +31,7 @@ export function resolveTransition(
       item.trigger.type === triggerType &&
       item.action.type === "navigate",
   );
-  if (!transition || transition.action.type !== "navigate") return null;
+  if (transition?.action.type !== "navigate") return null;
   return {
     transition,
     session: {
