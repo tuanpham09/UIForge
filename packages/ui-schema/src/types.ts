@@ -225,7 +225,7 @@ export interface UIDocument {
 
 export type NodePatch = Partial<Omit<UINode, "id" | "screenId">>;
 
-export interface CreateFrameCommand {\n  type: "CreateFrame";\n  commandId: CommandId;\n  frame: Frame;\n}\n\nexport interface UpdateFrameCommand {\n  type: "UpdateFrame";\n  commandId: CommandId;\n  frameId: FrameId;\n  patch: Partial<Omit<Frame, "id">>;\n}\n\nexport interface DeleteFrameCommand {\n  type: "DeleteFrame";\n  commandId: CommandId;\n  frameId: FrameId;\n}\n\nexport interface CreateFrameCommand {
+export interface CreateFrameCommand {
   type: "CreateFrame";
   commandId: CommandId;
   frame: Frame;
