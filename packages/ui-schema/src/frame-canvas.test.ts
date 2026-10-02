@@ -131,7 +131,10 @@ describe("issue #44 semantic canvas commands", () => {
     const rootNode = document.nodes[root.id];
     if (!rootNode) throw new Error("dashboard root was deleted");
 
-    expect(document.nodes[sectionId].parentId).toBe(root.id);
+    const sectionNode = document.nodes[sectionId];
+    if (!sectionNode) throw new Error("section was not created");
+
+    expect(sectionNode.parentId).toBe(root.id);
     expect(rootNode.childrenIds).toContain(sectionId);
   });
 });
