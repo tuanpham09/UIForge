@@ -177,7 +177,6 @@ const defaultSize = (node: UINode) => {
 function visualEditor(
   document: UIDocument,
   node: UINode,
-  index: number,
 ): EditorLayoutMetadata {
   const existing = node.editor;
   if (existing?.x !== undefined && existing?.y !== undefined) {
@@ -191,7 +190,8 @@ function visualEditor(
   const frame =
     document.frames?.find((candidate) => candidate.screenId === node.screenId) ??
     document.frames?.[0];
-  const root = document.nodes[node.screenId + ".root"];
+  const rootId = document.screens.find((screen) => screen.id === node.screenId)?.rootNodeId;
+  const root = rootId ? document.nodes[rootId] : undefined;
   const size = defaultSize(node);
   const frameX = frame?.x ?? 80;
   const frameY = frame?.y ?? 80;
@@ -215,7 +215,7 @@ export function buildVisualDesignProposal(document: UIDocument): VisualDesignPro
     throw new Error("VISUAL_DESIGN_SOURCE_MUST_BE_WIREFRAME");
   }
 
-  const patches = Object.values(document.nodes).map((node, index) => ({
+  const patches = Object.values(document.nodes).map((node) => ({
     nodeId: node.id,
     style: styleFor(node),
     component: componentFor(node),
@@ -223,7 +223,7 @@ export function buildVisualDesignProposal(document: UIDocument): VisualDesignPro
     editor:
       node.type === "screen-root"
         ? { ...node.editor, visible: false }
-        : visualEditor(document, node, index),
+        : visualEditor(document, node),
   }));
 
   return {
