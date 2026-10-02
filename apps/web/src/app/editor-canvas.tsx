@@ -19,7 +19,6 @@ import {
 import {
   applyCommand,
   createFrameFromPreset,
-  workspaceFixture,
   FRAME_PRESETS,
   type Frame,
   type FrameId,
