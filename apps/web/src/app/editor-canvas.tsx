@@ -5,6 +5,7 @@ import {
   createFrameFromPreset,
   dashboardFixture,
   FRAME_PRESETS,
+  type FrameId,
   type UIDocument,
 } from "@uiforge/ui-schema";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -13,8 +14,44 @@ import "tldraw/tldraw.css";
 
 const cloneDocument = (): UIDocument => structuredClone(dashboardFixture);
 
+type CustomFrameDraft = {
+  open: boolean;
+  width: string;
+  height: string;
+};
+
+type ProjectedShape = {
+  id: string;
+  type: string;
+  x: number;
+  y: number;
+  props: { w: number; h: number; geo?: string };
+  label: string;
+  meta: Record<string, unknown>;
+};
+
+const toProjectedShape = (shape: ProjectedShape) => ({
+  id: shape.id as never,
+  type: shape.type as never,
+  x: shape.x,
+  y: shape.y,
+  props: {
+    w: shape.props.w,
+    h: shape.props.h,
+    geo: shape.props.geo,
+    richText: toRichText(shape.label),
+  },
+  meta: shape.meta,
+});
+
 export default function EditorCanvas() {
   const [document, setDocument] = useState<UIDocument>(() => cloneDocument());
+  const [selectedFrameId, setSelectedFrameId] = useState<FrameId | null>(null);
+  const [customFrame, setCustomFrame] = useState<CustomFrameDraft>({
+    open: false,
+    width: "390",
+    height: "844",
+  });
   const editorRef = useRef<Editor | null>(null);
 
   const projection = useMemo(
@@ -39,29 +76,36 @@ export default function EditorCanvas() {
   }, [projection]);
 
   useEffect(() => {
-    if (!editorRef.current || !projected) return;
-
     const editor = editorRef.current;
-    const shapes = projected.shapes.map((shape) => ({
-      id: shape.id,
-      type: shape.type,
-      x: shape.x,
-      y: shape.y,
-      props: {
-        w: shape.props.w,
-        h: shape.props.h,
-        geo: shape.props.geo,
-        richText: toRichText(shape.label),
-      },
-      meta: shape.meta,
-    }));
+    if (!editor || !projected) return;
 
-    editor.createShapes(shapes.filter((shape) => !editor.getShape(shape.id)));
+    const shapes = projected.shapes.map(toProjectedShape);
+    const projectedIds = new Set(shapes.map((shape) => shape.id));
+
+    for (const shape of editor.getCurrentPageShapes()) {
+      if (
+        shape.meta?.source === "uiforge" &&
+        !projectedIds.has(shape.id)
+      ) {
+        editor.deleteShape(shape.id);
+      }
+    }
+
+    editor.createShapes(
+      shapes.filter((shape) => !editor.getShape(shape.id)),
+    );
 
     for (const shape of shapes) {
       if (editor.getShape(shape.id)) editor.updateShape(shape);
     }
   }, [projected]);
+
+  const syncCanvasSelection = (editor: Editor) => {
+    const selected = editor.getSelectedShapes().find(
+      (shape) => shape.meta?.semanticType === "frame",
+    );
+    setSelectedFrameId((selected?.meta?.nodeId as FrameId | undefined) ?? null);
+  };
 
   const addFrame = (presetId: string) => {
     const index = (document.frames ?? []).length;
@@ -69,7 +113,7 @@ export default function EditorCanvas() {
     if (!preset) return;
 
     const next = createFrameFromPreset(
-      `frame.dashboard.${presetId}.${index}` as never,
+      `frame.dashboard.${presetId}.${index}` as FrameId,
       "screen.dashboard",
       presetId,
       80 + (index % 3) * 440,
@@ -85,9 +129,44 @@ export default function EditorCanvas() {
     );
   };
 
+  const addCustomFrame = () => {
+    const width = Number(customFrame.width);
+    const height = Number(customFrame.height);
+    if (!Number.isFinite(width) || !Number.isFinite(height)) return;
+    if (width <= 0 || height <= 0) return;
+
+    const index = (document.frames ?? []).length;
+    const id = `frame.dashboard.custom.${Date.now()}.${index}` as FrameId;
+    const orientation = width <= height ? "portrait" : "landscape";
+
+    setDocument((current) =>
+      applyCommand(current, {
+        type: "CreateFrame",
+        commandId: `editor.create-frame.custom.${Date.now()}`,
+        frame: {
+          id,
+          screenId: "screen.dashboard",
+          presetId: "custom",
+          name: `Custom ${width} × ${height}`,
+          x: 80 + (index % 3) * 440,
+          y: 80 + Math.floor(index / 3) * 920,
+          width,
+          height,
+          orientation,
+          presetVersion: "uiforge.frame-presets/v1",
+        },
+      }),
+    );
+    setCustomFrame((current) => ({ ...current, open: false }));
+  };
+
   const addSection = () => {
     const root = document.nodes["screen.dashboard.root"];
     if (!root) return;
+
+    const selectedFrame =
+      (document.frames ?? []).find((frame) => frame.id === selectedFrameId) ??
+      document.frames?.[0];
 
     const id = `section.dashboard.${Date.now()}`;
     setDocument((current) =>
@@ -97,6 +176,7 @@ export default function EditorCanvas() {
         node: {
           id,
           screenId: root.screenId,
+          frameId: selectedFrame?.id,
           parentId: root.id,
           childrenIds: [],
           type: "section",
@@ -106,10 +186,10 @@ export default function EditorCanvas() {
             gap: { token: "space.4" },
           },
           editor: {
-            x: 120,
-            y: 160,
-            width: 318,
-            height: 420,
+            x: selectedFrame?.x ?? 120,
+            y: selectedFrame?.y ?? 160,
+            width: Math.min(318, selectedFrame?.width ?? 318),
+            height: Math.min(420, selectedFrame?.height ?? 420),
           },
           content: { label: "New Section" },
         },
@@ -183,7 +263,9 @@ export default function EditorCanvas() {
               <button
                 className="mt-1 w-full rounded px-2 py-1.5 text-left text-xs text-slate-300 hover:bg-slate-800"
                 type="button"
-                onClick={() => addFrame("desktop-1280")}
+                onClick={() =>
+                  setCustomFrame((current) => ({ ...current, open: true }))
+                }
               >
                 Custom…
               </button>
@@ -227,24 +309,57 @@ export default function EditorCanvas() {
               editorRef.current = editor;
               editor.setCurrentTool("select");
 
+              const sync = () => syncCanvasSelection(editor);
+              const unsubscribe = editor.store.listen(
+                (entry) => {
+                  for (const [, [, next]] of Object.entries(
+                    entry.changes.updated,
+                  )) {
+                    if (
+                      next.typeName !== "shape" ||
+                      next.meta?.semanticType !== "frame"
+                    ) {
+                      continue;
+                    }
+
+                    const frameId = next.meta.nodeId as FrameId;
+                    setDocument((current) => {
+                      const frame = current.frames?.find(
+                        (item) => item.id === frameId,
+                      );
+                      if (!frame) return current;
+
+                      return applyCommand(current, {
+                        type: "UpdateFrame",
+                        commandId: `canvas.update-frame.${frameId}.${Math.round(next.x)}.${Math.round(next.y)}`,
+                        frameId,
+                        patch: {
+                          x: next.x,
+                          y: next.y,
+                          width: next.props.w,
+                          height: next.props.h,
+                        },
+                      });
+                    });
+                  }
+
+                  sync();
+                },
+                { source: "user", scope: "document" },
+              );
+
+              editor.on("change", sync);
+              sync();
+
               if (projected) {
-                editor.createShapes(
-                  projected.shapes.map((shape) => ({
-                    id: shape.id,
-                    type: shape.type,
-                    x: shape.x,
-                    y: shape.y,
-                    props: {
-                      w: shape.props.w,
-                      h: shape.props.h,
-                      geo: shape.props.geo,
-                      richText: toRichText(shape.label),
-                    },
-                    meta: shape.meta,
-                  })),
-                );
+                editor.createShapes(projected.shapes.map(toProjectedShape));
                 editor.zoomToFit({ animation: { duration: 0 } });
               }
+
+              return () => {
+                unsubscribe();
+                editor.off("change", sync);
+              };
             }}
           />
         </main>
@@ -262,6 +377,12 @@ export default function EditorCanvas() {
             Frames
           </p>
           <p className="mt-1">{document.frames?.length ?? 0} semantic frames</p>
+          <p className="mt-4 text-[10px] uppercase tracking-wider text-slate-500">
+            Selected frame
+          </p>
+          <p className="mt-1 text-cyan-300">
+            {selectedFrameId ?? "None"}
+          </p>
           <p className="mt-4 text-[10px] uppercase tracking-wider text-slate-500">
             Sections
           </p>
@@ -308,6 +429,69 @@ export default function EditorCanvas() {
           {projected?.shapes.length ?? 0} projected shapes · 85%
         </span>
       </footer>
+
+      {customFrame.open ? (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-black/50"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Create custom frame"
+        >
+          <div className="w-80 rounded-xl border border-slate-700 bg-slate-900 p-4 shadow-2xl">
+            <h2 className="text-sm font-semibold text-white">
+              Custom frame
+            </h2>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <label className="text-xs text-slate-400">
+                Width
+                <input
+                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-sm text-white"
+                  inputMode="numeric"
+                  value={customFrame.width}
+                  onChange={(event) =>
+                    setCustomFrame((current) => ({
+                      ...current,
+                      width: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+              <label className="text-xs text-slate-400">
+                Height
+                <input
+                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-sm text-white"
+                  inputMode="numeric"
+                  value={customFrame.height}
+                  onChange={(event) =>
+                    setCustomFrame((current) => ({
+                      ...current,
+                      height: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                type="button"
+                className="rounded px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800"
+                onClick={() =>
+                  setCustomFrame((current) => ({ ...current, open: false }))
+                }
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="rounded bg-cyan-500 px-3 py-1.5 text-xs font-medium text-slate-950"
+                onClick={addCustomFrame}
+              >
+                Create frame
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
