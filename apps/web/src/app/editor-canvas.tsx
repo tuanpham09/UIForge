@@ -160,10 +160,17 @@ export default function EditorCanvas() {
     height: "844",
   });
   const editorRef = useRef<Editor | null>(null);
-  const [viewport, setViewport] = useState<ViewportState>(() => {
-    if (typeof window === "undefined") return viewportFromPreset("iphone-16");
-    return parseViewport(new URLSearchParams(window.location.search));
-  });
+  // Keep the first render deterministic between SSR and hydration.
+  // URL state is applied only after mount so a shareable viewport cannot change
+  // the server-rendered device label before React hydrates.
+  const [viewport, setViewport] = useState<ViewportState>(() =>
+    viewportFromPreset("iphone-16"),
+  );
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setViewport(parseViewport(new URLSearchParams(window.location.search)));
+  }, []);
+
   const frameSelectionInitializedRef = useRef(false);
   const lastSyncedFrameIdRef = useRef<FrameId | null>(null);
   const [viewportDiagnostics, setViewportDiagnostics] = useState<
@@ -228,11 +235,12 @@ export default function EditorCanvas() {
       type: shape.type,
       x: shape.x,
       y: shape.y,
+      opacity: shape.opacity ?? 1,
+      isLocked: shape.isLocked ?? false,
       props: {
         w: shape.props.w,
         h: shape.props.h,
         geo: shape.props.geo,
-        opacity: shape.props.opacity,
         richText: toRichText(shape.label),
       },
       meta: shape.meta,
@@ -1221,11 +1229,12 @@ export default function EditorCanvas() {
                     type: shape.type,
                     x: shape.x,
                     y: shape.y,
+                    opacity: shape.opacity ?? 1,
+                    isLocked: shape.isLocked ?? false,
                     props: {
                       w: shape.props.w,
                       h: shape.props.h,
                       geo: shape.props.geo,
-                      opacity: shape.props.opacity,
                       richText: toRichText(shape.label),
                     },
                     meta: shape.meta,
