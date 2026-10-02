@@ -29,6 +29,8 @@ describe("Penpot canvas spike", () => {
   it("selects, moves and resizes a semantic canvas object", () => {
     let spike = createPenpotCanvasSpike(workspaceFixture);
     const first = spike.rects[0];
+    expect(first).toBeDefined();
+    if (!first) throw new Error("Expected fixture rectangle");
 
     spike = selectAt(spike, { x: first.x + 2, y: first.y + 2 });
     expect(spike.selection.id).toBe(first.id);
