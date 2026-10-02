@@ -31,15 +31,15 @@ import {
   TOKEN_OPTIONS,
 } from "./inspector-model";
 import {
-  DEVICE_PRESETS,
-  ZOOM_PRESETS,
   customViewport,
+  DEVICE_PRESETS,
   parseViewport,
   rotateViewport,
   serializeViewport,
+  type ViewportState,
   validateViewport,
   viewportFromPreset,
-  type ViewportState,
+  ZOOM_PRESETS,
 } from "./viewport-model";
 
 
@@ -173,7 +173,9 @@ export default function EditorCanvas() {
     if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
     const params = new URLSearchParams(serializeViewport(next));
-    params.forEach((value, key) => url.searchParams.set(key, value));
+    params.forEach((value, key) => {
+      url.searchParams.set(key, value);
+    });
     window.history.replaceState({}, "", url);
   };
 
@@ -294,10 +296,16 @@ export default function EditorCanvas() {
     if (!frame) return;
     const next = customViewport(frame.width, frame.height, viewport.zoom);
     setViewport(next);
-    updateViewportUrl(next);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      new URLSearchParams(serializeViewport(next)).forEach((value, key) => {
+        url.searchParams.set(key, value);
+      });
+      window.history.replaceState({}, "", url);
+    }
     // Frame dimensions remain canonical; preview state mirrors them without
     // persisting viewport selection into the UI Schema.
-  }, [selectedFrameId]);
+  }, [document.frames, selectedFrameId, viewport.zoom]);
 
   const applySemantic = (builder: (current: UIDocument) => UIDocument) => {
     try {
