@@ -964,10 +964,12 @@ export default function EditorCanvas() {
         patches: proposal.patches,
         stage: "visual",
       });
-      setHistoryPast((past) => [...past.slice(-49), source]);
-      setHistoryFuture([]);
-      setInspectorError(null);
-      setDocument(next);
+      flushSync(() => {
+        setHistoryPast((past) => [...past.slice(-49), source]);
+        setHistoryFuture([]);
+        setInspectorError(null);
+        setDocument(next);
+      });
     } catch (error) {
       setInspectorError(error instanceof Error ? error.message : String(error));
     } finally {
