@@ -40,13 +40,22 @@ export type CanvasSpike = {
 
 const DEFAULT_SIZE = { width: 240, height: 96 };
 
-function nodeRect(node: UIDocument["nodes"][string], index: number): CanvasRect {
+function nodeRect(
+  node: UIDocument["nodes"][string],
+  index: number,
+): CanvasRect {
   return {
     id: String(node.id),
     x: node.editor?.x ?? 80 + (index % 3) * 320,
     y: node.editor?.y ?? 80 + Math.floor(index / 3) * 160,
-    width: node.editor?.width && node.editor.width > 0 ? node.editor.width : DEFAULT_SIZE.width,
-    height: node.editor?.height && node.editor.height > 0 ? node.editor.height : DEFAULT_SIZE.height,
+    width:
+      node.editor?.width && node.editor.width > 0
+        ? node.editor.width
+        : DEFAULT_SIZE.width,
+    height:
+      node.editor?.height && node.editor.height > 0
+        ? node.editor.height
+        : DEFAULT_SIZE.height,
   };
 }
 
@@ -180,18 +189,36 @@ export function snapPosition(
   let x = moving.x;
   let y = moving.y;
 
-  const movingEdgesX = [moving.x, moving.x + moving.width / 2, moving.x + moving.width];
-  const movingEdgesY = [moving.y, moving.y + moving.height / 2, moving.y + moving.height];
+  const movingEdgesX = [
+    moving.x,
+    moving.x + moving.width / 2,
+    moving.x + moving.width,
+  ];
+  const movingEdgesY = [
+    moving.y,
+    moving.y + moving.height / 2,
+    moving.y + moving.height,
+  ];
 
   for (const other of others) {
     const targetX = [other.x, other.x + other.width / 2, other.x + other.width];
-    const targetY = [other.y, other.y + other.height / 2, other.y + other.height];
+    const targetY = [
+      other.y,
+      other.y + other.height / 2,
+      other.y + other.height,
+    ];
 
     const xMatch = movingEdgesX
-      .map((candidate, index) => ({ delta: targetX[index] - candidate, abs: Math.abs(targetX[index] - candidate) }))
+      .map((candidate, index) => ({
+          delta: targetX[index] - candidate,
+          abs: Math.abs(targetX[index] - candidate),
+        }))
       .sort((a, b) => a.abs - b.abs)[0];
     const yMatch = movingEdgesY
-      .map((candidate, index) => ({ delta: targetY[index] - candidate, abs: Math.abs(targetY[index] - candidate) }))
+      .map((candidate, index) => ({
+          delta: targetY[index] - candidate,
+          abs: Math.abs(targetY[index] - candidate),
+        }))
       .sort((a, b) => a.abs - b.abs)[0];
 
     if (xMatch && xMatch.abs <= threshold) x += xMatch.delta;
