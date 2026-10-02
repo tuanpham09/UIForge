@@ -29,6 +29,7 @@ export type SemanticNodeType =
   | "table"
   | "card"
   | "dialog-trigger"
+  | "group"
   | "custom";
 
 export type LayoutMode = "stack" | "flex" | "grid" | "absolute";
@@ -59,6 +60,8 @@ export interface EditorLayoutMetadata {
   width?: number;
   height?: number;
   zIndex?: number;
+  visible?: boolean;
+  locked?: boolean;
 }
 
 export interface NodeContent {
