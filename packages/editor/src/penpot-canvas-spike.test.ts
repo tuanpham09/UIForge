@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { workspaceFixture } from "@uiforge/ui-schema";
+import { describe, expect, it } from "vitest";
 import {
   createPenpotCanvasSpike,
   hitTest,
