@@ -15,7 +15,6 @@ const cloneDocument = (): UIDocument => structuredClone(dashboardFixture);
 
 export default function EditorCanvas() {
   const [document, setDocument] = useState<UIDocument>(() => cloneDocument());
-  const [showFrameMenu, setShowFrameMenu] = useState(false);
   const editorRef = useRef<Editor | null>(null);
 
   const projection = useMemo(
@@ -84,7 +83,6 @@ export default function EditorCanvas() {
         frame: next,
       }),
     );
-    setShowFrameMenu(false);
   };
 
   const addSection = () => {
@@ -143,59 +141,54 @@ export default function EditorCanvas() {
             Section
           </button>
 
-          <div className="relative">
-            <button
-              className="rounded-md bg-cyan-500 px-3 py-1.5 font-medium text-slate-950"
-              type="button"
-              onClick={() => setShowFrameMenu((value) => !value)}
-            >
+          <details className="relative" data-testid="frame-menu">
+            <summary className="cursor-pointer list-none rounded-md bg-cyan-500 px-3 py-1.5 font-medium text-slate-950">
               Frame +
-            </button>
+            </summary>
 
-            {showFrameMenu && (
-              <div
-                className="absolute right-0 top-9 z-20 w-64 rounded-xl border border-slate-700 bg-slate-900 p-2 shadow-2xl"
-                data-testid="frame-preset-menu"
+            <div
+              className="absolute right-0 top-9 z-20 w-64 rounded-xl border border-slate-700 bg-slate-900 p-2 shadow-2xl"
+              data-testid="frame-preset-menu"
+            >
+              <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                Add Frame
+              </p>
+
+              {(["mobile", "tablet", "android", "desktop"] as const).map(
+                (category) => (
+                  <div key={category}>
+                    <p className="px-2 pt-2 text-[10px] uppercase text-slate-500">
+                      {category}
+                    </p>
+
+                    {FRAME_PRESETS.filter(
+                      (item) => item.category === category,
+                    ).map((item) => (
+                      <button
+                        key={item.id}
+                        className="flex w-full justify-between rounded px-2 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-800"
+                        type="button"
+                        onClick={() => addFrame(item.id)}
+                      >
+                        <span>{item.name}</span>
+                        <span className="text-slate-500">
+                          {item.width}×{item.height}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                ),
+              )}
+
+              <button
+                className="mt-1 w-full rounded px-2 py-1.5 text-left text-xs text-slate-300 hover:bg-slate-800"
+                type="button"
+                onClick={() => addFrame("desktop-1280")}
               >
-                <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-                  Add Frame
-                </p>
-
-                {(["mobile", "tablet", "android", "desktop"] as const).map(
-                  (category) => (
-                    <div key={category}>
-                      <p className="px-2 pt-2 text-[10px] uppercase text-slate-500">
-                        {category}
-                      </p>
-
-                      {FRAME_PRESETS.filter(
-                        (item) => item.category === category,
-                      ).map((item) => (
-                        <button
-                          key={item.id}
-                          className="flex w-full justify-between rounded px-2 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-800"
-                          type="button"
-                          onClick={() => addFrame(item.id)}
-                        >
-                          <span>{item.name}</span>
-                          <span className="text-slate-500">
-                            {item.width}×{item.height}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  ),
-                )}
-                <button
-                  className="mt-1 w-full rounded px-2 py-1.5 text-left text-xs text-slate-300 hover:bg-slate-800"
-                  type="button"
-                  onClick={() => addFrame("desktop-1280")}
-                >
-                  Custom…
-                </button>
-              </div>
-            )}
-          </div>
+                Custom…
+              </button>
+            </div>
+          </details>
 
           <button
             className="rounded-md px-3 py-1.5 text-slate-300 hover:bg-slate-800"
@@ -293,7 +286,11 @@ export default function EditorCanvas() {
         <button
           type="button"
           className="rounded px-2 py-1 hover:bg-slate-800"
-          onClick={() => setShowFrameMenu(true)}
+          onClick={() => {
+            document
+              .querySelector<HTMLDetailsElement>("[data-testid='frame-menu']")
+              ?.setAttribute("open", "");
+          }}
         >
           + Frame
         </button>
