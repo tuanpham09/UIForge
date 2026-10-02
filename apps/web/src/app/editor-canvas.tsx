@@ -39,6 +39,93 @@ type CustomFrameDraft = {
   height: string;
 };
 
+type InspectorSectionProps = { title: string; children: React.ReactNode };
+function InspectorSection({ title, children }: InspectorSectionProps) {
+  return (
+    <section>
+      <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">{title}</p>
+      <div className="space-y-2">{children}</div>
+    </section>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return <label className="block text-[10px] text-slate-500"><span>{label}</span><div className="mt-1">{children}</div></label>;
+}
+
+function NumberPair({
+  label,
+  value,
+  min,
+  onCommit,
+}: {
+  label: string;
+  value: number;
+  min?: number;
+  onCommit: (value: number) => void;
+}) {
+  const [draft, setDraft] = useState(String(value));
+  useEffect(() => setDraft(String(value)), [value]);
+  return (
+    <label className="flex items-center gap-2 text-[10px] text-slate-500">
+      <span className="w-3">{label}</span>
+      <input
+        aria-label={label}
+        type="number"
+        min={min}
+        value={draft}
+        onChange={(event) => setDraft(event.target.value)}
+        onBlur={() => {
+          const next = Number(draft);
+          if (!Number.isFinite(next) || (min !== undefined && next < min)) return;
+          onCommit(next);
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") event.currentTarget.blur();
+        }}
+        className="min-w-0 flex-1 rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-[11px] text-slate-200"
+      />
+    </label>
+  );
+}
+
+function Toggle({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (value: boolean) => void;
+}) {
+  return (
+    <label className="flex items-center gap-2 text-[10px] text-slate-400">
+      <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} />
+      {label}
+    </label>
+  );
+}
+
+function InspectorDiagnostics({
+  diagnostics,
+}: {
+  diagnostics: { severity: "error" | "warning" | "ok"; code: string; message: string }[];
+}) {
+  const hasError = diagnostics.some((item) => item.severity === "error");
+  return (
+    <section>
+      <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Diagnostics</p>
+      <div className={`rounded border p-2 text-[10px] ${hasError ? "border-red-500/40 bg-red-500/10 text-red-300" : "border-emerald-500/30 bg-emerald-500/5 text-emerald-300"}`}>
+        {diagnostics.map((item) => <div key={item.code + item.message}>✓ {item.message}</div>)}
+      </div>
+    </section>
+  );
+}
+
+function ResetButton({ onClick }: { onClick: () => void }) {
+  return <button type="button" onClick={onClick} className="w-full rounded border border-slate-700 px-2 py-1.5 text-[10px] text-slate-400 hover:bg-slate-800">Reset to snapshot</button>;
+}
+
 export default function EditorCanvas() {
   const initialDocumentRef = useRef<UIDocument>(cloneDocument());
   const [document, setDocument] = useState<UIDocument>(() => structuredClone(initialDocumentRef.current));
@@ -91,6 +178,7 @@ export default function EditorCanvas() {
         w: shape.props.w,
         h: shape.props.h,
         geo: shape.props.geo,
+        opacity: shape.props.opacity,
         richText: toRichText(shape.label),
       },
       meta: shape.meta,
