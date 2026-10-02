@@ -1,3 +1,4 @@
+import { dashboardFixture } from "@uiforge/ui-schema";
 import { describe, expect, it } from "vitest";
 import {
   commonTokenSlots,
@@ -5,21 +6,20 @@ import {
   inspectFrame,
   inspectNode,
 } from "./inspector-model";
-import { dashboardFixture } from "@uiforge/ui-schema";
 
 describe("semantic inspector model", () => {
   it("reports valid frame diagnostics", () => {
     const frame = dashboardFixture.frames?.[0];
-    expect(frame).toBeDefined();
-    expect(inspectFrame(frame!)).toEqual([
+    if (!frame) throw new Error("dashboard fixture frame is missing");
+    expect(inspectFrame(frame)).toEqual([
       { severity: "ok", code: "OK", message: "No issues" },
     ]);
   });
 
   it("rejects invalid dimensions and unknown tokens", () => {
     const source = dashboardFixture.nodes["dashboard.cta"];
-    expect(source).toBeDefined();
-    const node = structuredClone(source!);
+    if (!source) throw new Error("dashboard fixture node is missing");
+    const node = structuredClone(source);
     node.editor = { ...node.editor, width: 0 };
     node.style = { tokens: { fill: "color.does-not-exist" } };
     const diagnostics = inspectNode(node);
