@@ -1,9 +1,9 @@
 // biome-ignore-all format: compact product UI surface
 "use client";
 
-import { useMemo, useState } from "react";
+import { type DesignChatResult, type DesignProposal, runDesignChat } from "@uiforge/agent-runtime";
 import type { NodeId, ScreenId, UIDocument } from "@uiforge/ui-schema";
-import { runDesignChat, type DesignChatResult, type DesignProposal } from "@uiforge/agent-runtime";
+import { useMemo, useState } from "react";
 
 type Message = { id: string; role: "user" | "assistant"; text: string };
 type Props = {
@@ -79,7 +79,7 @@ export default function AgentDesignChat({ document, screenId, nodeIds, frameIds,
             <ul className="mt-2 space-y-1 text-[10px] text-slate-400">{result.proposal.preview.map((item) => <li key={item}>• {item}</li>)}</ul>
             {appliedId === result.proposal.id ? <p className="mt-2 text-[10px] text-emerald-300">Applied to UI Schema.</p> : (
               <div className="mt-3 flex gap-2">
-                <button type="button" data-testid="agent-apply" onClick={() => { onApply(result.proposal!); setAppliedId(result.proposal!.id); }} className="rounded bg-cyan-500 px-3 py-1.5 text-[10px] font-medium text-slate-950">Apply</button>
+                <button type="button" data-testid="agent-apply" onClick={() => { const proposal = result.proposal; if (!proposal) return; onApply(proposal); setAppliedId(proposal.id); }} className="rounded bg-cyan-500 px-3 py-1.5 text-[10px] font-medium text-slate-950">Apply</button>
                 <button type="button" data-testid="agent-reject" onClick={() => { setResult(null); }} className="rounded border border-slate-700 px-3 py-1.5 text-[10px] text-slate-300">Reject</button>
               </div>
             )}
