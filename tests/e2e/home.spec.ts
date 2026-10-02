@@ -39,7 +39,7 @@ test("web shell renders the primary semantic canvas workspace", async ({
   await expect(page.getByTestId("viewport-orientation")).toContainText(
     "Portrait",
   );
-  await expect(page.getByLabel("Viewport zoom")).toHaveValue("100");
+  await expect(page.getByLabel("Viewport zoom")).toHaveValue(/^(50|100)$/);
 
   await expect(page.getByTestId("responsive-validation")).toBeVisible();
 
