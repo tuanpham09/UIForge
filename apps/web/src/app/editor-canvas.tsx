@@ -6,8 +6,14 @@ import {
   dashboardFixture,
   FRAME_PRESETS,
   type FrameId,
+  type NodeId,
   type UIDocument,
 } from "@uiforge/ui-schema";
+import {
+  buildLayerTree,
+  filterLayers,
+  type SemanticLayer,
+} from "@uiforge/editor";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { type Editor, Tldraw, toRichText } from "tldraw";
 import "tldraw/tldraw.css";
@@ -23,6 +29,8 @@ type CustomFrameDraft = {
 export default function EditorCanvas() {
   const [document, setDocument] = useState<UIDocument>(() => cloneDocument());
   const [selectedFrameId, setSelectedFrameId] = useState<FrameId | null>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<NodeId | null>(null);
+  const [layerQuery, setLayerQuery] = useState("");
   const [customFrame, setCustomFrame] = useState<CustomFrameDraft>({
     open: false,
     width: "390",
@@ -84,10 +92,119 @@ export default function EditorCanvas() {
   }, [projected]);
 
   const syncCanvasSelection = (editor: Editor) => {
-    const selected = editor
-      .getSelectedShapes()
-      .find((shape) => shape.meta?.semanticType === "frame");
-    setSelectedFrameId((selected?.meta?.nodeId as FrameId | undefined) ?? null);
+    const selected = editor.getSelectedShapes()[0];
+    const id = selected?.meta?.nodeId as string | undefined;
+    const semanticType = selected?.meta?.semanticType;
+    if (!id) {
+      setSelectedFrameId(null);
+      setSelectedNodeId(null);
+    } else if (semanticType === "frame") {
+      setSelectedFrameId(id as FrameId);
+      setSelectedNodeId(null);
+    } else {
+      setSelectedNodeId(id as NodeId);
+      setSelectedFrameId(null);
+    }
+  };
+
+
+  const layerTree = useMemo(
+    () => filterLayers(buildLayerTree(document), layerQuery),
+    [document, layerQuery],
+  );
+
+  const selectedSemanticId = selectedNodeId ?? selectedFrameId;
+
+  const selectSemanticLayer = (layer: SemanticLayer) => {
+    const id = layer.nodeId ?? layer.frameId;
+    if (!id || !editorRef.current) return;
+    editorRef.current.select(`shape:${id}` as never);
+    if (layer.kind === "frame") setSelectedFrameId(id as FrameId);
+    if (layer.kind === "node") setSelectedNodeId(id as NodeId);
+  };
+
+  const updateNode = (nodeId: NodeId, patch: NonNullable<UIDocument["nodes"][string]>) => {
+    setDocument((current) =>
+      applyCommand(current, {
+        type: "UpdateNode",
+        commandId: `layers.update-node.${nodeId}.${Date.now()}`,
+        nodeId,
+        patch,
+      }),
+    );
+  };
+
+  const renameLayer = (layer: SemanticLayer) => {
+    if (layer.kind !== "node" || !layer.nodeId) return;
+    const node = document.nodes[layer.nodeId];
+    if (!node) return;
+    const nextName = globalThis.prompt("Rename layer", layer.name)?.trim();
+    if (!nextName || nextName === layer.name) return;
+    updateNode(layer.nodeId, { ...node, content: { ...node.content, label: nextName } });
+  };
+
+  const toggleLayerVisibility = (layer: SemanticLayer) => {
+    if (layer.kind !== "node" || !layer.nodeId) return;
+    const node = document.nodes[layer.nodeId];
+    if (!node) return;
+    updateNode(layer.nodeId, { ...node, editor: { ...node.editor, visible: node.editor?.visible === false } });
+  };
+
+  const toggleLayerLock = (layer: SemanticLayer) => {
+    if (layer.kind !== "node" || !layer.nodeId) return;
+    const node = document.nodes[layer.nodeId];
+    if (!node) return;
+    updateNode(layer.nodeId, { ...node, editor: { ...node.editor, locked: node.editor?.locked !== true } });
+  };
+
+  const moveLayer = (layer: SemanticLayer, delta: number) => {
+    if (layer.kind !== "node" || !layer.nodeId) return;
+    const node = document.nodes[layer.nodeId];
+    if (!node?.parentId) return;
+    const parent = document.nodes[node.parentId];
+    if (!parent) return;
+    const currentIndex = parent.childrenIds.indexOf(layer.nodeId);
+    const nextIndex = Math.max(0, Math.min(parent.childrenIds.length - 1, currentIndex + delta));
+    if (currentIndex < 0 || nextIndex === currentIndex) return;
+    setDocument((current) =>
+      applyCommand(current, {
+        type: "MoveNode",
+        commandId: `layers.move-node.${layer.nodeId}.${nextIndex}.${Date.now()}`,
+        nodeId: layer.nodeId,
+        toIndex: nextIndex,
+      }),
+    );
+  };
+
+  const renderLayer = (layer: SemanticLayer): React.ReactNode => {
+    const selected = selectedSemanticId === (layer.nodeId ?? layer.frameId);
+    return (
+      <div key={layer.id}>
+        <div
+          className={`group flex items-center gap-1 rounded px-1 py-1 text-[11px] ${selected ? "bg-cyan-500/20 text-cyan-200" : "text-slate-300 hover:bg-slate-800"}`}
+          style={{ paddingLeft: 6 + layer.depth * 10 }}
+        >
+          <button
+            type="button"
+            className="min-w-0 flex-1 truncate text-left"
+            onClick={() => selectSemanticLayer(layer)}
+            title={layer.name}
+          >
+            {layer.kind === "screen" ? "▾" : layer.kind === "frame" ? "▣" : "◇"} {layer.name}
+          </button>
+          {layer.kind === "node" ? (
+            <>
+              <button type="button" title="Rename" className="opacity-0 group-hover:opacity-100" onClick={() => renameLayer(layer)}>✎</button>
+              <button type="button" title="Move up" className="opacity-0 group-hover:opacity-100" onClick={() => moveLayer(layer, -1)}>↑</button>
+              <button type="button" title="Move down" className="opacity-0 group-hover:opacity-100" onClick={() => moveLayer(layer, 1)}>↓</button>
+              <button type="button" title="Toggle visibility" className="opacity-70" onClick={() => toggleLayerVisibility(layer)}>{layer.visible ? "◉" : "○"}</button>
+              <button type="button" title="Toggle lock" className="opacity-70" onClick={() => toggleLayerLock(layer)}>{layer.locked ? "🔒" : "🔓"}</button>
+            </>
+          ) : null}
+        </div>
+        {layer.children.map(renderLayer)}
+      </div>
+    );
   };
 
   const addFrame = (presetId: string) => {
@@ -284,6 +401,20 @@ export default function EditorCanvas() {
             ↓
             <br />● Mobile List
           </div>
+          <div className="mt-5 border-t border-slate-800 pt-4">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="font-semibold text-slate-400">LAYERS</p>
+              <span className="text-[10px] text-slate-600">{Object.keys(document.nodes).length}</span>
+            </div>
+            <input
+              aria-label="Search layers"
+              value={layerQuery}
+              onChange={(event) => setLayerQuery(event.target.value)}
+              placeholder="Search layers…"
+              className="mb-2 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-[11px] text-slate-200 outline-none focus:border-cyan-500"
+            />
+            <div className="max-h-[500px] overflow-auto">{layerTree.map(renderLayer)}</div>
+          </div>
         </aside>
 
         <main className="relative min-w-0 bg-[#111827]">
@@ -383,9 +514,16 @@ export default function EditorCanvas() {
           </p>
           <p className="mt-1">{document.frames?.length ?? 0} semantic frames</p>
           <p className="mt-4 text-[10px] uppercase tracking-wider text-slate-500">
-            Selected frame
+            Selected semantic object
           </p>
-          <p className="mt-1 text-cyan-300">{selectedFrameId ?? "None"}</p>
+          <p className="mt-1 text-cyan-300">{selectedSemanticId ?? "None"}</p>
+          <p className="mt-2 text-slate-500">
+            {selectedNodeId
+              ? document.nodes[selectedNodeId]?.content?.label ?? document.nodes[selectedNodeId]?.type
+              : selectedFrameId
+                ? document.frames?.find((frame) => frame.id === selectedFrameId)?.name
+                : "Nothing selected"}
+          </p>
           <p className="mt-4 text-[10px] uppercase tracking-wider text-slate-500">
             Sections
           </p>
