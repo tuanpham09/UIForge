@@ -1,12 +1,13 @@
 // biome-ignore-all format: agent runtime contract remains compact for review
+
 import type { AgentContext, AgentToolDefinition, AgentToolResult } from "./contracts";
 
 export class AgentToolRegistry {
-  private readonly tools = new Map<string, AgentToolDefinition>();
+  private readonly tools = new Map<string, AgentToolDefinition<never, unknown>>();
 
   register<TInput, TOutput>(tool: AgentToolDefinition<TInput, TOutput>): void {
     if (this.tools.has(tool.name)) throw new Error(`agent tool already registered: ${tool.name}`);
-    this.tools.set(tool.name, tool);
+    this.tools.set(tool.name, tool as unknown as AgentToolDefinition<never, unknown>);
   }
 
   has(name: string): boolean { return this.tools.has(name); }
@@ -26,7 +27,7 @@ export class AgentToolRegistry {
       durationMs: Date.now() - started,
     };
     try {
-      return { callId, toolName: name, ok: true, output: await tool.execute(input, context), durationMs: Date.now() - started };
+      return { callId, toolName: name, ok: true, output: await tool.execute(input as never, context), durationMs: Date.now() - started };
     } catch (error) {
       return {
         callId, toolName: name, ok: false,
