@@ -6,6 +6,29 @@ import { EDITOR_PROJECTION_VERSION } from "./types";
 const DEFAULT_WIDTH = 240;
 const DEFAULT_HEIGHT = 96;
 
+function visualGeoStyle(document: UIDocument, node: UINode): ProjectedShape["props"] {
+  const base = {
+    w: dimensions(node).width,
+    h: dimensions(node).height,
+    geo: "rectangle" as const,
+  };
+  if ((document.metadata.designStage ?? "wireframe") === "wireframe") {
+    return { ...base, fill: "none", color: "grey", labelColor: "grey", size: "s", font: "sans", dash: "dashed" };
+  }
+  switch (node.type) {
+    case "button":
+      return { ...base, fill: "solid", color: "blue", labelColor: "white", size: "m", font: "sans", dash: "solid", align: "middle", verticalAlign: "middle" };
+    case "input":
+      return { ...base, fill: "solid", color: "grey", labelColor: "black", size: "s", font: "sans", dash: "solid" };
+    case "card":
+      return { ...base, fill: "solid", color: "grey", labelColor: "black", size: "m", font: "sans", dash: "solid" };
+    case "text":
+      return { ...base, fill: "none", color: "grey", labelColor: "black", size: "m", font: "sans", dash: "none" };
+    default:
+      return { ...base, fill: "none", color: "grey", labelColor: "black", size: "s", font: "sans", dash: "solid" };
+  }
+}
+
 function nodeLabel(node: UINode): string {
   return node.content?.label ?? node.content?.text ?? node.type;
 }
@@ -44,11 +67,7 @@ export function projectNode(
     y: point.y,
     opacity: node.editor?.visible === false ? 0 : 1,
     isLocked: node.editor?.locked === true,
-    props: {
-      w: size.width,
-      h: size.height,
-      geo: "rectangle",
-    },
+    props: visualGeoStyle(document, node),
     label: nodeLabel(node),
     meta: {
       source: "uiforge",
