@@ -29,14 +29,14 @@ describe("semantic inspector model", () => {
 
   it("detects duplicate responsive breakpoints", () => {
     const source = dashboardFixture.nodes["dashboard.cta"];
-    expect(source).toBeDefined();
-    const node = structuredClone(source!);
+    if (!source) throw new Error("dashboard fixture node is missing");
+    const node = structuredClone(source);
     node.responsive = [
-      { breakpoint: "md", minWidth: 768 },
-      { breakpoint: "md", minWidth: 900 },
+      { breakpoint: "mobile", minWidth: 360 },
+      { breakpoint: "mobile", minWidth: 480 },
     ];
     expect(inspectNode(node).some((item) => item.code === "DUPLICATE_BREAKPOINT")).toBe(true);
-    expect(findResponsiveRule(node, "md")?.minWidth).toBe(768);
+    expect(findResponsiveRule(node, "mobile")?.minWidth).toBe(360);
   });
 
   it("finds token slots common to multiple nodes", () => {
