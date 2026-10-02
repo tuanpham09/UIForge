@@ -1,3 +1,4 @@
+// biome-ignore-all format: dense editor workspace JSX is maintained as a product-layout surface
 "use client";
 
 import {
@@ -5,15 +6,6 @@ import {
   filterLayers,
   type SemanticLayer,
 } from "@uiforge/editor";
-import {
-  BREAKPOINTS,
-  commonTokenSlots,
-  findResponsiveRule,
-  inspectFrame,
-  inspectNode,
-  nodeLabel,
-  TOKEN_OPTIONS,
-} from "./inspector-model";
 import {
   applyCommand,
   createFrameFromPreset,
@@ -29,6 +21,16 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { type Editor, Tldraw, toRichText } from "tldraw";
 import "tldraw/tldraw.css";
+import {
+  BREAKPOINTS,
+  commonTokenSlots,
+  findResponsiveRule,
+  inspectFrame,
+  inspectNode,
+  nodeLabel,
+  TOKEN_OPTIONS,
+} from "./inspector-model";
+
 
 const cloneDocument = (): UIDocument => structuredClone(dashboardFixture);
 
