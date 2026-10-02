@@ -19,7 +19,7 @@ Most design-to-code workflows lose information between design and implementation
 
 UIForge is designed around a different contract:
 
-`User Intent → Product Intent → Skill Discovery → Skill Composition → Design Strategy → Experience Graph + UI Schema → Design System → Canvas/Prototype → MCP → Agent → Code → Visual + Interaction QA → Fix`
+`User Intent → Product Intent → Skill Discovery → Skill Composition → Design Strategy → Wireframe → Review/Edit → Visual UI Design → Design System → Canvas/Prototype → MCP → Agent → Code → Visual + Interaction QA → Fix`
 
 The product is **not** "another AI UI generator". Its core asset is a machine-readable UI specification that humans can edit visually and agents can consume deterministically.
 
@@ -47,17 +47,19 @@ flowchart LR
     C --> D[Skill discovery]
     D --> E[Skill composition]
     E --> F[Design strategy]
-    F --> G[Color strategy]
-    G --> H[Experience Graph + UI Schema]
-    H --> I[Design tokens]
-    H --> J[Component registry]
-    H --> K[Flow Canvas / Prototype]
-    H --> L[Preview renderer]
-    F --> M[MCP]
-    G --> M
-    H --> M
-    I --> M
-    J --> M
+    F --> G[Wireframe]
+    G --> H[Review / Edit]
+    H --> I[Visual UI Design]
+    I --> J[Experience Graph + UI Schema]
+    J --> K[Design tokens]
+    J --> L[Component registry]
+    J --> M[Flow Canvas / Prototype]
+    J --> N[Preview renderer]
+    F --> O[MCP]
+    I --> O
+    J --> O
+    K --> O
+    L --> O
     M --> N[Cursor / Claude / Codex / other agents]
     N --> O[Codebase]
     O --> P[Browser render]
