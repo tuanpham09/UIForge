@@ -52,7 +52,10 @@ test("web shell renders the primary semantic canvas workspace", async ({
   await expect(page.getByText("Editable visual design")).toBeVisible();
   await expect(page.getByTestId("design-ui")).toBeDisabled();
 
-  await page.getByRole("button", { name: /Open details/ }).first().click();
+  await page
+    .getByRole("button", { name: /Open details/ })
+    .first()
+    .click();
   await page.getByTestId("ask-uiforge").click();
   await expect(page.getByTestId("contextual-ai-menu")).toBeVisible();
   await expect(page.getByTestId("contextual-ai-menu")).toContainText(
