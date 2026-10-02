@@ -210,15 +210,15 @@ export function snapPosition(
 
     const xMatch = movingEdgesX
       .map((candidate, index) => ({
-          delta: targetX[index] - candidate,
-          abs: Math.abs(targetX[index] - candidate),
-        }))
+        delta: targetX[index] - candidate,
+        abs: Math.abs(targetX[index] - candidate),
+      }))
       .sort((a, b) => a.abs - b.abs)[0];
     const yMatch = movingEdgesY
       .map((candidate, index) => ({
-          delta: targetY[index] - candidate,
-          abs: Math.abs(targetY[index] - candidate),
-        }))
+        delta: targetY[index] - candidate,
+        abs: Math.abs(targetY[index] - candidate),
+      }))
       .sort((a, b) => a.abs - b.abs)[0];
 
     if (xMatch && xMatch.abs <= threshold) x += xMatch.delta;
