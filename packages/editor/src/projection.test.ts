@@ -27,7 +27,9 @@ describe("visual design projection", () => {
       height: 44,
     };
     const projection = projectDocument(visual);
-    const button = projection.shapes.find((shape) => shape.meta.nodeId === "dashboard.cta");
+    const button = projection.shapes.find(
+      (shape) => shape.meta.nodeId === "dashboard.cta",
+    );
     expect(button?.type).toBe("geo");
     if (button?.type === "geo") {
       expect(button.props.fill).toBe("solid");
