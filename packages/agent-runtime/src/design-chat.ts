@@ -6,7 +6,9 @@ import {
   type UICommand,
   type UIDocument,
 } from "@uiforge/ui-schema";
-import { AgentRuntime, createCoreAgentToolRegistry, type AgentContext, type AgentEvent } from "./index";
+import { AgentRuntime, type AgentContext } from "./runtime";
+import type { AgentEvent } from "./contracts";
+import { createCoreAgentToolRegistry } from "./tools";
 
 export interface DesignChatSelection {
   screenId?: ScreenId;
