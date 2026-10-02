@@ -176,7 +176,12 @@ export interface Frame {
   height: number;
   orientation: "portrait" | "landscape";
   presetVersion: string;
-  safeArea?: { top: number; right: number; bottom: number; left: number };
+  safeArea?: {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  };
 }
 
 export interface Screen {
