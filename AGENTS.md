@@ -155,7 +155,7 @@ Prefer modules with one reason to change. Avoid:
 - giant AI prompts;
 - generated code mixed with business logic.
 
-### Rule O — Wireframe is an intermediate design stage
+### Rule P — Wireframe is an intermediate design stage
 
 AI generation is explicitly two-stage:
 
