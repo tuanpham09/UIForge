@@ -99,7 +99,8 @@ export function parseViewport(
   const width = Number(params.get("w"));
   const height = Number(params.get("h"));
   const orientation = params.get("orientation");
-  const zoom = Number(params.get("zoom"));
+  const rawZoom = params.get("zoom");
+  const zoom = rawZoom === null ? Number.NaN : Number(rawZoom);
 
   if (presetId === "custom") {
     return customViewport(
