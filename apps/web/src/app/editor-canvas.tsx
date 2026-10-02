@@ -306,7 +306,10 @@ export default function EditorCanvas() {
                       semanticType?: unknown;
                       nodeId?: unknown;
                     };
-                    if (meta.semanticType !== "frame" || typeof meta.nodeId !== "string") {
+                    if (
+                      meta.semanticType !== "frame" ||
+                      typeof meta.nodeId !== "string"
+                    ) {
                       continue;
                     }
 
