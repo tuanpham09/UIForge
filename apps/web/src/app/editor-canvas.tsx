@@ -33,8 +33,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { type Editor, Tldraw, toRichText } from "tldraw";
 import "tldraw/tldraw.css";
-import AgentDesignChat from "./agent-design-chat";
-import RendererPreview from "./renderer-preview";
 import {
   BREAKPOINTS,
   commonTokenSlots,
@@ -44,6 +42,8 @@ import {
   nodeLabel,
   TOKEN_OPTIONS,
 } from "./inspector-model";
+import AgentDesignChat from "./agent-design-chat";
+import RendererPreview from "./renderer-preview";
 import {
   customViewport,
   DEVICE_PRESETS,
