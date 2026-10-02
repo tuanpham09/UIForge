@@ -25,8 +25,32 @@ export interface ProjectedGeoShape {
     h: number;
     geo: "rectangle";
     fill?: "none" | "semi" | "solid" | "pattern";
-    color?: "black" | "grey" | "light-violet" | "violet" | "blue" | "light-blue" | "red" | "orange" | "yellow" | "green" | "light-green" | "white";
-    labelColor?: "black" | "grey" | "light-violet" | "violet" | "blue" | "light-blue" | "red" | "orange" | "yellow" | "green" | "light-green" | "white";
+    color?:
+      | "black"
+      | "grey"
+      | "light-violet"
+      | "violet"
+      | "blue"
+      | "light-blue"
+      | "red"
+      | "orange"
+      | "yellow"
+      | "green"
+      | "light-green"
+      | "white";
+    labelColor?:
+      | "black"
+      | "grey"
+      | "light-violet"
+      | "violet"
+      | "blue"
+      | "light-blue"
+      | "red"
+      | "orange"
+      | "yellow"
+      | "green"
+      | "light-green"
+      | "white";
     size?: "s" | "m" | "l" | "xl";
     font?: "draw" | "sans" | "serif" | "mono";
     align?: "start" | "middle" | "end";
@@ -45,7 +69,19 @@ export interface ProjectedTextShape {
   opacity?: number;
   isLocked?: boolean;
   props: {
-    color?: "black" | "grey" | "light-violet" | "violet" | "blue" | "light-blue" | "red" | "orange" | "yellow" | "green" | "light-green" | "white";
+    color?:
+      | "black"
+      | "grey"
+      | "light-violet"
+      | "violet"
+      | "blue"
+      | "light-blue"
+      | "red"
+      | "orange"
+      | "yellow"
+      | "green"
+      | "light-green"
+      | "white";
     size?: "s" | "m" | "l" | "xl";
     font?: "draw" | "sans" | "serif" | "mono";
     textAlign?: "start" | "middle" | "end";
