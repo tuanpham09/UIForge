@@ -68,7 +68,7 @@ function finish(
 }
 
 export const dashboardFixture = (() => {
-  const d = base("dashboard");
+  const d = base("dashboard");\n  d.frames = [{\n    id: "frame.dashboard.iphone13",\n    screenId: "screen.dashboard" as ScreenId,\n    presetId: "iphone-13",\n    name: "iPhone 13 / 13 Pro",\n    x: 80, y: 80, width: 390, height: 844,\n    orientation: "portrait",\n    presetVersion: "uiforge.frame-presets/v1",\n  }];
   const root: UINode = {
     ...node("screen.dashboard.root", "screen.dashboard", null, "screen-root", [
       "dashboard.summary",
