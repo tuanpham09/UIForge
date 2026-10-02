@@ -1,5 +1,6 @@
 export * from "./frame-presets";
 export * from "./history";
+export * from "./layers";
 export * from "./mutations";
 export * from "./projection";
 export * from "./reconcile";
