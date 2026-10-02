@@ -1,4 +1,6 @@
+// biome-ignore-all format: agent runtime contract remains compact for review
 import type { AgentContext, AgentEvent, AgentPlan, AgentRun, AgentToolCall, AgentToolError } from "./contracts";
+import type { UIDocument } from "@uiforge/ui-schema";
 import { AgentToolRegistry } from "./registry";
 
 const now = () => new Date().toISOString();
