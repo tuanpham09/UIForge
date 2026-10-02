@@ -26,9 +26,12 @@ test("web shell renders the primary semantic canvas workspace", async ({
 
   await page.getByTestId("device-preset-trigger").click();
   const deviceMenu = page.getByTestId("responsive-device-preview");
-  await expect(deviceMenu.getByText("iPhone 18 / 18 Pro")).toBeVisible();
+  await expect(deviceMenu.getByText("iPhone 14 / 14 Pro")).toBeVisible();
   await deviceMenu.getByText("iPhone 18 / 18 Pro").click();
-  await expect(page.getByTestId("viewport-size")).toHaveText("402 × 874");
+  await expect(page.getByTestId("viewport-size")).toHaveText("393 × 852");
+
+  await page.getByTestId("device-preset-trigger").click();
+  await page.locator("summary").filter({ hasText: "Frame +" }).click();
 
   await expect(page.getByTestId("viewport-orientation")).toContainText(
     "Portrait",
