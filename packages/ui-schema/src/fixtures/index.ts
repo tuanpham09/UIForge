@@ -208,3 +208,44 @@ export const mobileListFixture = (() => {
   screen.viewport = { maxWidth: 767 };
   return result;
 })();
+
+
+/**
+ * Integrated editor fixture used by the workspace/Present flow.
+ * It keeps multiple screens and frames in one canonical UI Schema document so
+ * the prototype runner can resolve real semantic navigation targets.
+ */
+export const workspaceFixture = (() => {
+  const document = structuredClone(dashboardFixture);
+  const mobile = structuredClone(mobileListFixture);
+
+  document.id = documentId("fixture-workspace");
+  document.metadata = {
+    ...document.metadata,
+    name: "UIForge Workspace fixture",
+    description: "Multi-screen workspace fixture for editor and prototype flows.",
+  };
+
+  for (const screen of mobile.screens) {
+    document.screens.push(screen);
+  }
+  Object.assign(document.nodes, mobile.nodes);
+  Object.assign(document.assets, mobile.assets);
+  document.frames = [
+    ...(document.frames ?? []),
+    {
+      id: "frame.mobile-list.iphone13",
+      screenId: screenId("screen.mobile-list"),
+      presetId: "iphone-13",
+      name: "iPhone 13 / 13 Pro",
+      x: 520,
+      y: 80,
+      width: 390,
+      height: 844,
+      orientation: "portrait",
+      presetVersion: "uiforge.frame-presets/v1",
+    },
+  ];
+
+  return document;
+})();
