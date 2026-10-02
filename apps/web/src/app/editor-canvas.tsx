@@ -21,6 +21,13 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { type Editor, Tldraw, toRichText } from "tldraw";
 import "tldraw/tldraw.css";
+import { buildVisualDesignProposal } from "@uiforge/design-intelligence";
+import {
+  createPrototypeSession,
+  resolveTransition,
+  type ExperienceGraph,
+  type PrototypeSession,
+} from "@uiforge/experience-graph";
 import {
   BREAKPOINTS,
   commonTokenSlots,
@@ -154,6 +161,9 @@ export default function EditorCanvas() {
   const [historyPast, setHistoryPast] = useState<UIDocument[]>([]);
   const [historyFuture, setHistoryFuture] = useState<UIDocument[]>([]);
   const [inspectorError, setInspectorError] = useState<string | null>(null);
+  const [present, setPresent] = useState(false);
+  const [prototypeSession, setPrototypeSession] = useState<PrototypeSession | null>(null);
+  const [designBusy, setDesignBusy] = useState(false);
   const [customFrame, setCustomFrame] = useState<CustomFrameDraft>({
     open: false,
     width: "390",
@@ -305,6 +315,38 @@ export default function EditorCanvas() {
       }));
     setViewportDiagnostics(validateViewport(viewport.width, nodes));
   }, [document, selectedFrameId, viewport.width]);
+
+  const experienceGraph = useMemo<ExperienceGraph>(() => {
+    const transitions = Object.values(document.nodes)
+      .filter((node) => node.interaction?.targetScreenId)
+      .map((node) => ({
+        id: `transition.${node.id}`,
+        source: { screenId: node.screenId, nodeId: node.id },
+        trigger: { type: (node.interaction?.trigger === "tap" ? "tap" : "click") as "click" | "tap" },
+        action: {
+          type: "navigate" as const,
+          destination: { screenId: node.interaction?.targetScreenId as string },
+        },
+        animation: { name: "slide-right", durationMs: 250 },
+      }));
+    const firstScreen = document.screens[0];
+    return {
+      version: "uiforge.experience-graph/v1",
+      id: `runtime.${document.id}`,
+      flows: [{
+        id: "flow.main",
+        name: "Main flow",
+        screenIds: document.screens.map((screen) => screen.id),
+        startingPointIds: ["start"],
+        transitionIds: transitions.map((item) => item.id),
+      }],
+      journeys: [],
+      startingPoints: firstScreen
+        ? [{ id: "start", destination: { screenId: firstScreen.id } }]
+        : [],
+      transitions,
+    };
+  }, [document]);
 
   const layerTree = useMemo(
     () => filterLayers(buildLayerTree(document), layerQuery),
@@ -916,6 +958,50 @@ export default function EditorCanvas() {
     );
   };
 
+  const designUi = async () => {
+    if ((document.metadata.designStage ?? "wireframe") !== "wireframe") return;
+    setDesignBusy(true);
+    try {
+      const proposal = buildVisualDesignProposal(document);
+      applySemantic((current) =>
+        applyCommand(current, {
+          type: "ApplyVisualDesign",
+          commandId: `design-ui.${current.revision.revision + 1}`,
+          patches: proposal.patches,
+          stage: "visual",
+        }),
+      );
+    } catch (error) {
+      setInspectorError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setDesignBusy(false);
+    }
+  };
+
+  const enterPresent = () => {
+    try {
+      setPrototypeSession(createPrototypeSession(experienceGraph));
+      setPresent(true);
+    } catch (error) {
+      setInspectorError(error instanceof Error ? error.message : String(error));
+    }
+  };
+
+  const exitPresent = () => {
+    setPresent(false);
+    setPrototypeSession(null);
+  };
+
+  const activateHotspot = (nodeId: NodeId) => {
+    if (!prototypeSession) return;
+    const result = resolveTransition(
+      experienceGraph,
+      prototypeSession,
+      { screenId: prototypeSession.current.screenId, nodeId },
+    );
+    if (result) setPrototypeSession(result.session);
+  };
+
   const addSection = () => {
     const root = document.nodes["screen.dashboard.root"];
     if (!root) return;
@@ -1038,7 +1124,19 @@ export default function EditorCanvas() {
           >
             Component
           </button>
-          <span className="ml-3 text-slate-500">▶ Present</span>
+          <div className="ml-3 flex items-center rounded-md border border-slate-700 bg-slate-950 p-0.5" data-testid="design-stage-switcher">
+            {(["wireframe", "visual"] as const).map((stage) => (
+              <span key={stage} className={`rounded px-2 py-1 text-[10px] ${(document.metadata.designStage ?? "wireframe") === stage ? "bg-slate-700 text-white" : "text-slate-500"}`}>
+                {stage === "wireframe" ? "Wireframe" : "Visual Design"}
+              </span>
+            ))}
+          </div>
+          <button type="button" data-testid="design-ui" disabled={(document.metadata.designStage ?? "wireframe") !== "wireframe" || designBusy} onClick={() => void designUi()} className="rounded-md bg-cyan-500 px-3 py-1.5 font-medium text-slate-950 disabled:cursor-not-allowed disabled:opacity-40">
+            {designBusy ? "Designing…" : "✨ Design UI"}
+          </button>
+          <button type="button" data-testid="present-button" onClick={enterPresent} className="rounded-md px-3 py-1.5 text-slate-200 hover:bg-slate-800">
+            ▶ Present
+          </button>
         </div>
       </header>
 
@@ -1291,6 +1389,9 @@ export default function EditorCanvas() {
 
       <footer className="flex h-12 items-center gap-2 border-t border-slate-800 bg-slate-900 px-3 text-xs text-slate-300">
         <span className="mr-2 text-cyan-300">✨ Ask UIForge…</span>
+        <span className="rounded border border-slate-700 px-2 py-1 text-[10px] text-slate-500">
+          {(document.metadata.designStage ?? "wireframe") === "wireframe" ? "Structural wireframe" : "Editable visual design"}
+        </span>
         <button
           type="button"
           className="rounded px-2 py-1 hover:bg-slate-800"
@@ -1316,6 +1417,38 @@ export default function EditorCanvas() {
           {projected?.shapes.length ?? 0} projected shapes · 85%
         </span>
       </footer>
+
+      {present && prototypeSession ? (
+        <div className="fixed inset-0 z-[60] flex flex-col bg-slate-950 text-white" data-testid="prototype-runner">
+          <header className="flex h-12 items-center justify-between border-b border-slate-800 px-5">
+            <strong>UIForge</strong>
+            <span className="text-xs text-slate-400">Prototype · {document.metadata.designStage === "visual" ? "Visual Design" : "Wireframe"}</span>
+            <button type="button" onClick={exitPresent} className="rounded px-3 py-1.5 text-xs hover:bg-slate-800">✕ Exit</button>
+          </header>
+          <main className="flex flex-1 items-center justify-center overflow-auto p-8">
+            <div className="w-[390px] min-h-[620px] overflow-hidden rounded-[32px] border border-slate-600 bg-white text-slate-900 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3 text-[11px]">
+                <span>9:41</span>
+                <span>{document.screens.find((s) => s.id === prototypeSession.current.screenId)?.name ?? "Prototype"}</span>
+              </div>
+              <div className="space-y-3 p-5">
+                {Object.values(document.nodes)
+                  .filter((node) => node.screenId === prototypeSession.current.screenId && node.type !== "screen-root")
+                  .map((node) => (
+                    <button key={node.id} type="button" onClick={() => activateHotspot(node.id)} className={`block w-full rounded-xl border p-4 text-left text-sm ${node.interaction?.targetScreenId ? "cursor-pointer border-blue-400 bg-blue-50" : "cursor-default border-slate-200 bg-slate-50"}`}>
+                      <div className="font-medium">{node.content?.label ?? node.content?.text ?? node.type}</div>
+                      {node.content?.description ? <div className="mt-1 text-xs text-slate-500">{node.content.description}</div> : null}
+                    </button>
+                  ))}
+              </div>
+            </div>
+          </main>
+          <footer className="flex h-12 items-center justify-center gap-8 border-t border-slate-800 text-xs text-slate-400">
+            <button type="button" onClick={() => setPrototypeSession((current) => current ? { ...current, history: current.history.slice(0, -1), current: current.history.at(-1) ?? current.current } : current)} className="rounded px-3 py-1.5 hover:bg-slate-800">← Back</button>
+            <span>{prototypeSession.history.length + 1} / {document.screens.length}</span>
+          </footer>
+        </div>
+      ) : null}
 
       {customFrame.open ? (
         <div
