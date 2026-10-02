@@ -42,8 +42,10 @@ describe("semantic inspector model", () => {
 
   it("finds token slots common to multiple nodes", () => {
     const nodes = Object.values(dashboardFixture.nodes).filter((node) => node.type !== "screen-root").slice(0, 2);
-    nodes[0].style = { tokens: { fill: "color.surface", radius: "radius.md" } };
-    nodes[1].style = { tokens: { fill: "color.surface", shadow: "shadow.subtle" } };
-    expect(commonTokenSlots(nodes)).toEqual(["fill"]);
+    const [first, second] = nodes;
+    if (!first || !second) throw new Error("dashboard fixture needs two nodes");
+    first.style = { tokens: { fill: "color.surface", radius: "radius.md" } };
+    second.style = { tokens: { fill: "color.surface", shadow: "shadow.subtle" } };
+    expect(commonTokenSlots([first, second])).toEqual(["fill"]);
   });
 });
