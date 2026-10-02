@@ -80,6 +80,10 @@ export function validateUIDocument(value: unknown): UIDocument {
     throw new UISchemaValidationError(issues);
   }
 
+  const nodes = value.nodes as Record<string, unknown>;
+  const screens = value.screens as unknown[];
+  const screenIds = screens.map((screen) => (screen as { id?: unknown })?.id);
+
   const frames = Array.isArray(value.frames) ? value.frames : [];
   const frameIds = frames.map((frame) => (frame as { id?: unknown })?.id);
 
@@ -121,9 +125,6 @@ export function validateUIDocument(value: unknown): UIDocument {
     }
   }
 
-  const nodes = value.nodes as Record<string, unknown>;
-  const screens = value.screens as unknown[];
-  const screenIds = screens.map((screen) => (screen as { id?: unknown })?.id);
 
   if (new Set(screenIds).size !== screenIds.length) {
     issues.push("screen IDs must be unique");
