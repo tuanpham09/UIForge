@@ -5,6 +5,7 @@ export type Brand<T, B extends string> = T & { readonly __brand: B };
 
 export type DocumentId = string;
 export type ScreenId = string;
+export type FrameId = string;
 export type NodeId = string;
 export type AssetId = string;
 export type CommandId = string;
@@ -12,6 +13,7 @@ export type TokenRef = string;
 
 export type SemanticNodeType =
   | "screen-root"
+  | "frame"
   | "section"
   | "text"
   | "image"
@@ -163,6 +165,20 @@ export interface UINode {
   interaction?: InteractionMetadata;
 }
 
+export interface Frame {
+  id: FrameId;
+  screenId: ScreenId;
+  presetId: string;
+  name: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  orientation: "portrait" | "landscape";
+  presetVersion: string;
+  safeArea?: { top: number; right: number; bottom: number; left: number };
+}
+
 export interface Screen {
   id: ScreenId;
   name: string;
@@ -196,6 +212,8 @@ export interface UIDocument {
   metadata: UIDocumentMetadata;
   revision: RevisionMetadata;
   screens: Screen[];
+  /** Optional for backward-compatible documents; when present, frames are canonical canvas containers. */
+  frames?: Frame[];
   nodes: Record<string, UINode>;
   assets: Record<string, AssetRef>;
 }
