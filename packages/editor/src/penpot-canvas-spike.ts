@@ -40,10 +40,6 @@ export type CanvasSpike = {
 
 const DEFAULT_SIZE = { width: 240, height: 96 };
 
-function nodeLabel(node: UIDocument["nodes"][string]): string {
-  return node.content?.label ?? node.content?.text ?? node.type;
-}
-
 function nodeRect(node: UIDocument["nodes"][string], index: number): CanvasRect {
   return {
     id: String(node.id),
