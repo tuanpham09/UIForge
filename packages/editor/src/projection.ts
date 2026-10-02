@@ -246,3 +246,4 @@ export function projectDocument(document: UIDocument): EditorProjection {
 export function semanticShapeId(nodeId: string) {
   return createShapeId(nodeId);
 }
+
