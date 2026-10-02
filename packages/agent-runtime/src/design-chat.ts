@@ -1,7 +1,5 @@
 // biome-ignore-all format: design chat MVP contract remains compact for review
 import type { AgentEvent } from "./contracts";
-import { AgentRuntime, type AgentContext } from "./runtime";
-import { createCoreAgentToolRegistry } from "./tools";
 import {
   applyCommands,
   type NodeId,
@@ -9,6 +7,9 @@ import {
   type UICommand,
   type UIDocument,
 } from "@uiforge/ui-schema";
+import type { AgentEvent } from "./contracts";
+import { type AgentContext, AgentRuntime } from "./runtime";
+import { createCoreAgentToolRegistry } from "./tools";
 
 export interface DesignChatSelection {
   screenId?: ScreenId;
