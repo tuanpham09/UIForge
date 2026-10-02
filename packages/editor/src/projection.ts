@@ -230,7 +230,6 @@ export function projectNode(
 }
 
 function projectFrame(
-  document: UIDocument,
   frame: NonNullable<UIDocument["frames"]>[number],
 ): ProjectedGeoShape {
   return {
@@ -266,7 +265,7 @@ function projectFrame(
 export function projectDocument(document: UIDocument): EditorProjection {
   const nodes = Object.values(document.nodes);
   const frameShapes = (document.frames ?? []).map((frame) =>
-    projectFrame(document, frame),
+    projectFrame(frame),
   );
   const shapes = [
     ...frameShapes,
