@@ -9,6 +9,7 @@ import {
 } from "@uiforge/editor";
 import {
   createPrototypeSession,
+  EXPERIENCE_GRAPH_VERSION,
   type ExperienceGraph,
   goBack,
   type PrototypeSession,
@@ -330,7 +331,7 @@ export default function EditorCanvas() {
       }));
     const firstScreen = document.screens[0];
     return {
-      version: "uiforge.experience-graph/v1",
+      version: EXPERIENCE_GRAPH_VERSION,
       id: `runtime.${document.id}`,
       flows: [{
         id: "flow.main",
