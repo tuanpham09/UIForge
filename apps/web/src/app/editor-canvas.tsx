@@ -136,7 +136,8 @@ export default function EditorCanvas() {
 
   const renameLayer = (layer: SemanticLayer) => {
     if (layer.kind !== "node" || !layer.nodeId) return;
-    const node = document.nodes[layer.nodeId];
+    const nodeId = layer.nodeId;
+    const node = document.nodes[nodeId];
     if (!node) return;
     const nextName = globalThis.prompt("Rename layer", layer.name)?.trim();
     if (!nextName || nextName === layer.name) return;
@@ -172,7 +173,7 @@ export default function EditorCanvas() {
     if (!node?.parentId) return;
     const parent = document.nodes[node.parentId];
     if (!parent) return;
-    const currentIndex = parent.childrenIds.indexOf(layer.nodeId);
+    const currentIndex = parent.childrenIds.indexOf(nodeId);
     const nextIndex = Math.max(
       0,
       Math.min(parent.childrenIds.length - 1, currentIndex + delta),
@@ -181,8 +182,8 @@ export default function EditorCanvas() {
     setDocument((current) =>
       applyCommand(current, {
         type: "MoveNode",
-        commandId: `layers.move-node.${layer.nodeId}.${nextIndex}.${Date.now()}`,
-        nodeId: layer.nodeId,
+        commandId: `layers.move-node.${nodeId}.${nextIndex}.${Date.now()}`,
+        nodeId,
         toIndex: nextIndex,
       }),
     );
