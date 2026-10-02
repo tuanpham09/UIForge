@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "@uiforge/component-registry": "workspace:*",
-    "@uiforge/design-tokens": "workspace:*"
+    "@uiforge/design-tokens": "workspace:*",
+    "@uiforge/ui-schema": "workspace:*"
   },
   "devDependencies": {
     "typescript": "5.9.2",
