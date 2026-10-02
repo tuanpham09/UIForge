@@ -1,11 +1,19 @@
 // biome-ignore-all format: dense editor workspace JSX is maintained as a product-layout surface
 "use client";
 
+import { buildVisualDesignProposal } from "@uiforge/design-intelligence";
 import {
   buildLayerTree,
   filterLayers,
   type SemanticLayer,
 } from "@uiforge/editor";
+import {
+  createPrototypeSession,
+  goBack,
+  resolveTransition,
+  type ExperienceGraph,
+  type PrototypeSession,
+} from "@uiforge/experience-graph";
 import {
   applyCommand,
   createFrameFromPreset,
@@ -21,14 +29,6 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { type Editor, Tldraw, toRichText } from "tldraw";
 import "tldraw/tldraw.css";
-import { buildVisualDesignProposal } from "@uiforge/design-intelligence";
-import {
-  createPrototypeSession,
-  resolveTransition,
-  goBack,
-  type ExperienceGraph,
-  type PrototypeSession,
-} from "@uiforge/experience-graph";
 import {
   BREAKPOINTS,
   commonTokenSlots,
@@ -1026,8 +1026,8 @@ export default function EditorCanvas() {
 
     if (node.type === "input") {
       return (
-        <div key={node.id} className={`space-y-1 ${focusRing}`} onClick={activate}>
-          <label className="text-xs font-medium text-slate-600">{label}</label>
+        <div key={node.id} className={`space-y-1 ${focusRing}`}>
+          <div className="text-xs font-medium text-slate-600">{label}</div>
           <input
             aria-label={label}
             readOnly
@@ -1054,13 +1054,22 @@ export default function EditorCanvas() {
     }
 
     if (node.type === "image") {
+      if (interactive) {
+        return (
+          <button
+            key={node.id}
+            type="button"
+            onClick={activate}
+            className={`flex min-h-32 w-full items-center justify-center rounded-xl bg-slate-100 text-xs text-slate-400 ${focusRing}`}
+          >
+            {node.content?.alt ?? "Image"}
+          </button>
+        );
+      }
       return (
         <div
           key={node.id}
-          className={`flex min-h-32 items-center justify-center rounded-xl bg-slate-100 text-xs text-slate-400 ${focusRing}`}
-          onClick={activate}
-          role={interactive ? "button" : undefined}
-          tabIndex={interactive ? 0 : undefined}
+          className="flex min-h-32 items-center justify-center rounded-xl bg-slate-100 text-xs text-slate-400"
         >
           {node.content?.alt ?? "Image"}
         </div>
@@ -1077,26 +1086,45 @@ export default function EditorCanvas() {
     );
 
     if (node.type === "card") {
+      if (interactive) {
+        return (
+          <button
+            key={node.id}
+            type="button"
+            onClick={activate}
+            className={`w-full rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm ${focusRing}`}
+          >
+            {content}
+          </button>
+        );
+      }
       return (
         <div
           key={node.id}
-          className={`rounded-xl border border-slate-200 bg-white p-4 shadow-sm ${focusRing}`}
-          onClick={activate}
-          role={interactive ? "button" : undefined}
-          tabIndex={interactive ? 0 : undefined}
+          className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
         >
           {content}
         </div>
       );
     }
 
+    if (interactive) {
+      return (
+        <button
+          key={node.id}
+          type="button"
+          onClick={activate}
+          className={`w-full rounded-lg border border-slate-200 bg-slate-50 p-3 text-left ${focusRing}`}
+        >
+          {content}
+        </button>
+      );
+    }
+
     return (
       <div
         key={node.id}
-        className={`rounded-lg border border-slate-200 bg-slate-50 p-3 ${focusRing}`}
-        onClick={activate}
-        role={interactive ? "button" : undefined}
-        tabIndex={interactive ? 0 : undefined}
+        className="rounded-lg border border-slate-200 bg-slate-50 p-3"
       >
         {content}
       </div>
