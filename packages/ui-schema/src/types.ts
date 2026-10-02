@@ -323,6 +323,8 @@ export interface ApplyVisualDesignCommand {
     nodeId: NodeId;
     style?: NodeStyle;
     component?: ComponentInstance;
+    layout?: LayoutSpec;
+    editor?: EditorLayoutMetadata;
   }>;
   stage?: DesignStage;
 }
