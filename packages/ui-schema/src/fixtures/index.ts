@@ -223,7 +223,8 @@ export const workspaceFixture = (() => {
   document.metadata = {
     ...document.metadata,
     name: "UIForge Workspace fixture",
-    description: "Multi-screen workspace fixture for editor and prototype flows.",
+    description:
+      "Multi-screen workspace fixture for editor and prototype flows.",
   };
 
   for (const screen of mobile.screens) {
