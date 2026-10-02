@@ -6,7 +6,7 @@ import {
   type UICommand,
   type UIDocument,
 } from "@uiforge/ui-schema";
-import type { AgentEvent } from "./contracts";
+import type { AgentContext, AgentEvent } from "./contracts";
 import { AgentRuntime } from "./runtime";
 import type { AgentContext } from "./contracts";
 import { createCoreAgentToolRegistry } from "./tools";
