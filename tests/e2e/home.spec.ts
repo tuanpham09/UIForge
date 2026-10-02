@@ -51,6 +51,15 @@ test("web shell renders the primary semantic canvas workspace", async ({
   );
   await expect(page.getByText("Editable visual design")).toBeVisible();
   await expect(page.getByTestId("design-ui")).toBeDisabled();
+
+  await page.getByRole("button", { name: /Open details/ }).first().click();
+  await page.getByTestId("ask-uiforge").click();
+  await expect(page.getByTestId("contextual-ai-menu")).toBeVisible();
+  await expect(page.getByTestId("contextual-ai-menu")).toContainText(
+    "Improve hierarchy",
+  );
+  await page.getByRole("button", { name: "Improve hierarchy" }).click();
+
   await page.screenshot({
     path: "artifacts/editor/issue-48-visual-design.png",
     fullPage: true,
@@ -61,10 +70,20 @@ test("web shell renders the primary semantic canvas workspace", async ({
   await expect(page.getByTestId("prototype-runner")).toContainText(
     "Visual Design",
   );
-  await page
-    .getByTestId("prototype-runner")
-    .getByRole("button", { name: "✕ Exit" })
-    .click();
+  await page.getByTestId("hotspot-hint").click();
+  await expect(page.getByTestId("hotspot-hint")).toContainText("Hotspots on");
+
+  const runner = page.getByTestId("prototype-runner");
+  await runner.getByRole("button", { name: "Open details" }).click();
+  await expect(runner).toContainText("Mobile List");
+  await page.screenshot({
+    path: "artifacts/editor/issue-48-prototype-runner.png",
+    fullPage: true,
+  });
+  await runner.getByRole("button", { name: "← Back" }).click();
+  await expect(runner).toContainText("Dashboard");
+
+  await runner.getByRole("button", { name: "✕ Exit" }).click();
   await expect(page.getByTestId("uiforge-editor-workspace")).toBeVisible();
 
   await page.screenshot({
