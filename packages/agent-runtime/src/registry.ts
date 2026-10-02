@@ -1,3 +1,4 @@
+// biome-ignore-all format: agent runtime contract remains compact for review
 import type { AgentContext, AgentToolDefinition, AgentToolResult } from "./contracts";
 
 export class AgentToolRegistry {
