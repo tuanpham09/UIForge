@@ -160,6 +160,7 @@ export default function EditorCanvas() {
     height: "844",
   });
   const editorRef = useRef<Editor | null>(null);
+  const frameViewportSyncReadyRef = useRef(false);
   const [viewport, setViewport] = useState<ViewportState>(() => {
     if (typeof window === "undefined") return viewportFromPreset("iphone-16");
     return parseViewport(new URLSearchParams(window.location.search));
@@ -291,6 +292,10 @@ export default function EditorCanvas() {
 
   useEffect(() => {
     if (!selectedFrameId) return;
+    if (!frameViewportSyncReadyRef.current) {
+      frameViewportSyncReadyRef.current = true;
+      return;
+    }
     const frame = document.frames?.find((item) => item.id === selectedFrameId);
     if (!frame) return;
     const next = customViewport(frame.width, frame.height, viewport.zoom);
