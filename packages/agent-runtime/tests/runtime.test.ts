@@ -1,6 +1,7 @@
 // biome-ignore-all format: agent runtime contract remains compact for review
-import { describe, expect, it } from "vitest";
+
 import { workspaceFixture } from "@uiforge/ui-schema";
+import { describe, expect, it } from "vitest";
 import { AgentRuntime, AgentToolRegistry, createCoreAgentToolRegistry } from "../src";
 
 const context = () => AgentRuntime.createContext(structuredClone(workspaceFixture), "session.test", "run.test");
