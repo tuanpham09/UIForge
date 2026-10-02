@@ -167,6 +167,7 @@ export default function EditorCanvas() {
   const [present, setPresent] = useState(false);
   const [prototypeSession, setPrototypeSession] = useState<PrototypeSession | null>(null);
   const [designBusy, setDesignBusy] = useState(false);
+  const [clientReady, setClientReady] = useState(false);
   const [customFrame, setCustomFrame] = useState<CustomFrameDraft>({
     open: false,
     width: "390",
@@ -182,6 +183,7 @@ export default function EditorCanvas() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     setViewport(parseViewport(new URLSearchParams(window.location.search)));
+    setClientReady(true);
   }, []);
 
   const frameSelectionInitializedRef = useRef(false);
@@ -1188,6 +1190,7 @@ export default function EditorCanvas() {
     <div
       className="h-[820px] w-full overflow-hidden rounded-2xl border border-slate-700 bg-slate-950"
       data-testid="uiforge-editor-workspace"
+      data-client-ready={clientReady ? "true" : "false"}
     >
       <header className="flex h-12 items-center border-b border-slate-800 bg-slate-900 px-4 text-xs">
         <strong className="mr-6 text-sm text-white">UIForge</strong>
