@@ -15,7 +15,7 @@ test("web shell renders the primary semantic canvas workspace", async ({
   await expect(page.getByText("1 semantic frames")).toBeVisible();
   await expect(page.getByText("1 sections")).toBeVisible();
 
-  await page.getByRole("button", { name: "Frame +" }).click();
+  await page.locator("summary").filter({ hasText: "Frame +" }).click();
   const menu = page.getByTestId("frame-preset-menu");
   await expect(menu).toBeVisible();
   await expect(menu.getByText("iPhone 13 / 13 Pro")).toBeVisible();
