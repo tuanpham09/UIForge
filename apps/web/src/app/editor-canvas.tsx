@@ -1082,13 +1082,16 @@ export default function EditorCanvas() {
                 <button
                   type="button"
                   data-testid="device-preset-trigger"
+                  onPointerDown={(event) => event.stopPropagation()}
                   onClick={() => setDeviceMenuOpen((open) => !open)}
                   className="rounded-md border border-slate-700 bg-slate-950 px-3 py-1.5 text-slate-200"
                 >
                   {DEVICE_PRESETS.find((item) => item.id === viewport.presetId)?.name ?? "Custom"} ▾
                 </button>
                 {deviceMenuOpen ? (
-                  <div className="absolute left-0 top-9 z-30 w-64 rounded-xl border border-slate-700 bg-slate-900 p-2 shadow-2xl">
+                  <div
+                    onPointerDown={(event) => event.stopPropagation()}
+                    className="absolute left-0 top-9 z-30 w-64 rounded-xl border border-slate-700 bg-slate-900 p-2 shadow-2xl">
                     {(["mobile", "tablet", "desktop"] as const).map((category) => (
                       <div key={category}>
                         <p className="px-2 pt-2 text-[10px] uppercase tracking-wider text-slate-500">
@@ -1098,6 +1101,7 @@ export default function EditorCanvas() {
                           <button
                             key={item.id}
                             type="button"
+                            onPointerDown={(event) => event.stopPropagation()}
                             className="flex w-full justify-between rounded px-2 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-800"
                             onClick={() => {
                               setPreviewViewport(viewportFromPreset(item.id, viewport.orientation));
