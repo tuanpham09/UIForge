@@ -6,6 +6,16 @@ import {
   type SemanticLayer,
 } from "@uiforge/editor";
 import {
+  BREAKPOINTS,
+  TOKEN_OPTIONS,
+  commonTokenSlots,
+  inspectFrame,
+  inspectNode,
+  nodeLabel,
+  findResponsiveRule,
+  selectedObject,
+} from "./inspector-model";
+import {
   applyCommand,
   createFrameFromPreset,
   dashboardFixture,
@@ -13,6 +23,7 @@ import {
   type FrameId,
   type NodeId,
   type NodePatch,
+  type ResponsiveRule,
   type UIDocument,
 } from "@uiforge/ui-schema";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -31,7 +42,12 @@ export default function EditorCanvas() {
   const [document, setDocument] = useState<UIDocument>(() => cloneDocument());
   const [selectedFrameId, setSelectedFrameId] = useState<FrameId | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<NodeId | null>(null);
+  const [selectedFrameIds, setSelectedFrameIds] = useState<FrameId[]>([]);
+  const [selectedNodeIds, setSelectedNodeIds] = useState<NodeId[]>([]);
   const [layerQuery, setLayerQuery] = useState("");
+  const [historyPast, setHistoryPast] = useState<UIDocument[]>([]);
+  const [historyFuture, setHistoryFuture] = useState<UIDocument[]>([]);
+  const [inspectorError, setInspectorError] = useState<string | null>(null);
   const [customFrame, setCustomFrame] = useState<CustomFrameDraft>({
     open: false,
     width: "390",
@@ -93,19 +109,23 @@ export default function EditorCanvas() {
   }, [projected]);
 
   const syncCanvasSelection = (editor: Editor) => {
-    const selected = editor.getSelectedShapes()[0];
-    const id = selected?.meta?.nodeId as string | undefined;
-    const semanticType = selected?.meta?.semanticType;
-    if (!id) {
-      setSelectedFrameId(null);
-      setSelectedNodeId(null);
-    } else if (semanticType === "frame") {
-      setSelectedFrameId(id as FrameId);
-      setSelectedNodeId(null);
-    } else {
-      setSelectedNodeId(id as NodeId);
-      setSelectedFrameId(null);
-    }
+    const selections = editor
+      .getSelectedShapes()
+      .map((shape) => ({
+        id: shape.meta?.nodeId as string | undefined,
+        semanticType: shape.meta?.semanticType,
+      }))
+      .filter((item): item is { id: string; semanticType: unknown } => Boolean(item.id));
+    const nodeIds = selections
+      .filter((item) => item.semanticType !== "frame")
+      .map((item) => item.id as NodeId);
+    const frameIds = selections
+      .filter((item) => item.semanticType === "frame")
+      .map((item) => item.id as FrameId);
+    setSelectedNodeIds(nodeIds);
+    setSelectedFrameIds(frameIds);
+    setSelectedNodeId(nodeIds[0] ?? null);
+    setSelectedFrameId(frameIds[0] ?? null);
   };
 
   const layerTree = useMemo(
@@ -115,22 +135,104 @@ export default function EditorCanvas() {
 
   const selectedSemanticId = selectedNodeId ?? selectedFrameId;
 
+  const commitDocument = (next: UIDocument) => {
+    setDocument((current) => {
+      if (next === current) return current;
+      setHistoryPast((past) => [...past.slice(-49), structuredClone(current)]);
+      setHistoryFuture([]);
+      return next;
+    });
+    setInspectorError(null);
+  };
+
+  const applySemantic = (builder: (current: UIDocument) => UIDocument) => {
+    try {
+      setDocument((current) => {
+        const next = builder(current);
+        if (next === current) return current;
+        setHistoryPast((past) => [...past.slice(-49), structuredClone(current)]);
+        setHistoryFuture([]);
+        return next;
+      });
+      setInspectorError(null);
+    } catch (error) {
+      setInspectorError(error instanceof Error ? error.message : String(error));
+    }
+  };
+
+  const undo = () => {
+    setHistoryPast((past) => {
+      const previous = past[past.length - 1];
+      if (!previous) return past;
+      setHistoryFuture((future) => [structuredClone(document), ...future.slice(0, 49)]);
+      setDocument(previous);
+      return past.slice(0, -1);
+    });
+  };
+
+  const redo = () => {
+    setHistoryFuture((future) => {
+      const next = future[0];
+      if (!next) return future;
+      setHistoryPast((past) => [...past.slice(-49), structuredClone(document)]);
+      setDocument(next);
+      return future.slice(1);
+    });
+  };
+
   const selectSemanticLayer = (layer: SemanticLayer) => {
     const id = layer.nodeId ?? layer.frameId;
     if (!id || !editorRef.current) return;
     editorRef.current.select(`shape:${id}` as never);
-    if (layer.kind === "frame") setSelectedFrameId(id as FrameId);
-    if (layer.kind === "node") setSelectedNodeId(id as NodeId);
+    if (layer.kind === "frame") {
+      setSelectedFrameId(id as FrameId);
+      setSelectedFrameIds([id as FrameId]);
+      setSelectedNodeId(null);
+      setSelectedNodeIds([]);
+    }
+    if (layer.kind === "node") {
+      setSelectedNodeId(id as NodeId);
+      setSelectedNodeIds([id as NodeId]);
+      setSelectedFrameId(null);
+      setSelectedFrameIds([]);
+    }
   };
 
   const updateNode = (nodeId: NodeId, patch: NodePatch) => {
-    setDocument((current) =>
+    applySemantic((current) =>
       applyCommand(current, {
         type: "UpdateNode",
-        commandId: `layers.update-node.${nodeId}.${Date.now()}`,
+        commandId: `inspector.update-node.${nodeId}.${Date.now()}`,
         nodeId,
         patch,
       }),
+    );
+  };
+
+  const updateFrame = (frameId: FrameId, patch: Parameters<typeof applyCommand>[1] extends never ? never : Partial<Omit<NonNullable<UIDocument["frames"]>[number], "id">>) => {
+    applySemantic((current) =>
+      applyCommand(current, {
+        type: "UpdateFrame",
+        commandId: `inspector.update-frame.${frameId}.${Date.now()}`,
+        frameId,
+        patch,
+      }),
+    );
+  };
+
+  const updateSelectedNodes = (patch: NodePatch) => {
+    if (!selectedNodeIds.length) return;
+    applySemantic((current) =>
+      selectedNodeIds.reduce(
+        (doc, nodeId) =>
+          applyCommand(doc, {
+            type: "UpdateNode",
+            commandId: `inspector.multi-update.${nodeId}.${Date.now()}`,
+            nodeId,
+            patch,
+          }),
+        current,
+      ),
     );
   };
 
@@ -180,7 +282,7 @@ export default function EditorCanvas() {
       Math.min(parent.childrenIds.length - 1, currentIndex + delta),
     );
     if (currentIndex < 0 || nextIndex === currentIndex) return;
-    setDocument((current) =>
+    applySemantic((current) =>
       applyCommand(current, {
         type: "MoveNode",
         commandId: `layers.move-node.${nodeId}.${nextIndex}.${Date.now()}`,
@@ -270,7 +372,7 @@ export default function EditorCanvas() {
       80 + Math.floor(index / 3) * 920,
     );
 
-    setDocument((current) =>
+    applySemantic((current) =>
       applyCommand(current, {
         type: "CreateFrame",
         commandId: `editor.create-frame.${presetId}.${index}`,
@@ -289,7 +391,7 @@ export default function EditorCanvas() {
     const id = `frame.dashboard.custom.${Date.now()}.${index}` as FrameId;
     const orientation = width <= height ? "portrait" : "landscape";
 
-    setDocument((current) =>
+    applySemantic((current) =>
       applyCommand(current, {
         type: "CreateFrame",
         commandId: `editor.create-frame.custom.${Date.now()}`,
@@ -319,7 +421,7 @@ export default function EditorCanvas() {
       document.frames?.[0];
 
     const id = `section.dashboard.${Date.now()}`;
-    setDocument((current) =>
+    applySemantic((current) =>
       applyCommand(current, {
         type: "CreateNode",
         commandId: `editor.create-section.${id}`,
