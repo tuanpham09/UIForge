@@ -225,16 +225,6 @@ export default function EditorCanvas() {
 
   const selectedSemanticId = selectedNodeId ?? selectedFrameId;
 
-  const commitDocument = (next: UIDocument) => {
-    setDocument((current) => {
-      if (next === current) return current;
-      setHistoryPast((past) => [...past.slice(-49), structuredClone(current)]);
-      setHistoryFuture([]);
-      return next;
-    });
-    setInspectorError(null);
-  };
-
   const applySemantic = (builder: (current: UIDocument) => UIDocument) => {
     try {
       setDocument((current) => {
@@ -1013,12 +1003,11 @@ export default function EditorCanvas() {
                     }
 
                     const frameId = meta.nodeId as FrameId;
-                    setDocument((current) => {
+                    applySemantic((current) => {
                       const frame = current.frames?.find(
                         (item) => item.id === frameId,
                       );
                       if (!frame) return current;
-
                       return applyCommand(current, {
                         type: "UpdateFrame",
                         commandId: `canvas.update-frame.${frameId}.${Math.round(next.x)}.${Math.round(next.y)}`,
