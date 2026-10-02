@@ -63,6 +63,10 @@ Required capabilities:
 - basic move/resize intent
 - schema remains canonical
 
+## Verification status
+
+The spike is intentionally isolated from the production canvas and is gated on repository CI before merge.
+
 ## Current recommendation
 
 Do **not** replace tldraw yet.
