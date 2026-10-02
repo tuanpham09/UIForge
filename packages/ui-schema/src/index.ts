@@ -4,3 +4,4 @@ export * from "./migration";
 export * from "./serialization";
 export * from "./types";
 export * from "./validation";
+export * from "./frame-presets";
