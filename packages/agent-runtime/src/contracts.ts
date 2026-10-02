@@ -1,3 +1,4 @@
+// biome-ignore-all format: agent runtime contract remains compact for review
 import type { NodeId, ScreenId, UIDocument } from "@uiforge/ui-schema";
 
 export type AgentRunStatus = "queued" | "running" | "waiting_for_approval" | "completed" | "failed" | "cancelled";
