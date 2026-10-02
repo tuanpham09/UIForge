@@ -38,6 +38,23 @@ test("web shell renders the primary semantic canvas workspace", async ({
   await expect(page.getByLabel("Viewport zoom")).toHaveValue("100");
 
   await expect(page.getByTestId("responsive-validation")).toBeVisible();
+
+  await expect(page.getByTestId("design-stage-switcher")).toBeVisible();
+  await expect(page.getByTestId("design-ui")).toBeEnabled();
+  await page.getByTestId("design-ui").click();
+  await expect(page.getByTestId("design-ui")).toBeDisabled();
+  await expect(page.getByText("Editable visual design")).toBeVisible();
+  await page.screenshot({
+    path: "artifacts/editor/issue-48-visual-design.png",
+    fullPage: true,
+  });
+
+  await page.getByTestId("present-button").click();
+  await expect(page.getByTestId("prototype-runner")).toBeVisible();
+  await expect(page.getByTestId("prototype-runner")).toContainText("Visual Design");
+  await page.getByTestId("prototype-runner").getByRole("button", { name: "✕ Exit" }).click();
+  await expect(page.getByTestId("uiforge-editor-workspace")).toBeVisible();
+
   await page.screenshot({
     path: "artifacts/responsive/issue-47-device-preview.png",
     fullPage: true,
