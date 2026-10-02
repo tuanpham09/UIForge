@@ -31,6 +31,11 @@ describe("viewport preview model", () => {
     expect(parsed).toEqual(source);
   });
 
+  it("defaults preset zoom to 100 when the URL omits zoom", () => {
+    const parsed = parseViewport(new URLSearchParams("viewport=iphone-16"));
+    expect(parsed.zoom).toBe(100);
+  });
+
   it("reports actionable overflow", () => {
     const diagnostics = validateViewport(390, [
       { id: "hero", x: 12, width: 500 },

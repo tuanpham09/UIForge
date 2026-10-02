@@ -155,6 +155,16 @@ Prefer modules with one reason to change. Avoid:
 - giant AI prompts;
 - generated code mixed with business logic.
 
+### Rule O — Wireframe is an intermediate design stage
+
+AI generation is explicitly two-stage:
+
+`Intent → Wireframe → Review/Edit → Visual UI Design → Prototype`
+
+The wireframe is a semantic structural artifact, not the final visual design. The Visual Design transformation must consume Design Strategy, semantic tokens, component registry and responsive rules, and must preserve semantic IDs, hierarchy meaning and Experience Graph connections. OpenPencil may be used as a behavioral reference for editable prompt-to-canvas generation and targeted AI refinement, but UIForge must remain provider-independent and must not depend on OpenPencil.
+
+Visual transformation output is untrusted until schema/design-system validation and typed semantic patch validation pass.
+
 ## 3. Architecture boundaries
 
 ```
@@ -209,7 +219,7 @@ AI output is untrusted until validated.
 
 Pipeline:
 
-`Prompt/Input → Model → Parse → Schema Validate → Normalize → Design-System Validate → Apply`
+`Prompt/Input → Model → Parse → Schema Validate → Normalize → Design-System Validate → Wireframe → Review/Edit → Visual Design Transform → Typed Patch → Apply`
 
 Never directly apply raw model JSON to the editor.
 

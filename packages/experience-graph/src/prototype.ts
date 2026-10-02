@@ -1,4 +1,4 @@
-import type { ExperienceGraph, Destination, Transition } from "./types";
+import type { Destination, ExperienceGraph, Transition } from "./types";
 
 export interface PrototypeSession {
   current: Destination;
@@ -9,12 +9,11 @@ export function createPrototypeSession(
   graph: ExperienceGraph,
   start?: Destination,
 ): PrototypeSession {
+  const flowScreenId = graph.flows[0]?.screenIds[0];
   const initial =
     start ??
     graph.startingPoints[0]?.destination ??
-    graph.flows[0]?.screenIds[0]
-      ? { screenId: graph.flows[0]?.screenIds[0] as string }
-      : null;
+    (flowScreenId ? { screenId: flowScreenId } : null);
   if (!initial) throw new Error("PROTOTYPE_NO_STARTING_POINT");
   return { current: initial, history: [] };
 }
@@ -32,7 +31,7 @@ export function resolveTransition(
       item.trigger.type === triggerType &&
       item.action.type === "navigate",
   );
-  if (!transition || transition.action.type !== "navigate") return null;
+  if (transition?.action.type !== "navigate") return null;
   return {
     transition,
     session: {

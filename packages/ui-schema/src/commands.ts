@@ -267,6 +267,20 @@ export function applyCommand(
       node.codeMapping = clone(command.mapping);
       break;
     }
+    case "ApplyVisualDesign": {
+      for (const patch of command.patches) {
+        const node = assertNode(document, patch.nodeId);
+        if (patch.style) node.style = clone(patch.style);
+        if (patch.component) node.component = clone(patch.component);
+        if (patch.layout) node.layout = clone(patch.layout);
+        if (patch.editor) node.editor = clone(patch.editor);
+      }
+      document.metadata = {
+        ...document.metadata,
+        designStage: command.stage ?? "visual",
+      };
+      break;
+    }
   }
 
   validateUIDocument(document);

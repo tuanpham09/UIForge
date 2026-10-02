@@ -19,7 +19,9 @@
     "react-dom": "19.3.0",
     "tldraw": "5.4.2",
     "@uiforge/design-tokens": "workspace:*",
-    "@uiforge/renderer": "workspace:*"
+    "@uiforge/renderer": "workspace:*",
+    "@uiforge/design-intelligence": "workspace:*",
+    "@uiforge/experience-graph": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "24.5.2",

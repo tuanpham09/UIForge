@@ -1,11 +1,21 @@
 // biome-ignore-all format: dense editor workspace JSX is maintained as a product-layout surface
 "use client";
 
+import { buildVisualDesignProposal } from "@uiforge/design-intelligence";
 import {
   buildLayerTree,
   filterLayers,
+  projectDocument,
   type SemanticLayer,
 } from "@uiforge/editor";
+import {
+  createPrototypeSession,
+  EXPERIENCE_GRAPH_VERSION,
+  type ExperienceGraph,
+  goBack,
+  type PrototypeSession,
+  resolveTransition,
+} from "@uiforge/experience-graph";
 import {
   applyCommand,
   createFrameFromPreset,
@@ -19,6 +29,7 @@ import {
   type UIDocument,
 } from "@uiforge/ui-schema";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { type Editor, Tldraw, toRichText } from "tldraw";
 import "tldraw/tldraw.css";
 import {
@@ -154,6 +165,10 @@ export default function EditorCanvas() {
   const [historyPast, setHistoryPast] = useState<UIDocument[]>([]);
   const [historyFuture, setHistoryFuture] = useState<UIDocument[]>([]);
   const [inspectorError, setInspectorError] = useState<string | null>(null);
+  const [present, setPresent] = useState(false);
+  const [prototypeSession, setPrototypeSession] = useState<PrototypeSession | null>(null);
+  const [designBusy, setDesignBusy] = useState(false);
+  const [clientReady, setClientReady] = useState(false);
   const [customFrame, setCustomFrame] = useState<CustomFrameDraft>({
     open: false,
     width: "390",
@@ -169,6 +184,7 @@ export default function EditorCanvas() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     setViewport(parseViewport(new URLSearchParams(window.location.search)));
+    setClientReady(true);
   }, []);
 
   const frameSelectionInitializedRef = useRef(false);
@@ -205,26 +221,7 @@ export default function EditorCanvas() {
     lastSyncedFrameIdRef.current = frameId;
   };
 
-  const projection = useMemo(
-    () =>
-      import("@uiforge/editor").then(({ projectDocument }) =>
-        projectDocument(document),
-      ),
-    [document],
-  );
-  const [projected, setProjected] = useState<Awaited<typeof projection> | null>(
-    null,
-  );
-
-  useEffect(() => {
-    let active = true;
-    void projection.then((value) => {
-      if (active) setProjected(value);
-    });
-    return () => {
-      active = false;
-    };
-  }, [projection]);
+  const projected = useMemo(() => projectDocument(document), [document]);
 
   useEffect(() => {
     const editor = editorRef.current;
@@ -238,9 +235,7 @@ export default function EditorCanvas() {
       opacity: shape.opacity ?? 1,
       isLocked: shape.isLocked ?? false,
       props: {
-        w: shape.props.w,
-        h: shape.props.h,
-        geo: shape.props.geo,
+        ...shape.props,
         richText: toRichText(shape.label),
       },
       meta: shape.meta,
@@ -305,6 +300,38 @@ export default function EditorCanvas() {
       }));
     setViewportDiagnostics(validateViewport(viewport.width, nodes));
   }, [document, selectedFrameId, viewport.width]);
+
+  const experienceGraph = useMemo<ExperienceGraph>(() => {
+    const transitions = Object.values(document.nodes)
+      .filter((node) => node.interaction?.targetScreenId)
+      .map((node) => ({
+        id: `transition.${node.id}`,
+        source: { screenId: node.screenId, nodeId: node.id },
+        trigger: { type: "click" as const },
+        action: {
+          type: "navigate" as const,
+          destination: { screenId: node.interaction?.targetScreenId as string },
+        },
+        animation: { name: "slide-right", durationMs: 250 },
+      }));
+    const firstScreen = document.screens[0];
+    return {
+      version: EXPERIENCE_GRAPH_VERSION,
+      id: `runtime.${document.id}`,
+      flows: [{
+        id: "flow.main",
+        name: "Main flow",
+        screenIds: document.screens.map((screen) => screen.id),
+        startingPointIds: ["start"],
+        transitionIds: transitions.map((item) => item.id),
+      }],
+      journeys: [],
+      startingPoints: firstScreen
+        ? [{ id: "start", destination: { screenId: firstScreen.id } }]
+        : [],
+      transitions,
+    };
+  }, [document]);
 
   const layerTree = useMemo(
     () => filterLayers(buildLayerTree(document), layerQuery),
@@ -910,8 +937,195 @@ export default function EditorCanvas() {
         </InspectorSection>
 
         <InspectorDiagnostics diagnostics={diagnostics} />
-        {inspectorError ? <div className="rounded border border-red-500/40 bg-red-500/10 p-2 text-[10px] text-red-300">{inspectorError}</div> : null}
+        {inspectorError ? (
+          <div
+            data-testid="design-error"
+            className="rounded border border-red-500/40 bg-red-500/10 p-2 text-[10px] text-red-300"
+          >
+            {inspectorError}
+          </div>
+        ) : null}
         <ResetButton onClick={resetSelection} />
+      </div>
+    );
+  };
+
+  const designUi = () => {
+    if ((document.metadata.designStage ?? "wireframe") !== "wireframe") return;
+    setDesignBusy(true);
+    try {
+      // Generate and apply one semantic revision from an immutable snapshot.
+      // This keeps the wireframe recoverable as a single Undo step.
+      const source = structuredClone(document);
+      const proposal = buildVisualDesignProposal(source);
+      const next = applyCommand(source, {
+        type: "ApplyVisualDesign",
+        commandId: `design-ui.${source.revision.revision + 1}`,
+        patches: proposal.patches,
+        stage: "visual",
+      });
+      flushSync(() => {
+        setHistoryPast((past) => [...past.slice(-49), source]);
+        setHistoryFuture([]);
+        setInspectorError(null);
+        setDocument(next);
+      });
+    } catch (error) {
+      setInspectorError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setDesignBusy(false);
+    }
+  };
+  const enterPresent = () => {
+    try {
+      setPrototypeSession(createPrototypeSession(experienceGraph));
+      setPresent(true);
+    } catch (error) {
+      setInspectorError(error instanceof Error ? error.message : String(error));
+    }
+  };
+
+  const exitPresent = () => {
+    setPresent(false);
+    setPrototypeSession(null);
+  };
+
+  const activateHotspot = (nodeId: NodeId) => {
+    if (!prototypeSession) return;
+    const result = resolveTransition(
+      experienceGraph,
+      prototypeSession,
+      { screenId: prototypeSession.current.screenId, nodeId },
+    );
+    if (result) setPrototypeSession(result.session);
+  };
+
+  const renderPrototypeNode = (node: UIDocument["nodes"][string]) => {
+    const label =
+      node.content?.label ??
+      node.content?.text ??
+      node.content?.placeholder ??
+      node.type;
+    const interactive = Boolean(node.interaction?.targetScreenId);
+    const activate = interactive ? () => activateHotspot(node.id) : undefined;
+    const focusRing = interactive
+      ? "cursor-pointer ring-1 ring-blue-300/70 hover:ring-blue-500"
+      : "";
+
+    if (node.type === "text") {
+      return (
+        <div key={node.id} className="space-y-1">
+          <div className="text-lg font-semibold tracking-tight text-slate-900">{label}</div>
+          {node.content?.description ? (
+            <div className="text-sm leading-5 text-slate-500">{node.content.description}</div>
+          ) : null}
+        </div>
+      );
+    }
+
+    if (node.type === "input") {
+      return (
+        <div key={node.id} className={`space-y-1 ${focusRing}`}>
+          <div className="text-xs font-medium text-slate-600">{label}</div>
+          <input
+            aria-label={label}
+            readOnly
+            placeholder={node.content?.placeholder}
+            value={node.content?.value ?? ""}
+            onChange={() => undefined}
+            className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm shadow-sm outline-none"
+          />
+        </div>
+      );
+    }
+
+    if (node.type === "button") {
+      return (
+        <button
+          key={node.id}
+          type="button"
+          onClick={activate}
+          className="h-11 w-full rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+        >
+          {label}
+        </button>
+      );
+    }
+
+    if (node.type === "image") {
+      if (interactive) {
+        return (
+          <button
+            key={node.id}
+            type="button"
+            onClick={activate}
+            className={`flex min-h-32 w-full items-center justify-center rounded-xl bg-slate-100 text-xs text-slate-400 ${focusRing}`}
+          >
+            {node.content?.alt ?? "Image"}
+          </button>
+        );
+      }
+      return (
+        <div
+          key={node.id}
+          className="flex min-h-32 items-center justify-center rounded-xl bg-slate-100 text-xs text-slate-400"
+        >
+          {node.content?.alt ?? "Image"}
+        </div>
+      );
+    }
+
+    const content = (
+      <>
+        <div className="text-sm font-semibold text-slate-900">{label}</div>
+        {node.content?.description ? (
+          <div className="mt-1 text-xs leading-5 text-slate-500">{node.content.description}</div>
+        ) : null}
+      </>
+    );
+
+    if (node.type === "card") {
+      if (interactive) {
+        return (
+          <button
+            key={node.id}
+            type="button"
+            onClick={activate}
+            className={`w-full rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm ${focusRing}`}
+          >
+            {content}
+          </button>
+        );
+      }
+      return (
+        <div
+          key={node.id}
+          className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+        >
+          {content}
+        </div>
+      );
+    }
+
+    if (interactive) {
+      return (
+        <button
+          key={node.id}
+          type="button"
+          onClick={activate}
+          className={`w-full rounded-lg border border-slate-200 bg-slate-50 p-3 text-left ${focusRing}`}
+        >
+          {content}
+        </button>
+      );
+    }
+
+    return (
+      <div
+        key={node.id}
+        className="rounded-lg border border-slate-200 bg-slate-50 p-3"
+      >
+        {content}
       </div>
     );
   };
@@ -957,6 +1171,7 @@ export default function EditorCanvas() {
     <div
       className="h-[820px] w-full overflow-hidden rounded-2xl border border-slate-700 bg-slate-950"
       data-testid="uiforge-editor-workspace"
+      data-client-ready={clientReady ? "true" : "false"}
     >
       <header className="flex h-12 items-center border-b border-slate-800 bg-slate-900 px-4 text-xs">
         <strong className="mr-6 text-sm text-white">UIForge</strong>
@@ -1038,7 +1253,19 @@ export default function EditorCanvas() {
           >
             Component
           </button>
-          <span className="ml-3 text-slate-500">▶ Present</span>
+          <div className="ml-3 flex items-center rounded-md border border-slate-700 bg-slate-950 p-0.5" data-testid="design-stage-switcher">
+            {(["wireframe", "visual"] as const).map((stage) => (
+              <span key={stage} className={`rounded px-2 py-1 text-[10px] ${(document.metadata.designStage ?? "wireframe") === stage ? "bg-slate-700 text-white" : "text-slate-500"}`}>
+                {stage === "wireframe" ? "Wireframe" : "Visual Design"}
+              </span>
+            ))}
+          </div>
+          <button type="button" data-testid="design-ui" disabled={(document.metadata.designStage ?? "wireframe") !== "wireframe" || designBusy} onClick={designUi} className="rounded-md bg-cyan-500 px-3 py-1.5 font-medium text-slate-950 disabled:cursor-not-allowed disabled:opacity-40">
+            {designBusy ? "Designing…" : "✨ Design UI"}
+          </button>
+          <button type="button" data-testid="present-button" onClick={enterPresent} className="rounded-md px-3 py-1.5 text-slate-200 hover:bg-slate-800">
+            ▶ Present
+          </button>
         </div>
       </header>
 
@@ -1232,9 +1459,7 @@ export default function EditorCanvas() {
                     opacity: shape.opacity ?? 1,
                     isLocked: shape.isLocked ?? false,
                     props: {
-                      w: shape.props.w,
-                      h: shape.props.h,
-                      geo: shape.props.geo,
+                      ...shape.props,
                       richText: toRichText(shape.label),
                     },
                     meta: shape.meta,
@@ -1291,6 +1516,20 @@ export default function EditorCanvas() {
 
       <footer className="flex h-12 items-center gap-2 border-t border-slate-800 bg-slate-900 px-3 text-xs text-slate-300">
         <span className="mr-2 text-cyan-300">✨ Ask UIForge…</span>
+        <span
+          data-testid="design-stage-status"
+          className={`rounded border px-2 py-1 text-[10px] ${
+            inspectorError
+              ? "border-red-500/40 text-red-300"
+              : "border-slate-700 text-slate-500"
+          }`}
+        >
+          {inspectorError
+            ? `Design error: ${inspectorError}`
+            : (document.metadata.designStage ?? "wireframe") === "wireframe"
+              ? "Structural wireframe"
+              : "Editable visual design"}
+        </span>
         <button
           type="button"
           className="rounded px-2 py-1 hover:bg-slate-800"
@@ -1316,6 +1555,37 @@ export default function EditorCanvas() {
           {projected?.shapes.length ?? 0} projected shapes · 85%
         </span>
       </footer>
+
+      {present && prototypeSession ? (
+        <div className="fixed inset-0 z-[60] flex flex-col bg-slate-950 text-white" data-testid="prototype-runner">
+          <header className="flex h-12 items-center justify-between border-b border-slate-800 px-5">
+            <strong>UIForge</strong>
+            <span className="text-xs text-slate-400">Prototype · {document.metadata.designStage === "visual" ? "Visual Design" : "Wireframe"}</span>
+            <button type="button" onClick={exitPresent} className="rounded px-3 py-1.5 text-xs hover:bg-slate-800">✕ Exit</button>
+          </header>
+          <main className="flex flex-1 items-center justify-center overflow-auto p-8">
+            <div className="w-[390px] min-h-[620px] overflow-hidden rounded-[32px] border border-slate-600 bg-white text-slate-900 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3 text-[11px]">
+                <span>9:41</span>
+                <span>{document.screens.find((s) => s.id === prototypeSession.current.screenId)?.name ?? "Prototype"}</span>
+              </div>
+              <div className="space-y-4 p-5">
+                {Object.values(document.nodes)
+                  .filter(
+                    (node) =>
+                      node.screenId === prototypeSession.current.screenId &&
+                      node.type !== "screen-root",
+                  )
+                  .map(renderPrototypeNode)}
+              </div>
+            </div>
+          </main>
+          <footer className="flex h-12 items-center justify-center gap-8 border-t border-slate-800 text-xs text-slate-400">
+            <button type="button" onClick={() => setPrototypeSession((current) => (current ? goBack(current) : current))} className="rounded px-3 py-1.5 hover:bg-slate-800">← Back</button>
+            <span>{prototypeSession.history.length + 1} / {document.screens.length}</span>
+          </footer>
+        </div>
+      ) : null}
 
       {customFrame.open ? (
         <div

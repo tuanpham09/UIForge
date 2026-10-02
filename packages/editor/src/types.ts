@@ -13,7 +13,7 @@ export interface UIForgeShapeMeta {
   semanticType: UINode["type"];
 }
 
-export interface ProjectedShape {
+export interface ProjectedGeoShape {
   id: TLShapeId;
   type: "geo";
   x: number;
@@ -24,10 +24,75 @@ export interface ProjectedShape {
     w: number;
     h: number;
     geo: "rectangle";
+    fill?: "none" | "semi" | "solid" | "pattern";
+    color?:
+      | "black"
+      | "grey"
+      | "light-violet"
+      | "violet"
+      | "blue"
+      | "light-blue"
+      | "red"
+      | "orange"
+      | "yellow"
+      | "green"
+      | "light-green"
+      | "white";
+    labelColor?:
+      | "black"
+      | "grey"
+      | "light-violet"
+      | "violet"
+      | "blue"
+      | "light-blue"
+      | "red"
+      | "orange"
+      | "yellow"
+      | "green"
+      | "light-green"
+      | "white";
+    size?: "s" | "m" | "l" | "xl";
+    font?: "draw" | "sans" | "serif" | "mono";
+    align?: "start" | "middle" | "end";
+    verticalAlign?: "start" | "middle" | "end";
+    dash?: "draw" | "solid" | "dashed" | "dotted" | "none";
   };
   label: string;
   meta: UIForgeShapeMeta;
 }
+
+export interface ProjectedTextShape {
+  id: TLShapeId;
+  type: "text";
+  x: number;
+  y: number;
+  opacity?: number;
+  isLocked?: boolean;
+  props: {
+    color?:
+      | "black"
+      | "grey"
+      | "light-violet"
+      | "violet"
+      | "blue"
+      | "light-blue"
+      | "red"
+      | "orange"
+      | "yellow"
+      | "green"
+      | "light-green"
+      | "white";
+    size?: "s" | "m" | "l" | "xl";
+    font?: "draw" | "sans" | "serif" | "mono";
+    textAlign?: "start" | "middle" | "end";
+    autoSize?: boolean;
+    w?: number;
+  };
+  label: string;
+  meta: UIForgeShapeMeta;
+}
+
+export type ProjectedShape = ProjectedGeoShape | ProjectedTextShape;
 
 export interface ProjectedFlow {
   id: TLShapeId;
