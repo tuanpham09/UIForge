@@ -125,7 +125,6 @@ export function validateUIDocument(value: unknown): UIDocument {
     }
   }
 
-
   if (new Set(screenIds).size !== screenIds.length) {
     issues.push("screen IDs must be unique");
   }
