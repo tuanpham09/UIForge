@@ -25,6 +25,7 @@ import { buildVisualDesignProposal } from "@uiforge/design-intelligence";
 import {
   createPrototypeSession,
   resolveTransition,
+  goBack,
   type ExperienceGraph,
   type PrototypeSession,
 } from "@uiforge/experience-graph";
@@ -1000,6 +1001,108 @@ export default function EditorCanvas() {
     if (result) setPrototypeSession(result.session);
   };
 
+  const renderPrototypeNode = (node: UIDocument["nodes"][string]) => {
+    const label =
+      node.content?.label ??
+      node.content?.text ??
+      node.content?.placeholder ??
+      node.type;
+    const interactive = Boolean(node.interaction?.targetScreenId);
+    const activate = interactive ? () => activateHotspot(node.id) : undefined;
+    const focusRing = interactive
+      ? "cursor-pointer ring-1 ring-blue-300/70 hover:ring-blue-500"
+      : "";
+
+    if (node.type === "text") {
+      return (
+        <div key={node.id} className="space-y-1">
+          <div className="text-lg font-semibold tracking-tight text-slate-900">{label}</div>
+          {node.content?.description ? (
+            <div className="text-sm leading-5 text-slate-500">{node.content.description}</div>
+          ) : null}
+        </div>
+      );
+    }
+
+    if (node.type === "input") {
+      return (
+        <div key={node.id} className={`space-y-1 ${focusRing}`} onClick={activate}>
+          <label className="text-xs font-medium text-slate-600">{label}</label>
+          <input
+            aria-label={label}
+            readOnly
+            placeholder={node.content?.placeholder}
+            value={node.content?.value ?? ""}
+            onChange={() => undefined}
+            className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm shadow-sm outline-none"
+          />
+        </div>
+      );
+    }
+
+    if (node.type === "button") {
+      return (
+        <button
+          key={node.id}
+          type="button"
+          onClick={activate}
+          className="h-11 w-full rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+        >
+          {label}
+        </button>
+      );
+    }
+
+    if (node.type === "image") {
+      return (
+        <div
+          key={node.id}
+          className={`flex min-h-32 items-center justify-center rounded-xl bg-slate-100 text-xs text-slate-400 ${focusRing}`}
+          onClick={activate}
+          role={interactive ? "button" : undefined}
+          tabIndex={interactive ? 0 : undefined}
+        >
+          {node.content?.alt ?? "Image"}
+        </div>
+      );
+    }
+
+    const content = (
+      <>
+        <div className="text-sm font-semibold text-slate-900">{label}</div>
+        {node.content?.description ? (
+          <div className="mt-1 text-xs leading-5 text-slate-500">{node.content.description}</div>
+        ) : null}
+      </>
+    );
+
+    if (node.type === "card") {
+      return (
+        <div
+          key={node.id}
+          className={`rounded-xl border border-slate-200 bg-white p-4 shadow-sm ${focusRing}`}
+          onClick={activate}
+          role={interactive ? "button" : undefined}
+          tabIndex={interactive ? 0 : undefined}
+        >
+          {content}
+        </div>
+      );
+    }
+
+    return (
+      <div
+        key={node.id}
+        className={`rounded-lg border border-slate-200 bg-slate-50 p-3 ${focusRing}`}
+        onClick={activate}
+        role={interactive ? "button" : undefined}
+        tabIndex={interactive ? 0 : undefined}
+      >
+        {content}
+      </div>
+    );
+  };
+
   const addSection = () => {
     const root = document.nodes["screen.dashboard.root"];
     if (!root) return;
@@ -1429,20 +1532,19 @@ export default function EditorCanvas() {
                 <span>9:41</span>
                 <span>{document.screens.find((s) => s.id === prototypeSession.current.screenId)?.name ?? "Prototype"}</span>
               </div>
-              <div className="space-y-3 p-5">
+              <div className="space-y-4 p-5">
                 {Object.values(document.nodes)
-                  .filter((node) => node.screenId === prototypeSession.current.screenId && node.type !== "screen-root")
-                  .map((node) => (
-                    <button key={node.id} type="button" onClick={() => activateHotspot(node.id)} className={`block w-full rounded-xl border p-4 text-left text-sm ${node.interaction?.targetScreenId ? "cursor-pointer border-blue-400 bg-blue-50" : "cursor-default border-slate-200 bg-slate-50"}`}>
-                      <div className="font-medium">{node.content?.label ?? node.content?.text ?? node.type}</div>
-                      {node.content?.description ? <div className="mt-1 text-xs text-slate-500">{node.content.description}</div> : null}
-                    </button>
-                  ))}
+                  .filter(
+                    (node) =>
+                      node.screenId === prototypeSession.current.screenId &&
+                      node.type !== "screen-root",
+                  )
+                  .map(renderPrototypeNode)}
               </div>
             </div>
           </main>
           <footer className="flex h-12 items-center justify-center gap-8 border-t border-slate-800 text-xs text-slate-400">
-            <button type="button" onClick={() => setPrototypeSession((current) => current ? { ...current, history: current.history.slice(0, -1), current: current.history.at(-1) ?? current.current } : current)} className="rounded px-3 py-1.5 hover:bg-slate-800">← Back</button>
+            <button type="button" onClick={() => setPrototypeSession((current) => (current ? goBack(current) : current))} className="rounded px-3 py-1.5 hover:bg-slate-800">← Back</button>
             <span>{prototypeSession.history.length + 1} / {document.screens.length}</span>
           </footer>
         </div>
