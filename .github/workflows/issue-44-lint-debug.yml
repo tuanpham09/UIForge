@@ -30,6 +30,9 @@ jobs:
             pnpm typecheck
             echo "=== UNIT TESTS ==="
             pnpm test:unit
+            echo "=== E2E ==="
+            pnpm exec playwright install --with-deps chromium
+            pnpm test:e2e
           } > lint-output.txt 2>&1 || true
           cat lint-output.txt
       - name: Comment diagnostics
