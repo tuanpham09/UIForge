@@ -42,7 +42,15 @@ import {
   nodeLabel,
   TOKEN_OPTIONS,
 } from "./inspector-model";
-import AgentDesignChat from "./agent-design-chat";
+import {
+  BREAKPOINTS,
+  commonTokenSlots,
+  findResponsiveRule,
+  inspectFrame,
+  inspectNode,
+  nodeLabel,
+  TOKEN_OPTIONS,
+} from "./inspector-model";import AgentDesignChat from "./agent-design-chat";
 import RendererPreview from "./renderer-preview";
 import {
   customViewport,
