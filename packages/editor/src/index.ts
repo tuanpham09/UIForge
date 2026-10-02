@@ -6,3 +6,4 @@ export * from "./projection";
 export * from "./reconcile";
 export * from "./serialization";
 export * from "./types";
+export * from "./penpot-canvas-spike";
