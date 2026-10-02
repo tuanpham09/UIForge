@@ -112,8 +112,12 @@ export function applyCommand(
       if (frames.some((frame) => frame.id === command.frame.id)) {
         throw new UICommandError(`frame already exists: ${command.frame.id}`);
       }
-      if (!document.screens.some((screen) => screen.id === command.frame.screenId)) {
-        throw new UICommandError(`screen not found: ${command.frame.screenId}`);
+      if (
+        !document.screens.some((screen) => screen.id === command.frame.screenId)
+      ) {
+        throw new UICommandError(
+          `screen not found: ${command.frame.screenId}`,
+        );
       }
       if (command.frame.width <= 0 || command.frame.height <= 0) {
         throw new UICommandError("frame dimensions must be positive");
