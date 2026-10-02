@@ -4,3 +4,4 @@ export * from "./design-chat";
 export * from "./registry";
 export * from "./runtime";
 export * from "./tools";
+export * from "./mutation-tools";
