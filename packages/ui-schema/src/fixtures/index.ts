@@ -13,7 +13,7 @@ const nodeId = (value: string) => value as NodeId;
 const base = (name: string): UIDocument => ({
   schemaVersion: "uiforge.schema/v1",
   id: documentId(`fixture-${name}`),
-  metadata: { name: `UIForge ${name} fixture` },
+  metadata: { name: `UIForge ${name} fixture`, designStage: "wireframe" },
   revision: {
     revision: 1,
     createdAt: "2026-09-30T00:00:00.000Z",
