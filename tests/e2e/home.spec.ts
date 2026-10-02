@@ -10,6 +10,7 @@ test("web shell renders the primary semantic canvas workspace", async ({
     "data-client-ready",
     "true",
   );
+  await page.getByTestId("preview-button").click();
   await expect(page.getByTestId("renderer-preview")).toBeVisible();
   await expect(page.getByTestId("renderer-diagnostics")).toContainText(
     "Preview transition → screen.mobile-list",
