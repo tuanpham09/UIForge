@@ -169,7 +169,8 @@ export default function EditorCanvas() {
 
   const moveLayer = (layer: SemanticLayer, delta: number) => {
     if (layer.kind !== "node" || !layer.nodeId) return;
-    const node = document.nodes[layer.nodeId];
+    const nodeId = layer.nodeId;
+    const node = document.nodes[nodeId];
     if (!node?.parentId) return;
     const parent = document.nodes[node.parentId];
     if (!parent) return;
