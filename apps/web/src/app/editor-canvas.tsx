@@ -5,8 +5,8 @@ import { buildVisualDesignProposal } from "@uiforge/design-intelligence";
 import {
   buildLayerTree,
   filterLayers,
-  type SemanticLayer,
   projectDocument,
+  type SemanticLayer,
 } from "@uiforge/editor";
 import {
   createPrototypeSession,
