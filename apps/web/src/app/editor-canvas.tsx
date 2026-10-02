@@ -30,6 +30,18 @@ import {
   nodeLabel,
   TOKEN_OPTIONS,
 } from "./inspector-model";
+import {
+  DEVICE_PRESETS,
+  ZOOM_PRESETS,
+  customViewport,
+  parseViewport,
+  rotateViewport,
+  serializeViewport,
+  validateViewport,
+  viewportFromPreset,
+  type PreviewOrientation,
+  type ViewportState,
+} from "./viewport-model";
 
 
 const cloneDocument = (): UIDocument => structuredClone(dashboardFixture);
@@ -149,6 +161,34 @@ export default function EditorCanvas() {
     height: "844",
   });
   const editorRef = useRef<Editor | null>(null);
+  const [viewport, setViewport] = useState<ViewportState>(() => {
+    if (typeof window === "undefined") return viewportFromPreset("iphone-16");
+    return parseViewport(new URLSearchParams(window.location.search));
+  });
+  const [deviceMenuOpen, setDeviceMenuOpen] = useState(false);
+  const [viewportDiagnostics, setViewportDiagnostics] = useState<
+    ReturnType<typeof validateViewport>
+  >([]);
+
+  const updateViewportUrl = (next: ViewportState) => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(serializeViewport(next));
+    params.forEach((value, key) => url.searchParams.set(key, value));
+    window.history.replaceState({}, "", url);
+  };
+
+  const setPreviewViewport = (next: ViewportState) => {
+    setViewport(next);
+    updateViewportUrl(next);
+    const editor = editorRef.current;
+    const frame = selectedFrameId
+      ? document.frames?.find((item) => item.id === selectedFrameId)
+      : undefined;
+    if (editor && frame) {
+      editor.zoomToFit({ animation: { duration: 120 } });
+    }
+  };
 
   const projection = useMemo(
     () =>
@@ -223,12 +263,42 @@ export default function EditorCanvas() {
     setSelectedFrameId(frameIds[0] ?? null);
   };
 
+  useEffect(() => {
+    const frame = selectedFrameId
+      ? document.frames?.find((item) => item.id === selectedFrameId)
+      : undefined;
+    if (!frame) {
+      setViewportDiagnostics([]);
+      return;
+    }
+
+    const nodes = Object.values(document.nodes)
+      .filter((node) => node.frameId === frame.id)
+      .map((node) => ({
+        id: node.id,
+        x: (node.editor?.x ?? 0) - frame.x,
+        width: node.editor?.width ?? 0,
+      }));
+    setViewportDiagnostics(validateViewport(viewport.width, nodes));
+  }, [document, selectedFrameId, viewport.width]);
+
   const layerTree = useMemo(
     () => filterLayers(buildLayerTree(document), layerQuery),
     [document, layerQuery],
   );
 
   const selectedSemanticId = selectedNodeId ?? selectedFrameId;
+
+  useEffect(() => {
+    if (!selectedFrameId) return;
+    const frame = document.frames?.find((item) => item.id === selectedFrameId);
+    if (!frame) return;
+    const next = customViewport(frame.width, frame.height, viewport.zoom);
+    setViewport(next);
+    updateViewportUrl(next);
+    // Frame dimensions remain canonical; preview state mirrors them without
+    // persisting viewport selection into the UI Schema.
+  }, [selectedFrameId]);
 
   const applySemantic = (builder: (current: UIDocument) => UIDocument) => {
     try {
@@ -997,7 +1067,97 @@ export default function EditorCanvas() {
           </div>
         </aside>
 
-        <main className="relative min-w-0 bg-[#111827]">
+        <main className="relative min-w-0 bg-[#111827]" data-testid="responsive-device-preview">
+          <div className="absolute left-3 right-3 top-3 z-10 rounded-xl border border-slate-700 bg-slate-900/95 p-2 shadow-xl backdrop-blur">
+            <div className="flex flex-wrap items-center gap-2 text-[11px]">
+              <span className="font-semibold uppercase tracking-wider text-slate-500">DEVICE</span>
+              <div className="relative">
+                <button
+                  type="button"
+                  data-testid="device-preset-trigger"
+                  onClick={() => setDeviceMenuOpen((open) => !open)}
+                  className="rounded-md border border-slate-700 bg-slate-950 px-3 py-1.5 text-slate-200"
+                >
+                  {DEVICE_PRESETS.find((item) => item.id === viewport.presetId)?.name ?? "Custom"} ▾
+                </button>
+                {deviceMenuOpen ? (
+                  <div className="absolute left-0 top-9 z-30 w-64 rounded-xl border border-slate-700 bg-slate-900 p-2 shadow-2xl">
+                    {(["mobile", "tablet", "desktop"] as const).map((category) => (
+                      <div key={category}>
+                        <p className="px-2 pt-2 text-[10px] uppercase tracking-wider text-slate-500">
+                          {category === "mobile" ? "iPhone" : category}
+                        </p>
+                        {DEVICE_PRESETS.filter((item) => item.category === category).map((item) => (
+                          <button
+                            key={item.id}
+                            type="button"
+                            className="flex w-full justify-between rounded px-2 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-800"
+                            onClick={() => {
+                              setPreviewViewport(viewportFromPreset(item.id, viewport.orientation));
+                              setDeviceMenuOpen(false);
+                            }}
+                          >
+                            <span>{item.name}</span>
+                            <span className="text-slate-500">{item.width}×{item.height}</span>
+                          </button>
+                        ))}
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      className="mt-2 w-full rounded px-2 py-1.5 text-left text-xs text-slate-300 hover:bg-slate-800"
+                      onClick={() => {
+                        const width = Number(globalThis.prompt("Viewport width", String(viewport.width)));
+                        const height = Number(globalThis.prompt("Viewport height", String(viewport.height)));
+                        if (Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0) {
+                          setPreviewViewport(customViewport(width, height, viewport.zoom));
+                        }
+                        setDeviceMenuOpen(false);
+                      }}
+                    >
+                      Custom…
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+              <button
+                type="button"
+                aria-label="Toggle orientation"
+                data-testid="viewport-orientation"
+                onClick={() => setPreviewViewport(rotateViewport(viewport))}
+                className="rounded-md border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-slate-300"
+              >
+                {viewport.orientation === "portrait" ? "Portrait ↕" : "Landscape ↔"}
+              </button>
+              <span className="font-mono text-slate-400" data-testid="viewport-size">
+                {viewport.width} × {viewport.height}
+              </span>
+              <label className="flex items-center gap-1 text-slate-500">
+                Zoom
+                <select
+                  aria-label="Viewport zoom"
+                  value={viewport.zoom}
+                  onChange={(event) => setPreviewViewport({ ...viewport, zoom: Number(event.target.value) })}
+                  className="rounded border border-slate-700 bg-slate-950 px-2 py-1 text-slate-200"
+                >
+                  {ZOOM_PRESETS.map((zoom) => <option key={zoom} value={zoom}>{zoom}%</option>)}
+                </select>
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  const editor = editorRef.current;
+                  if (editor) editor.zoomToFit({ animation: { duration: 150 } });
+                }}
+                className="rounded-md border border-slate-700 px-2.5 py-1.5 text-slate-300 hover:bg-slate-800"
+              >
+                Fit
+              </button>
+              <span className="ml-auto text-[10px] text-slate-500">
+                Preview state only · not persisted to UI Schema
+              </span>
+            </div>
+          </div>
           <Tldraw
             onMount={(editor) => {
               editorRef.current = editor;
@@ -1078,6 +1238,34 @@ export default function EditorCanvas() {
               };
             }}
           />
+          <div className="absolute bottom-3 left-3 right-3 z-10 rounded-xl border border-slate-700 bg-slate-900/95 p-2 shadow-xl" data-testid="responsive-validation">
+            <div className="flex flex-wrap items-center gap-2 text-[10px]">
+              <span className="font-semibold uppercase tracking-wider text-slate-500">Responsive validation</span>
+              {(["mobile", "tablet", "desktop", "wide"] as const).map((breakpoint) => {
+                const active = BREAKPOINTS.findIndex((item) => item === breakpoint);
+                const currentWidth = viewport.width;
+                const valid =
+                  breakpoint === "mobile" ? currentWidth <= 767 :
+                  breakpoint === "tablet" ? currentWidth >= 768 && currentWidth <= 1023 :
+                  breakpoint === "desktop" ? currentWidth >= 1024 && currentWidth <= 1439 :
+                  currentWidth >= 1440;
+                return (
+                  <span key={breakpoint} className={valid ? "text-emerald-300" : "text-slate-600"}>
+                    {valid ? "✓" : "○"} {breakpoint}
+                  </span>
+                );
+              })}
+              {viewportDiagnostics.map((diagnostic) => (
+                <span
+                  key={diagnostic.code + diagnostic.message}
+                  className={diagnostic.severity === "error" ? "text-red-300" : diagnostic.severity === "warning" ? "text-amber-300" : "text-emerald-300"}
+                  data-testid={`viewport-diagnostic-${diagnostic.code.toLowerCase()}`}
+                >
+                  {diagnostic.severity === "ok" ? "✓" : "⚠"} {diagnostic.message}
+                </span>
+              ))}
+            </div>
+          </div>
         </main>
 
         <aside className="border-l border-slate-800 bg-slate-900/70 p-3 text-xs text-slate-300" data-testid="semantic-inspector">
