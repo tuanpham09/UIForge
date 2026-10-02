@@ -1543,8 +1543,8 @@ export default function EditorCanvas() {
           </div>
         </aside>
 
-        <main className="relative min-w-0 bg-[#111827]" data-testid="responsive-device-preview">
-          <div className="absolute left-3 right-3 top-3 z-10 rounded-xl border border-slate-700 bg-slate-900/95 p-2 shadow-xl backdrop-blur">
+        <main className="flex min-h-0 min-w-0 flex-col bg-[#111827]" data-testid="responsive-device-preview">
+          <div className="shrink-0 border-b border-slate-700 bg-slate-900/95 px-3 py-2 shadow-sm backdrop-blur">
             <div className="flex flex-wrap items-center gap-2 text-[11px]">
               <span className="font-semibold uppercase tracking-wider text-slate-500">DEVICE</span>
               <details className="relative" data-testid="device-menu">
@@ -1630,7 +1630,8 @@ export default function EditorCanvas() {
               </span>
             </div>
           </div>
-          <Tldraw
+          <div className="relative min-h-0 flex-1">
+            <Tldraw
             onMount={(editor) => {
               editorRef.current = editor;
               editor.setCurrentTool("select");
@@ -1708,8 +1709,9 @@ export default function EditorCanvas() {
                 editor.off("change", sync);
               };
             }}
-          />
-          <div className="absolute bottom-3 left-3 right-3 z-10 rounded-xl border border-slate-700 bg-slate-900/95 p-2 shadow-xl" data-testid="responsive-validation">
+            />
+          </div>
+          <div className="shrink-0 border-t border-slate-700 bg-slate-900/95 px-3 py-2 shadow-sm" data-testid="responsive-validation">
             <div className="flex flex-wrap items-center gap-2 text-[10px]">
               <span className="font-semibold uppercase tracking-wider text-slate-500">Responsive validation</span>
               {(["mobile", "tablet", "desktop", "wide"] as const).map((breakpoint) => {
