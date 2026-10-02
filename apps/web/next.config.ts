@@ -10,10 +10,8 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: workspaceRoot,
     resolveAlias: {
-      "@uiforge/design-intelligence": path.join(
-        workspaceRoot,
-        "packages/design-intelligence/src/index.ts",
-      ),
+      "@uiforge/design-intelligence":
+        "./packages/design-intelligence/src/index.ts",
     },
   },
 };
