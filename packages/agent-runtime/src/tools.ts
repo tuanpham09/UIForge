@@ -1,5 +1,6 @@
 // biome-ignore-all format: agent runtime contract remains compact for review
-import { validateUIDocument, type NodeId, type ScreenId, type UINode } from "@uiforge/ui-schema";
+
+import { type NodeId, type ScreenId, type UINode, validateUIDocument } from "@uiforge/ui-schema";
 import type { AgentToolDefinition } from "./contracts";
 import { AgentToolRegistry } from "./registry";
 
