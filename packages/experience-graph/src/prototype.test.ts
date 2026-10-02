@@ -24,7 +24,9 @@ describe("prototype session", () => {
     expect(result?.transition.id).toBe("t1");
     expect(result?.session.current.screenId).toBe("filter");
     expect(result?.session.history).toEqual([{ screenId: "signup" }]);
-    expect(goBack(result!.session).current.screenId).toBe("signup");
+    expect(result).toBeDefined();
+    if (!result) throw new Error("Expected transition result");
+    expect(goBack(result.session).current.screenId).toBe("signup");
   });
 
   it("does not navigate when the hotspot has no graph edge", () => {
