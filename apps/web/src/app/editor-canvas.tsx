@@ -248,9 +248,7 @@ export default function EditorCanvas() {
       opacity: shape.opacity ?? 1,
       isLocked: shape.isLocked ?? false,
       props: {
-        w: shape.props.w,
-        h: shape.props.h,
-        geo: shape.props.geo,
+        ...shape.props,
         richText: toRichText(shape.label),
       },
       meta: shape.meta,
