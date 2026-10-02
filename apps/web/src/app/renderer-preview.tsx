@@ -14,9 +14,9 @@ export default function RendererPreview({
   screenId: string;
   initialPreset?: "wide" | "desktop" | "tablet" | "mobile";
 }) {
-  const [preset, setPreset] = useState<"wide" | "desktop" | "tablet" | "mobile">(
-    initialPreset,
-  );
+  const [preset, setPreset] = useState<
+    "wide" | "desktop" | "tablet" | "mobile"
+  >(initialPreset);
   const viewport = useMemo(() => getViewport(preset), [preset]);
   const result = useMemo(
     () =>
