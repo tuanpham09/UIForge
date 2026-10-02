@@ -19,7 +19,7 @@ import {
 import {
   applyCommand,
   createFrameFromPreset,
-  dashboardFixture,
+  workspaceFixture,
   FRAME_PRESETS,
   type Frame,
   type FrameId,
@@ -54,7 +54,7 @@ import {
 } from "./viewport-model";
 
 
-const cloneDocument = (): UIDocument => structuredClone(dashboardFixture);
+const cloneDocument = (): UIDocument => structuredClone(workspaceFixture);
 
 type CustomFrameDraft = {
   open: boolean;
@@ -168,6 +168,10 @@ export default function EditorCanvas() {
   const [present, setPresent] = useState(false);
   const [prototypeSession, setPrototypeSession] = useState<PrototypeSession | null>(null);
   const [designBusy, setDesignBusy] = useState(false);
+  const [aiMenuOpen, setAiMenuOpen] = useState(false);
+  const [aiNotice, setAiNotice] = useState<string | null>(null);
+  const [prototypeTransitioning, setPrototypeTransitioning] = useState(false);
+  const [hotspotHinting, setHotspotHinting] = useState(false);
   const [clientReady, setClientReady] = useState(false);
   const [customFrame, setCustomFrame] = useState<CustomFrameDraft>({
     open: false,
@@ -950,6 +954,142 @@ export default function EditorCanvas() {
     );
   };
 
+  const selectedNode = selectedNodeId ? document.nodes[selectedNodeId] : undefined;
+
+  const runContextualAiAction = (
+    action:
+      | "hierarchy"
+      | "spacing"
+      | "component"
+      | "interaction"
+      | "responsive"
+      | "explain"
+      | "mcp",
+  ) => {
+    if (!selectedNode) {
+      setAiNotice("Select a semantic node first.");
+      return;
+    }
+
+    const nextScreen = document.screens.find(
+      (screen) => screen.id !== selectedNode.screenId,
+    );
+
+    try {
+      if (action === "hierarchy") {
+        applySemantic((current) =>
+          applyCommand(current, {
+            type: "SetToken",
+            commandId: `ai.hierarchy.${selectedNode.id}`,
+            nodeId: selectedNode.id,
+            slot: "typography",
+            token:
+              selectedNode.type === "text"
+                ? "text.title"
+                : selectedNode.type === "button"
+                  ? "text.body"
+                  : "text.body-lg",
+          }),
+        );
+        setAiNotice("Visual hierarchy proposal applied as semantic tokens.");
+      } else if (action === "spacing") {
+        applySemantic((current) =>
+          applyCommand(current, {
+            type: "UpdateNode",
+            commandId: `ai.spacing.${selectedNode.id}`,
+            nodeId: selectedNode.id,
+            patch: {
+              layout: {
+                ...selectedNode.layout,
+                gap: { token: "space.4" },
+              },
+            },
+          }),
+        );
+        setAiNotice("Spacing normalized to the project token rhythm.");
+      } else if (action === "component") {
+        const registryId =
+          selectedNode.type === "button"
+            ? "uiforge.button"
+            : selectedNode.type === "input"
+              ? "uiforge.input"
+              : selectedNode.type === "card"
+                ? "uiforge.card"
+                : selectedNode.type === "list"
+                  ? "uiforge.list"
+                  : null;
+        if (!registryId) {
+          setAiNotice("This semantic node has no registered component mapping yet.");
+        } else {
+          applySemantic((current) =>
+            applyCommand(current, {
+              type: "UpdateNode",
+              commandId: `ai.component.${selectedNode.id}`,
+              nodeId: selectedNode.id,
+              patch: {
+                component: {
+                  registryId,
+                  variant: registryId === "uiforge.button" ? "primary" : "default",
+                },
+              },
+            }),
+          );
+          setAiNotice(`Resolved ${registryId} through Component Registry.`);
+        }
+      } else if (action === "interaction") {
+        if (!nextScreen) {
+          setAiNotice("No alternate screen is available for a navigation target.");
+        } else {
+          applySemantic((current) =>
+            applyCommand(current, {
+              type: "UpdateNode",
+              commandId: `ai.interaction.${selectedNode.id}`,
+              nodeId: selectedNode.id,
+              patch: {
+                interaction: {
+                  interactive: true,
+                  trigger: "click",
+                  action: "navigate",
+                  targetScreenId: nextScreen.id,
+                },
+              },
+            }),
+          );
+          setAiNotice(`Navigation proposal linked to ${nextScreen.name}.`);
+        }
+      } else if (action === "responsive") {
+        applySemantic((current) =>
+          applyCommand(current, {
+            type: "SetResponsiveRule",
+            commandId: `ai.responsive.${selectedNode.id}`,
+            nodeId: selectedNode.id,
+            rule: {
+              breakpoint: "mobile",
+              layout: {
+                direction: "column",
+                width: { mode: "fill" },
+              },
+            },
+          }),
+        );
+        setAiNotice("Mobile responsive rule added without changing the node identity.");
+      } else if (action === "explain") {
+        const screen = document.screens.find((item) => item.id === selectedNode.screenId);
+        const nodeCount = screen?.nodeIds.length ?? 0;
+        setAiNotice(
+          `${screen?.name ?? "Screen"} contains ${nodeCount} semantic nodes; selection is ${selectedNode.type} · ${selectedNode.id}.`,
+        );
+      } else {
+        setAiNotice(
+          `MCP inspection target prepared: ${selectedNode.id}. Read operations remain semantic and capability-gated.`,
+        );
+      }
+      setAiMenuOpen(false);
+    } catch (error) {
+      setInspectorError(error instanceof Error ? error.message : String(error));
+    }
+  };
+
   const designUi = () => {
     if ((document.metadata.designStage ?? "wireframe") !== "wireframe") return;
     setDesignBusy(true);
@@ -988,19 +1128,34 @@ export default function EditorCanvas() {
   const exitPresent = () => {
     setPresent(false);
     setPrototypeSession(null);
+    setPrototypeTransitioning(false);
+    setHotspotHinting(false);
   };
 
   const activateHotspot = (nodeId: NodeId) => {
-    if (!prototypeSession) return;
+    if (!prototypeSession || prototypeTransitioning) return;
     const result = resolveTransition(
       experienceGraph,
       prototypeSession,
       { screenId: prototypeSession.current.screenId, nodeId },
     );
-    if (result) setPrototypeSession(result.session);
+    if (!result) {
+      setHotspotHinting(true);
+      return;
+    }
+
+    setPrototypeTransitioning(true);
+    setHotspotHinting(false);
+    globalThis.setTimeout(() => {
+      setPrototypeSession(result.session);
+      setPrototypeTransitioning(false);
+    }, 250);
   };
 
-  const renderPrototypeNode = (node: UIDocument["nodes"][string]) => {
+  const renderPrototypeNode = (
+    node: UIDocument["nodes"][string],
+    showHotspot = false,
+  ) => {
     const label =
       node.content?.label ??
       node.content?.text ??
@@ -1009,7 +1164,7 @@ export default function EditorCanvas() {
     const interactive = Boolean(node.interaction?.targetScreenId);
     const activate = interactive ? () => activateHotspot(node.id) : undefined;
     const focusRing = interactive
-      ? "cursor-pointer ring-1 ring-blue-300/70 hover:ring-blue-500"
+      ? `cursor-pointer ${showHotspot ? "ring-2 ring-blue-400 shadow-[0_0_0_4px_rgba(59,130,246,0.15)]" : "ring-1 ring-blue-300/70 hover:ring-blue-500"}`
       : "";
 
     if (node.type === "text") {
@@ -1283,10 +1438,17 @@ export default function EditorCanvas() {
 
           <p className="mb-2 mt-5 font-semibold text-slate-400">FLOW</p>
           <div className="space-y-1 text-slate-400">
-            ● Dashboard
-            <br />
-            ↓
-            <br />● Mobile List
+            {document.screens.map((screen, index) => (
+              <div key={screen.id}>
+                <span>● {screen.name}</span>
+                {index < document.screens.length - 1 ? (
+                  <>
+                    <br />
+                    <span className="text-slate-600">↓</span>
+                  </>
+                ) : null}
+              </div>
+            ))}
           </div>
           <div className="mt-5 border-t border-slate-800 pt-4">
             <div className="mb-2 flex items-center justify-between">
@@ -1515,7 +1677,49 @@ export default function EditorCanvas() {
       </div>
 
       <footer className="flex h-12 items-center gap-2 border-t border-slate-800 bg-slate-900 px-3 text-xs text-slate-300">
-        <span className="mr-2 text-cyan-300">✨ Ask UIForge…</span>
+        <div className="relative">
+          <button
+            type="button"
+            data-testid="ask-uiforge"
+            onClick={() => setAiMenuOpen((open) => !open)}
+            className="rounded px-2 py-1 text-cyan-300 hover:bg-slate-800"
+          >
+            ✨ Ask UIForge…
+          </button>
+          {aiMenuOpen ? (
+            <div
+              className="absolute bottom-9 left-0 z-40 w-72 rounded-xl border border-slate-700 bg-slate-900 p-2 shadow-2xl"
+              data-testid="contextual-ai-menu"
+            >
+              <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                {selectedNode ? `Selected · ${selectedNode.type}` : "Select a semantic object"}
+              </p>
+              {([
+                ["hierarchy", "Improve hierarchy"],
+                ["spacing", "Make spacing consistent"],
+                ["component", "Convert to component"],
+                ["interaction", "Add interaction → next screen"],
+                ["responsive", "Generate responsive variant"],
+                ["explain", "Explain this screen"],
+                ["mcp", "Inspect via MCP"],
+              ] as const).map(([action, label]) => (
+                <button
+                  key={action}
+                  type="button"
+                  onClick={() => runContextualAiAction(action)}
+                  className="block w-full rounded-lg px-2 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-800"
+                >
+                  {label}
+                </button>
+              ))}
+              {aiNotice ? (
+                <p className="mt-2 rounded-lg border border-slate-700 bg-slate-950 p-2 text-[10px] leading-4 text-slate-400">
+                  {aiNotice}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
         <span
           data-testid="design-stage-status"
           className={`rounded border px-2 py-1 text-[10px] ${
@@ -1561,10 +1765,23 @@ export default function EditorCanvas() {
           <header className="flex h-12 items-center justify-between border-b border-slate-800 px-5">
             <strong>UIForge</strong>
             <span className="text-xs text-slate-400">Prototype · {document.metadata.designStage === "visual" ? "Visual Design" : "Wireframe"}</span>
-            <button type="button" onClick={exitPresent} className="rounded px-3 py-1.5 text-xs hover:bg-slate-800">✕ Exit</button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                data-testid="hotspot-hint"
+                onClick={() => setHotspotHinting((enabled) => !enabled)}
+                className={`rounded px-3 py-1.5 text-xs ${hotspotHinting ? "bg-blue-500/20 text-blue-300 ring-1 ring-blue-400" : "hover:bg-slate-800"}`}
+              >
+                {hotspotHinting ? "Hotspots on" : "Show hotspots"}
+              </button>
+              <button type="button" onClick={exitPresent} className="rounded px-3 py-1.5 text-xs hover:bg-slate-800">✕ Exit</button>
+            </div>
           </header>
-          <main className="flex flex-1 items-center justify-center overflow-auto p-8">
-            <div className="w-[390px] min-h-[620px] overflow-hidden rounded-[32px] border border-slate-600 bg-white text-slate-900 shadow-2xl">
+          <main
+            className="flex flex-1 items-center justify-center overflow-auto p-8"
+            onClick={() => setHotspotHinting(true)}
+          >
+            <div className={`w-[390px] min-h-[620px] overflow-hidden rounded-[32px] border border-slate-600 bg-white text-slate-900 shadow-2xl transition-transform duration-[250ms] ${prototypeTransitioning ? "translate-x-8 opacity-60" : ""}`}>
               <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3 text-[11px]">
                 <span>9:41</span>
                 <span>{document.screens.find((s) => s.id === prototypeSession.current.screenId)?.name ?? "Prototype"}</span>
@@ -1576,7 +1793,7 @@ export default function EditorCanvas() {
                       node.screenId === prototypeSession.current.screenId &&
                       node.type !== "screen-root",
                   )
-                  .map(renderPrototypeNode)}
+                  .map((node) => renderPrototypeNode(node, hotspotHinting))}
               </div>
             </div>
           </main>
