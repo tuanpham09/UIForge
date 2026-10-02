@@ -24,6 +24,25 @@ test("web shell renders the primary semantic canvas workspace", async ({
   await expect(menu.getByText("iPhone 13 / 13 Pro")).toBeVisible();
   await expect(menu.getByText("Desktop 1440")).toBeVisible();
 
+  await page.getByTestId("device-preset-trigger").click();
+  const deviceMenu = page.getByTestId("responsive-device-preview");
+  await expect(deviceMenu.getByText("iPhone 14 / 14 Pro")).toBeVisible();
+  await expect(deviceMenu.getByText("iPhone 18 / 18 Pro")).toBeVisible();
+
+  await page.getByTestId("device-preset-trigger").click();
+  await page.locator("summary").filter({ hasText: "Frame +" }).click();
+
+  await expect(page.getByTestId("viewport-orientation")).toContainText(
+    "Portrait",
+  );
+  await expect(page.getByLabel("Viewport zoom")).toHaveValue("100");
+
+  await expect(page.getByTestId("responsive-validation")).toBeVisible();
+  await page.screenshot({
+    path: "artifacts/responsive/issue-47-device-preview.png",
+    fullPage: true,
+  });
+
   await page.screenshot({
     path: "artifacts/editor/issue-46-workspace.png",
     fullPage: true,
