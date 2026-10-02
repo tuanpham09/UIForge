@@ -6,6 +6,7 @@ import {
   buildLayerTree,
   filterLayers,
   type SemanticLayer,
+  projectDocument,
 } from "@uiforge/editor";
 import {
   createPrototypeSession,
@@ -220,26 +221,7 @@ export default function EditorCanvas() {
     lastSyncedFrameIdRef.current = frameId;
   };
 
-  const projection = useMemo(
-    () =>
-      import("@uiforge/editor").then(({ projectDocument }) =>
-        projectDocument(document),
-      ),
-    [document],
-  );
-  const [projected, setProjected] = useState<Awaited<typeof projection> | null>(
-    null,
-  );
-
-  useEffect(() => {
-    let active = true;
-    void projection.then((value) => {
-      if (active) setProjected(value);
-    });
-    return () => {
-      active = false;
-    };
-  }, [projection]);
+  const projected = useMemo(() => projectDocument(document), [document]);
 
   useEffect(() => {
     const editor = editorRef.current;
