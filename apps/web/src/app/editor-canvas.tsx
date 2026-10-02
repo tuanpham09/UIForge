@@ -1529,8 +1529,19 @@ export default function EditorCanvas() {
 
       <footer className="flex h-12 items-center gap-2 border-t border-slate-800 bg-slate-900 px-3 text-xs text-slate-300">
         <span className="mr-2 text-cyan-300">✨ Ask UIForge…</span>
-        <span className="rounded border border-slate-700 px-2 py-1 text-[10px] text-slate-500">
-          {(document.metadata.designStage ?? "wireframe") === "wireframe" ? "Structural wireframe" : "Editable visual design"}
+        <span
+          data-testid="design-stage-status"
+          className={`rounded border px-2 py-1 text-[10px] ${
+            inspectorError
+              ? "border-red-500/40 text-red-300"
+              : "border-slate-700 text-slate-500"
+          }`}
+        >
+          {inspectorError
+            ? `Design error: ${inspectorError}`
+            : (document.metadata.designStage ?? "wireframe") === "wireframe"
+              ? "Structural wireframe"
+              : "Editable visual design"}
         </span>
         <button
           type="button"
