@@ -28,6 +28,8 @@ jobs:
             pnpm lint
             echo "=== TYPECHECK ==="
             pnpm typecheck
+            echo "=== UNIT TESTS ==="
+            pnpm test:unit
           } > lint-output.txt 2>&1 || true
           cat lint-output.txt
       - name: Comment diagnostics
