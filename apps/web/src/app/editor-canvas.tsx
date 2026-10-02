@@ -624,6 +624,19 @@ export default function EditorCanvas() {
       ))}
     </select>
   );
+  const layoutTokenSelect = (slot: "gap" | "padding", value?: string) => (
+    <select
+      aria-label={`layout.${slot}`}
+      value={value ?? ""}
+      onChange={(event) => updateLayoutToken(slot, event.target.value)}
+      className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-[11px] text-slate-200"
+    >
+      <option value="">Unset</option>
+      {TOKEN_OPTIONS.filter((token) => token.kind === "spacing").map((token) => (
+        <option key={token.name} value={token.name}>{token.name}</option>
+      ))}
+    </select>
+  );
 
   const renderInspector = () => {
     if (!primaryNode && !primaryFrame) {
@@ -681,8 +694,8 @@ export default function EditorCanvas() {
         <InspectorSection title="Layout">
           {isMultiNode ? (
             <>
-              <NumberPair label="W" value={primaryNode.editor?.width ?? 0} min={1} onCommit={(value) => updateSelectedNodes({ editor: { ...primaryNode.editor, width: value } })} />
-              <NumberPair label="H" value={primaryNode.editor?.height ?? 0} min={1} onCommit={(value) => updateSelectedNodes({ editor: { ...primaryNode.editor, height: value } })} />
+              <NumberPair label="W" value={primaryNode.editor?.width ?? 0} min={1} onCommit={(value) => updateSelectedEditor((editor) => ({ ...editor, width: value }))} />
+              <NumberPair label="H" value={primaryNode.editor?.height ?? 0} min={1} onCommit={(value) => updateSelectedEditor((editor) => ({ ...editor, height: value }))} />
             </>
           ) : (
             <>
@@ -708,8 +721,8 @@ export default function EditorCanvas() {
           </label>
           {!isMultiNode && (
             <div className="grid grid-cols-2 gap-2">
-              <label className="text-[10px] text-slate-500">Gap{tokenSelect("layout.gap", layout.gap?.token)}</label>
-              <label className="text-[10px] text-slate-500">Padding{tokenSelect("layout.padding", layout.padding?.inline?.token)}</label>
+              <label className="text-[10px] text-slate-500">Gap{layoutTokenSelect("gap", layout.gap?.token)}</label>
+              <label className="text-[10px] text-slate-500">Padding{layoutTokenSelect("padding", layout.padding?.inline?.token)}</label>
             </div>
           )}
         </InspectorSection>
@@ -727,12 +740,12 @@ export default function EditorCanvas() {
             <Toggle
               label="Visible"
               checked={primaryNode.editor?.visible !== false}
-              onChange={(checked) => updateSelectedNodes({ editor: { ...primaryNode.editor, visible: checked } })}
+              onChange={(checked) => updateSelectedEditor((editor) => ({ ...editor, visible: checked }))}
             />
             <Toggle
               label="Locked"
               checked={primaryNode.editor?.locked === true}
-              onChange={(checked) => updateSelectedNodes({ editor: { ...primaryNode.editor, locked: checked } })}
+              onChange={(checked) => updateSelectedEditor((editor) => ({ ...editor, locked: checked }))}
             />
           </div>
         </InspectorSection>
