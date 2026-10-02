@@ -209,7 +209,6 @@ export const mobileListFixture = (() => {
   return result;
 })();
 
-
 /**
  * Integrated editor fixture used by the workspace/Present flow.
  * It keeps multiple screens and frames in one canonical UI Schema document so
