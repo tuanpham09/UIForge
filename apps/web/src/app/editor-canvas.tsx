@@ -174,7 +174,10 @@ export default function EditorCanvas() {
     const parent = document.nodes[node.parentId];
     if (!parent) return;
     const currentIndex = parent.childrenIds.indexOf(layer.nodeId);
-    const nextIndex = Math.max(0, Math.min(parent.childrenIds.length - 1, currentIndex + delta));
+    const nextIndex = Math.max(
+      0,
+      Math.min(parent.childrenIds.length - 1, currentIndex + delta),
+    );
     if (currentIndex < 0 || nextIndex === currentIndex) return;
     setDocument((current) =>
       applyCommand(current, {
@@ -200,15 +203,51 @@ export default function EditorCanvas() {
             onClick={() => selectSemanticLayer(layer)}
             title={layer.name}
           >
-            {layer.kind === "screen" ? "▾" : layer.kind === "frame" ? "▣" : "◇"} {layer.name}
+            {layer.kind === "screen" ? "▾" : layer.kind === "frame" ? "▣" : "◇"}{" "}
+            {layer.name}
           </button>
           {layer.kind === "node" ? (
             <>
-              <button type="button" title="Rename" className="opacity-0 group-hover:opacity-100" onClick={() => renameLayer(layer)}>✎</button>
-              <button type="button" title="Move up" className="opacity-0 group-hover:opacity-100" onClick={() => moveLayer(layer, -1)}>↑</button>
-              <button type="button" title="Move down" className="opacity-0 group-hover:opacity-100" onClick={() => moveLayer(layer, 1)}>↓</button>
-              <button type="button" title="Toggle visibility" className="opacity-70" onClick={() => toggleLayerVisibility(layer)}>{layer.visible ? "◉" : "○"}</button>
-              <button type="button" title="Toggle lock" className="opacity-70" onClick={() => toggleLayerLock(layer)}>{layer.locked ? "🔒" : "🔓"}</button>
+              <button
+                type="button"
+                title="Rename"
+                className="opacity-0 group-hover:opacity-100"
+                onClick={() => renameLayer(layer)}
+              >
+                ✎
+              </button>
+              <button
+                type="button"
+                title="Move up"
+                className="opacity-0 group-hover:opacity-100"
+                onClick={() => moveLayer(layer, -1)}
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                title="Move down"
+                className="opacity-0 group-hover:opacity-100"
+                onClick={() => moveLayer(layer, 1)}
+              >
+                ↓
+              </button>
+              <button
+                type="button"
+                title="Toggle visibility"
+                className="opacity-70"
+                onClick={() => toggleLayerVisibility(layer)}
+              >
+                {layer.visible ? "◉" : "○"}
+              </button>
+              <button
+                type="button"
+                title="Toggle lock"
+                className="opacity-70"
+                onClick={() => toggleLayerLock(layer)}
+              >
+                {layer.locked ? "🔒" : "🔓"}
+              </button>
             </>
           ) : null}
         </div>
@@ -414,7 +453,9 @@ export default function EditorCanvas() {
           <div className="mt-5 border-t border-slate-800 pt-4">
             <div className="mb-2 flex items-center justify-between">
               <p className="font-semibold text-slate-400">LAYERS</p>
-              <span className="text-[10px] text-slate-600">{Object.keys(document.nodes).length}</span>
+              <span className="text-[10px] text-slate-600">
+                {Object.keys(document.nodes).length}
+              </span>
             </div>
             <input
               aria-label="Search layers"
@@ -423,7 +464,9 @@ export default function EditorCanvas() {
               placeholder="Search layers…"
               className="mb-2 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-[11px] text-slate-200 outline-none focus:border-cyan-500"
             />
-            <div className="max-h-[500px] overflow-auto">{layerTree.map(renderLayer)}</div>
+            <div className="max-h-[500px] overflow-auto">
+              {layerTree.map(renderLayer)}
+            </div>
           </div>
         </aside>
 
@@ -494,6 +537,7 @@ export default function EditorCanvas() {
                       w: shape.props.w,
                       h: shape.props.h,
                       geo: shape.props.geo,
+                      opacity: shape.props.opacity,
                       richText: toRichText(shape.label),
                     },
                     meta: shape.meta,
@@ -529,7 +573,8 @@ export default function EditorCanvas() {
           <p className="mt-1 text-cyan-300">{selectedSemanticId ?? "None"}</p>
           <p className="mt-2 text-slate-500">
             {selectedNodeId
-              ? document.nodes[selectedNodeId]?.content?.label ?? document.nodes[selectedNodeId]?.type
+              ? (document.nodes[selectedNodeId]?.content?.label ??
+                document.nodes[selectedNodeId]?.type)
               : selectedFrameId
                 ? document.frames?.find((frame) => frame.id === selectedFrameId)?.name
                 : "Nothing selected"}
