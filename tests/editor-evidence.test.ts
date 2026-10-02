@@ -39,7 +39,8 @@ describe("Editor adapter evidence", () => {
     );
     expect(evidence.canonicalContainsTldraw).toBe(false);
     expect(evidence.shapeCount).toBe(
-      Object.keys(dashboardFixture.nodes).length,
+      Object.keys(dashboardFixture.nodes).length +
+        (dashboardFixture.frames?.length ?? 0),
     );
   });
 });

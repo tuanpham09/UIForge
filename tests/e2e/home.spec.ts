@@ -1,24 +1,30 @@
 import { expect, test } from "@playwright/test";
 
-test("web shell renders all canonical responsive viewports", async ({
+test("web shell renders the primary semantic canvas workspace", async ({
   page,
 }) => {
   await page.goto("/");
 
-  await expect(
-    page.getByRole("heading", {
-      name: "Canonical UI Schema → Editor + Preview",
-    }),
-  ).toBeVisible();
+  await expect(page.getByTestId("uiforge-editor-workspace")).toBeVisible();
   await expect(page.getByTestId("renderer-preview")).toBeVisible();
   await expect(page.getByTestId("renderer-diagnostics")).toContainText(
     "Preview transition → screen.mobile-list",
   );
-  await expect(page.getByTestId("uiforge-editor-canvas")).toBeVisible();
-  await expect(page.getByTestId("editor-projection-status")).toHaveText(
-    "3 nodes · 1 flow projection",
-  );
   await expect(page).toHaveTitle("UIForge");
+
+  await expect(page.getByText("1 semantic frames")).toBeVisible();
+  await expect(page.getByText("1 sections")).toBeVisible();
+
+  await page.locator("summary").filter({ hasText: "Frame +" }).click();
+  const menu = page.getByTestId("frame-preset-menu");
+  await expect(menu).toBeVisible();
+  await expect(menu.getByText("iPhone 13 / 13 Pro")).toBeVisible();
+  await expect(menu.getByText("Desktop 1440")).toBeVisible();
+
+  await page.screenshot({
+    path: "artifacts/editor/issue-44-workspace.png",
+    fullPage: true,
+  });
 
   const viewports = [
     ["wide", "1440×900"],

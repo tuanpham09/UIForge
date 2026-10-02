@@ -5,6 +5,7 @@ export type Brand<T, B extends string> = T & { readonly __brand: B };
 
 export type DocumentId = string;
 export type ScreenId = string;
+export type FrameId = string;
 export type NodeId = string;
 export type AssetId = string;
 export type CommandId = string;
@@ -12,6 +13,7 @@ export type TokenRef = string;
 
 export type SemanticNodeType =
   | "screen-root"
+  | "frame"
   | "section"
   | "text"
   | "image"
@@ -148,6 +150,8 @@ export interface NodeStyle {
 export interface UINode {
   id: NodeId;
   screenId: ScreenId;
+  /** Optional owning frame; screen remains the canonical top-level context. */
+  frameId?: FrameId;
   parentId: NodeId | null;
   childrenIds: NodeId[];
   type: SemanticNodeType;
@@ -161,6 +165,25 @@ export interface UINode {
   accessibility?: AccessibilityMetadata;
   assets?: AssetRef[];
   interaction?: InteractionMetadata;
+}
+
+export interface Frame {
+  id: FrameId;
+  screenId: ScreenId;
+  presetId: string;
+  name: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  orientation: "portrait" | "landscape";
+  presetVersion: string;
+  safeArea?: {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  };
 }
 
 export interface Screen {
@@ -196,11 +219,32 @@ export interface UIDocument {
   metadata: UIDocumentMetadata;
   revision: RevisionMetadata;
   screens: Screen[];
+  /** Optional for backward-compatible documents. */
+  frames?: Frame[];
   nodes: Record<string, UINode>;
   assets: Record<string, AssetRef>;
 }
 
 export type NodePatch = Partial<Omit<UINode, "id" | "screenId">>;
+
+export interface CreateFrameCommand {
+  type: "CreateFrame";
+  commandId: CommandId;
+  frame: Frame;
+}
+
+export interface UpdateFrameCommand {
+  type: "UpdateFrame";
+  commandId: CommandId;
+  frameId: FrameId;
+  patch: Partial<Omit<Frame, "id">>;
+}
+
+export interface DeleteFrameCommand {
+  type: "DeleteFrame";
+  commandId: CommandId;
+  frameId: FrameId;
+}
 
 export interface CreateNodeCommand {
   type: "CreateNode";
@@ -267,6 +311,9 @@ export interface SetCodeMappingCommand {
 }
 
 export type UICommand =
+  | CreateFrameCommand
+  | UpdateFrameCommand
+  | DeleteFrameCommand
   | CreateNodeCommand
   | UpdateNodeCommand
   | DeleteNodeCommand

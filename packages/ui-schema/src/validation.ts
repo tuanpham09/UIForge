@@ -84,6 +84,47 @@ export function validateUIDocument(value: unknown): UIDocument {
   const screens = value.screens as unknown[];
   const screenIds = screens.map((screen) => (screen as { id?: unknown })?.id);
 
+  const frames = Array.isArray(value.frames) ? value.frames : [];
+  const frameIds = frames.map((frame) => (frame as { id?: unknown })?.id);
+
+  if (new Set(frameIds).size !== frameIds.length) {
+    issues.push("frame IDs must be unique");
+  }
+
+  for (const frame of frames) {
+    if (
+      !isRecord(frame) ||
+      !isNonEmptyString(frame.id) ||
+      !isNonEmptyString(frame.screenId) ||
+      !isNonEmptyString(frame.presetId) ||
+      !isNonEmptyString(frame.name)
+    ) {
+      issues.push("invalid frame");
+      continue;
+    }
+
+    if (!screenIds.includes(frame.screenId)) {
+      issues.push(
+        `frame ${frame.id} references missing screen ${frame.screenId}`,
+      );
+    }
+
+    if (
+      typeof frame.x !== "number" ||
+      typeof frame.y !== "number" ||
+      typeof frame.width !== "number" ||
+      typeof frame.height !== "number" ||
+      frame.width <= 0 ||
+      frame.height <= 0
+    ) {
+      issues.push(`frame ${frame.id} has invalid geometry`);
+    }
+
+    if (!isNonEmptyString(frame.presetVersion)) {
+      issues.push(`frame ${frame.id} is missing presetVersion`);
+    }
+  }
+
   if (new Set(screenIds).size !== screenIds.length) {
     issues.push("screen IDs must be unique");
   }
