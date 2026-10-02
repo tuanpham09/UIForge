@@ -1,6 +1,6 @@
+import { workspaceFixture } from "@uiforge/ui-schema";
 import { describe, expect, it } from "vitest";
 import { runDesignChat } from "../src/design-chat";
-import { workspaceFixture } from "@uiforge/ui-schema";
 
 describe("design chat", () => {
   it("inspects the current screen and proposes a deterministic button creation", async () => {
@@ -12,7 +12,9 @@ describe("design chat", () => {
     });
 
     expect(result.proposal?.commands[0]?.type).toBe("CreateNode");
-    expect(result.events.some((event) => event.type === "agent.tool.completed")).toBe(true);
+    expect(
+      result.events.some((event) => event.type === "agent.tool.completed"),
+    ).toBe(true);
     expect(result.reply).toContain("Add a button");
   });
 
@@ -25,12 +27,16 @@ describe("design chat", () => {
     });
 
     expect(result.proposal).toBeUndefined();
-    expect(result.reply).toContain("does not have a deterministic mutation rule");
+    expect(result.reply).toContain(
+      "does not have a deterministic mutation rule",
+    );
   });
 
   it("proposes changing selected text", async () => {
     const document = structuredClone(workspaceFixture);
-    const textNode = Object.values(document.nodes).find((node) => node.type === "text");
+    const textNode = Object.values(document.nodes).find(
+      (node) => node.type === "text",
+    );
     expect(textNode).toBeDefined();
 
     const result = await runDesignChat(document, "change text to Save", {
