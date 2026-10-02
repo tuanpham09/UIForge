@@ -1,6 +1,6 @@
+import { describe, expect, it } from "vitest";
 import { createPrototypeSession, goBack, resolveTransition } from "./prototype";
 import type { ExperienceGraph } from "./types";
-import { describe, expect, it } from "vitest";
 
 const graph: ExperienceGraph = {
   version: "uiforge.experience-graph/v1",
@@ -58,9 +58,7 @@ describe("prototype session", () => {
       flows: graph.flows.map((flow) => ({ ...flow, startingPointIds: [] })),
       startingPoints: [],
     };
-    expect(
-      createPrototypeSession(graphWithoutStartingPoint).current,
-    ).toEqual({
+    expect(createPrototypeSession(graphWithoutStartingPoint).current).toEqual({
       screenId: "signup",
     });
   });
