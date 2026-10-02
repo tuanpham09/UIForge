@@ -13,7 +13,6 @@ import {
   inspectNode,
   nodeLabel,
   TOKEN_OPTIONS,
-  selectedObject,
 } from "./inspector-model";
 import {
   applyCommand,
