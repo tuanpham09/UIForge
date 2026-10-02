@@ -46,7 +46,9 @@ export function projectNode(
       w: size.width,
       h: size.height,
       geo: "rectangle",
+      opacity: node.editor?.visible === false ? 0 : 1,
     },
+    isLocked: node.editor?.locked === true,
     label: nodeLabel(node),
     meta: {
       source: "uiforge",

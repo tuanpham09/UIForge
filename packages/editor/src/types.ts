@@ -22,7 +22,9 @@ export interface ProjectedShape {
     w: number;
     h: number;
     geo: "rectangle";
+    opacity?: number;
   };
+  isLocked?: boolean;
   label: string;
   meta: UIForgeShapeMeta;
 }
