@@ -958,19 +958,24 @@ export default function EditorCanvas() {
     );
   };
 
-  const designUi = async () => {
+  const designUi = () => {
     if ((document.metadata.designStage ?? "wireframe") !== "wireframe") return;
     setDesignBusy(true);
     try {
       const proposal = buildVisualDesignProposal(document);
-      applySemantic((current) =>
-        applyCommand(current, {
-          type: "ApplyVisualDesign",
-          commandId: `design-ui.${current.revision.revision + 1}`,
-          patches: proposal.patches,
-          stage: "visual",
-        }),
-      );
+      const next = applyCommand(document, {
+        type: "ApplyVisualDesign",
+        commandId: `design-ui.${document.revision.revision + 1}`,
+        patches: proposal.patches,
+        stage: "visual",
+      });
+      setHistoryPast((past) => [
+        ...past.slice(-49),
+        structuredClone(document),
+      ]);
+      setHistoryFuture([]);
+      setDocument(next);
+      setInspectorError(null);
     } catch (error) {
       setInspectorError(error instanceof Error ? error.message : String(error));
     } finally {
@@ -1261,7 +1266,7 @@ export default function EditorCanvas() {
               </span>
             ))}
           </div>
-          <button type="button" data-testid="design-ui" disabled={(document.metadata.designStage ?? "wireframe") !== "wireframe" || designBusy} onClick={() => void designUi()} className="rounded-md bg-cyan-500 px-3 py-1.5 font-medium text-slate-950 disabled:cursor-not-allowed disabled:opacity-40">
+          <button type="button" data-testid="design-ui" disabled={(document.metadata.designStage ?? "wireframe") !== "wireframe" || designBusy} onClick={designUi} className="rounded-md bg-cyan-500 px-3 py-1.5 font-medium text-slate-950 disabled:cursor-not-allowed disabled:opacity-40">
             {designBusy ? "Designing…" : "✨ Design UI"}
           </button>
           <button type="button" data-testid="present-button" onClick={enterPresent} className="rounded-md px-3 py-1.5 text-slate-200 hover:bg-slate-800">
