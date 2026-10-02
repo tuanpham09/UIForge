@@ -43,10 +43,7 @@ function nodeLabel(node: UINode): string {
   );
 }
 
-function visualGeoStyle(
-  document: UIDocument,
-  node: UINode,
-): GeoProps {
+function visualGeoStyle(document: UIDocument, node: UINode): GeoProps {
   const { width, height } = dimensions(node);
   const base = {
     w: width,
