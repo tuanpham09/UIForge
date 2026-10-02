@@ -16,7 +16,7 @@ test("web shell renders the primary semantic canvas workspace", async ({
   await expect(
     page.getByText("Select a Frame, Section, Component or Layer"),
   ).toBeVisible();
-  await expect(page.getByText("1")).toBeVisible();
+  await expect(page.getByText("LAYERS")).toBeVisible();
 
   await page.locator("summary").filter({ hasText: "Frame +" }).click();
   const menu = page.getByTestId("frame-preset-menu");
