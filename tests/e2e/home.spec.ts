@@ -15,7 +15,7 @@ test("web shell renders the primary semantic canvas workspace", async ({
   await expect(page.getByTestId("renderer-diagnostics")).toContainText(
     "Preview transition → screen.mobile-list",
   );
-  await page.getByTestId("preview-button").click();
+  await page.getByRole("dialog", { name: "Renderer preview" }).getByRole("button", { name: "✕ Close" }).click();
   await expect(page.getByTestId("renderer-preview")).toBeHidden();
   await expect(page).toHaveTitle("UIForge");
 
