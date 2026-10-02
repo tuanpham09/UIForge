@@ -126,7 +126,13 @@ export function validateViewport(
   nodeBounds: Array<{ id: string; x: number; width: number }>,
 ): ViewportDiagnostic[] {
   if (!Number.isFinite(width) || width <= 0) {
-    return [{ severity: "error", code: "INVALID", message: "Viewport width must be greater than 0." }];
+    return [
+      {
+        severity: "error",
+        code: "INVALID",
+        message: "Viewport width must be greater than 0.",
+      },
+    ];
   }
 
   const overflow = nodeBounds
@@ -138,18 +144,34 @@ export function validateViewport(
     .sort((a, b) => b.right - a.right)[0];
 
   if (overflow) {
-    return [{
-      severity: "warning",
-      code: "OVERFLOW",
-      message: `${overflow.id} overflows the viewport by ${Math.ceil(overflow.right - width)}px.`,
-    }];
+    return [
+      {
+        severity: "warning",
+        code: "OVERFLOW",
+        message: `${overflow.id} overflows the viewport by ${Math.ceil(
+          overflow.right - width,
+        )}px.`,
+      },
+    ];
   }
 
-  return [{ severity: "ok", code: "BREAKPOINT", message: "Viewport is inside a valid responsive range." }];
+  return [
+    {
+      severity: "ok",
+      code: "BREAKPOINT",
+      message: "Viewport is inside a valid responsive range.",
+    },
+  ];
 }
 
 export function categoryLabel(category: PreviewDeviceCategory): string {
-  return category === "mobile" ? "iPhone" : category === "tablet" ? "Tablet" : category === "desktop" ? "Desktop" : "Custom";
+  return category === "mobile"
+    ? "iPhone"
+    : category === "tablet"
+      ? "Tablet"
+      : category === "desktop"
+        ? "Desktop"
+        : "Custom";
 }
 
 export const ZOOM_PRESETS = [50, 75, 100, 125, 150] as const;
