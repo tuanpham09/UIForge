@@ -1,9 +1,8 @@
 // biome-ignore-all format: dense editor workspace JSX is maintained as a product-layout surface
 "use client";
 
-import { buildVisualDesignProposal } from "@uiforge/design-intelligence";
-import AgentDesignChat from "./agent-design-chat";
 import type { DesignProposal } from "@uiforge/agent-runtime";
+import { buildVisualDesignProposal } from "@uiforge/design-intelligence";
 import {
   buildLayerTree,
   filterLayers,
@@ -33,8 +32,9 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { type Editor, Tldraw, toRichText } from "tldraw";
-import RendererPreview from "./renderer-preview";
 import "tldraw/tldraw.css";
+import AgentDesignChat from "./agent-design-chat";
+import RendererPreview from "./renderer-preview";
 import {
   BREAKPOINTS,
   commonTokenSlots,
