@@ -60,14 +60,15 @@ flowchart LR
     J --> O
     K --> O
     L --> O
-    M --> N[Cursor / Claude / Codex / other agents]
-    N --> O[Codebase]
-    O --> P[Browser render]
-    L --> Q[Visual + Interaction QA]
-    P --> Q
-    Q -->|mismatch| N
-    Q -->|pass| R[Evidence]
+    O --> P[Cursor / Claude / Codex / other agents]
+    P --> Q[Codebase]
+    Q --> R[Browser render]
+    N --> S[Visual + Interaction QA]
+    R --> S
+    S -->|mismatch| O
+    S -->|pass| T[Evidence]
 ```
+
 ## Phase roadmap
 
 ```mermaid
