@@ -43,14 +43,23 @@ function nodeLabel(node: UINode): string {
   );
 }
 
-function tldrawColorForToken(token: string | undefined, fallback: GeoProps["color"]): GeoProps["color"] {
+function tldrawColorForToken(
+  token: string | undefined,
+  fallback: GeoProps["color"],
+): GeoProps["color"] {
   if (!token) return fallback;
   if (token.includes("primary")) return "blue";
   if (token.includes("success")) return "green";
   if (token.includes("warning")) return "yellow";
   if (token.includes("error")) return "red";
-  if (token.includes("foreground") || token.includes("gray.900")) return "black";
-  if (token.includes("border") || token.includes("mutedForeground") || token.includes("gray")) return "grey";
+  if (token.includes("foreground") || token.includes("gray.900"))
+    return "black";
+  if (
+    token.includes("border") ||
+    token.includes("mutedForeground") ||
+    token.includes("gray")
+  )
+    return "grey";
   return fallback;
 }
 
@@ -85,18 +94,78 @@ function visualGeoStyle(document: UIDocument, node: UINode): GeoProps {
 
   switch (node.type) {
     case "button":
-      return { ...base, fill: "solid", color, labelColor: "white", size: "m", font: "sans", dash: "solid", align: "middle", verticalAlign: "middle" };
+      return {
+        ...base,
+        fill: "solid",
+        color,
+        labelColor: "white",
+        size: "m",
+        font: "sans",
+        dash: "solid",
+        align: "middle",
+        verticalAlign: "middle",
+      };
     case "input":
-      return { ...base, fill: "solid", color, labelColor, size: "s", font: "sans", dash: "solid", align: "start", verticalAlign: "middle" };
+      return {
+        ...base,
+        fill: "solid",
+        color,
+        labelColor,
+        size: "s",
+        font: "sans",
+        dash: "solid",
+        align: "start",
+        verticalAlign: "middle",
+      };
     case "card":
-      return { ...base, fill: "solid", color, labelColor, size: "m", font: "sans", dash: "solid", align: "start", verticalAlign: "start" };
+      return {
+        ...base,
+        fill: "solid",
+        color,
+        labelColor,
+        size: "m",
+        font: "sans",
+        dash: "solid",
+        align: "start",
+        verticalAlign: "start",
+      };
     case "image":
-      return { ...base, fill: "semi", color, labelColor: "grey", size: "s", font: "sans", dash: "solid", align: "middle", verticalAlign: "middle" };
+      return {
+        ...base,
+        fill: "semi",
+        color,
+        labelColor: "grey",
+        size: "s",
+        font: "sans",
+        dash: "solid",
+        align: "middle",
+        verticalAlign: "middle",
+      };
     case "section":
     case "list":
-      return { ...base, fill: "none", color, labelColor, size: "s", font: "sans", dash: "solid", align: "start", verticalAlign: "start" };
+      return {
+        ...base,
+        fill: "none",
+        color,
+        labelColor,
+        size: "s",
+        font: "sans",
+        dash: "solid",
+        align: "start",
+        verticalAlign: "start",
+      };
     default:
-      return { ...base, fill: "none", color, labelColor, size: "s", font: "sans", dash: "solid", align: "start", verticalAlign: "middle" };
+      return {
+        ...base,
+        fill: "none",
+        color,
+        labelColor,
+        size: "s",
+        font: "sans",
+        dash: "solid",
+        align: "start",
+        verticalAlign: "middle",
+      };
   }
 }
 
