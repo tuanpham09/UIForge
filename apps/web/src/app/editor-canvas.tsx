@@ -20,30 +20,6 @@ type CustomFrameDraft = {
   height: string;
 };
 
-type ProjectedShape = {
-  id: string;
-  type: string;
-  x: number;
-  y: number;
-  props: { w: number; h: number; geo?: string };
-  label: string;
-  meta: Record<string, unknown>;
-};
-
-const toProjectedShape = (shape: ProjectedShape) => ({
-  id: shape.id as never,
-  type: shape.type as never,
-  x: shape.x,
-  y: shape.y,
-  props: {
-    w: shape.props.w,
-    h: shape.props.h,
-    geo: shape.props.geo,
-    richText: toRichText(shape.label),
-  },
-  meta: shape.meta,
-});
-
 export default function EditorCanvas() {
   const [document, setDocument] = useState<UIDocument>(() => cloneDocument());
   const [selectedFrameId, setSelectedFrameId] = useState<FrameId | null>(null);
@@ -79,7 +55,19 @@ export default function EditorCanvas() {
     const editor = editorRef.current;
     if (!editor || !projected) return;
 
-    const shapes = projected.shapes.map(toProjectedShape);
+    const shapes = projected.shapes.map((shape) => ({
+      id: shape.id,
+      type: shape.type,
+      x: shape.x,
+      y: shape.y,
+      props: {
+        w: shape.props.w,
+        h: shape.props.h,
+        geo: shape.props.geo,
+        richText: toRichText(shape.label),
+      },
+      meta: shape.meta,
+    }));
     const projectedIds = new Set(shapes.map((shape) => shape.id));
 
     for (const shape of editor.getCurrentPageShapes()) {
@@ -310,14 +298,19 @@ export default function EditorCanvas() {
                   for (const [, [, next]] of Object.entries(
                     entry.changes.updated,
                   )) {
-                    if (
-                      next.typeName !== "shape" ||
-                      next.meta?.semanticType !== "frame"
-                    ) {
+                    if (next.typeName !== "shape" || next.type !== "geo") {
                       continue;
                     }
 
-                    const frameId = next.meta.nodeId as FrameId;
+                    const meta = next.meta as {
+                      semanticType?: unknown;
+                      nodeId?: unknown;
+                    };
+                    if (meta.semanticType !== "frame" || typeof meta.nodeId !== "string") {
+                      continue;
+                    }
+
+                    const frameId = meta.nodeId as FrameId;
                     setDocument((current) => {
                       const frame = current.frames?.find(
                         (item) => item.id === frameId,
@@ -347,7 +340,21 @@ export default function EditorCanvas() {
               sync();
 
               if (projected) {
-                editor.createShapes(projected.shapes.map(toProjectedShape));
+                editor.createShapes(
+                  projected.shapes.map((shape) => ({
+                    id: shape.id,
+                    type: shape.type,
+                    x: shape.x,
+                    y: shape.y,
+                    props: {
+                      w: shape.props.w,
+                      h: shape.props.h,
+                      geo: shape.props.geo,
+                      richText: toRichText(shape.label),
+                    },
+                    meta: shape.meta,
+                  })),
+                );
                 editor.zoomToFit({ animation: { duration: 0 } });
               }
 
