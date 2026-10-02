@@ -20,6 +20,7 @@ import {
   createFrameFromPreset,
   dashboardFixture,
   FRAME_PRESETS,
+  type Frame,
   type FrameId,
   type NodeId,
   type NodePatch,
@@ -39,7 +40,8 @@ type CustomFrameDraft = {
 };
 
 export default function EditorCanvas() {
-  const [document, setDocument] = useState<UIDocument>(() => cloneDocument());
+  const initialDocumentRef = useRef<UIDocument>(cloneDocument());
+  const [document, setDocument] = useState<UIDocument>(() => structuredClone(initialDocumentRef.current));
   const [selectedFrameId, setSelectedFrameId] = useState<FrameId | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<NodeId | null>(null);
   const [selectedFrameIds, setSelectedFrameIds] = useState<FrameId[]>([]);
@@ -209,7 +211,7 @@ export default function EditorCanvas() {
     );
   };
 
-  const updateFrame = (frameId: FrameId, patch: Parameters<typeof applyCommand>[1] extends never ? never : Partial<Omit<NonNullable<UIDocument["frames"]>[number], "id">>) => {
+  const updateFrame = (frameId: FrameId, patch: Partial<Omit<Frame, "id">>) => {
     applySemantic((current) =>
       applyCommand(current, {
         type: "UpdateFrame",
@@ -412,6 +414,311 @@ export default function EditorCanvas() {
     setCustomFrame((current) => ({ ...current, open: false }));
   };
 
+  const updateSelectedToken = (slot: string, token: string) => {
+    if (!token) return;
+    if (selectedNodeIds.length === 1) {
+      applySemantic((current) =>
+        applyCommand(current, {
+          type: "SetToken",
+          commandId: `inspector.token.${selectedNodeIds[0]}.${slot}.${Date.now()}`,
+          nodeId: selectedNodeIds[0] as NodeId,
+          slot,
+          token,
+        }),
+      );
+      return;
+    }
+    if (selectedNodeIds.length > 1) {
+      applySemantic((current) =>
+        selectedNodeIds.reduce(
+          (doc, nodeId) =>
+            applyCommand(doc, {
+              type: "SetToken",
+              commandId: `inspector.multi-token.${nodeId}.${slot}.${Date.now()}`,
+              nodeId,
+              slot,
+              token,
+            }),
+          current,
+        ),
+      );
+    }
+  };
+
+  const updateResponsiveRule = (
+    nodeId: NodeId,
+    breakpoint: string,
+    patch: Partial<ResponsiveRule>,
+  ) => {
+    const node = document.nodes[nodeId];
+    if (!node) return;
+    const current = findResponsiveRule(node, breakpoint);
+    const nextRule: ResponsiveRule = {
+      breakpoint,
+      ...(current ?? {}),
+      ...patch,
+    };
+    if (
+      nextRule.minWidth !== undefined &&
+      nextRule.maxWidth !== undefined &&
+      nextRule.minWidth > nextRule.maxWidth
+    ) {
+      setInspectorError(`${breakpoint}: minimum width cannot exceed maximum width.`);
+      return;
+    }
+    applySemantic((currentDocument) =>
+      applyCommand(currentDocument, {
+        type: "SetResponsiveRule",
+        commandId: `inspector.responsive.${nodeId}.${breakpoint}.${Date.now()}`,
+        nodeId,
+        rule: nextRule,
+      }),
+    );
+  };
+
+  const resetSelection = () => {
+    const original = initialDocumentRef.current;
+    if (selectedNodeIds.length) {
+      applySemantic((current) =>
+        selectedNodeIds.reduce((doc, nodeId) => {
+          const source = original.nodes[nodeId];
+          return source
+            ? applyCommand(doc, {
+                type: "UpdateNode",
+                commandId: `inspector.reset-node.${nodeId}.${Date.now()}`,
+                nodeId,
+                patch: structuredClone(source),
+              })
+            : doc;
+        }, current),
+      );
+      return;
+    }
+    const frameId = selectedFrameIds[0];
+    const source = original.frames?.find((frame) => frame.id === frameId);
+    if (source) {
+      updateFrame(frameId, structuredClone(source));
+    }
+  };
+
+  const inspectorNodeIds = selectedNodeIds.length
+    ? selectedNodeIds
+    : selectedNodeId
+      ? [selectedNodeId]
+      : [];
+  const inspectorNodes = inspectorNodeIds
+    .map((id) => document.nodes[id])
+    .filter((node): node is NonNullable<typeof node> => Boolean(node));
+  const primaryNode = inspectorNodes[0];
+  const primaryFrame =
+    !inspectorNodes.length && selectedFrameId
+      ? document.frames?.find((frame) => frame.id === selectedFrameId)
+      : undefined;
+  const isMultiNode = inspectorNodes.length > 1;
+  const commonSlots = commonTokenSlots(inspectorNodes);
+  const diagnostics = primaryNode
+    ? inspectorNodes.flatMap(inspectNode)
+    : primaryFrame
+      ? inspectFrame(primaryFrame)
+      : [];
+  const tokenSelect = (slot: string, value?: string) => (
+    <select
+      aria-label={slot}
+      value={value ?? ""}
+      onChange={(event) => updateSelectedToken(slot, event.target.value)}
+      className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-[11px] text-slate-200"
+    >
+      <option value="">Unset</option>
+      {TOKEN_OPTIONS.map((token) => (
+        <option key={token.name} value={token.name}>
+          {token.name}
+        </option>
+      ))}
+    </select>
+  );
+
+  const renderInspector = () => {
+    if (!primaryNode && !primaryFrame) {
+      return (
+        <div className="flex h-full items-center justify-center text-center text-xs text-slate-500">
+          Select a Frame, Section, Component or Layer
+        </div>
+      );
+    }
+
+    if (primaryFrame) {
+      return (
+        <div className="space-y-4">
+          <InspectorSection title="Selection">
+            <div className="font-medium text-slate-100">{primaryFrame.name}</div>
+            <div className="text-[10px] text-slate-500">Frame · {primaryFrame.presetId}</div>
+          </InspectorSection>
+          <InspectorSection title="Layout">
+            <NumberPair label="X" value={primaryFrame.x} onCommit={(value) => updateFrame(primaryFrame.id, { x: value })} />
+            <NumberPair label="Y" value={primaryFrame.y} onCommit={(value) => updateFrame(primaryFrame.id, { y: value })} />
+            <NumberPair label="W" value={primaryFrame.width} min={1} onCommit={(value) => updateFrame(primaryFrame.id, { width: value })} />
+            <NumberPair label="H" value={primaryFrame.height} min={1} onCommit={(value) => updateFrame(primaryFrame.id, { height: value })} />
+          </InspectorSection>
+          <InspectorSection title="Metadata">
+            <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-500">
+              <span>Preset</span><span className="text-right text-slate-300">{primaryFrame.presetId}</span>
+              <span>Orientation</span><span className="text-right text-slate-300">{primaryFrame.orientation}</span>
+            </div>
+          </InspectorSection>
+          <InspectorDiagnostics diagnostics={diagnostics} />
+          <ResetButton onClick={resetSelection} />
+        </div>
+      );
+    }
+
+    if (!primaryNode) return null;
+    const layout = primaryNode.layout;
+    const token = (slot: string) => primaryNode.style?.tokens?.[slot];
+    return (
+      <div className="space-y-4">
+        <InspectorSection title="Selection">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-medium text-slate-100">
+                {isMultiNode ? `${inspectorNodes.length} layers` : nodeLabel(primaryNode)}
+              </div>
+              <div className="text-[10px] text-slate-500">
+                {isMultiNode ? "Common properties" : primaryNode.type}
+              </div>
+            </div>
+            <span className="text-cyan-300">◇</span>
+          </div>
+        </InspectorSection>
+
+        <InspectorSection title="Layout">
+          {isMultiNode ? (
+            <>
+              <NumberPair label="W" value={primaryNode.editor?.width ?? 0} min={1} onCommit={(value) => updateSelectedNodes({ editor: { ...primaryNode.editor, width: value } })} />
+              <NumberPair label="H" value={primaryNode.editor?.height ?? 0} min={1} onCommit={(value) => updateSelectedNodes({ editor: { ...primaryNode.editor, height: value } })} />
+            </>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-2">
+                <NumberPair label="X" value={primaryNode.editor?.x ?? 0} onCommit={(value) => updateNode(primaryNode.id, { editor: { ...primaryNode.editor, x: value } })} />
+                <NumberPair label="Y" value={primaryNode.editor?.y ?? 0} onCommit={(value) => updateNode(primaryNode.id, { editor: { ...primaryNode.editor, y: value } })} />
+                <NumberPair label="W" value={primaryNode.editor?.width ?? 0} min={1} onCommit={(value) => updateNode(primaryNode.id, { editor: { ...primaryNode.editor, width: value } })} />
+                <NumberPair label="H" value={primaryNode.editor?.height ?? 0} min={1} onCommit={(value) => updateNode(primaryNode.id, { editor: { ...primaryNode.editor, height: value } })} />
+              </div>
+            </>
+          )}
+          <label className="block text-[10px] text-slate-500">
+            Auto layout
+            <select
+              aria-label="Layout mode"
+              value={layout.mode}
+              disabled={isMultiNode}
+              onChange={(event) => updateNode(primaryNode.id, { layout: { ...layout, mode: event.target.value as typeof layout.mode } })}
+              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-[11px] text-slate-200"
+            >
+              {["stack", "flex", "grid", "absolute"].map((mode) => <option key={mode}>{mode}</option>)}
+            </select>
+          </label>
+          {!isMultiNode && (
+            <div className="grid grid-cols-2 gap-2">
+              <label className="text-[10px] text-slate-500">Gap{tokenSelect("layout.gap", layout.gap?.token)}</label>
+              <label className="text-[10px] text-slate-500">Padding{tokenSelect("layout.padding", layout.padding?.inline?.token)}</label>
+            </div>
+          )}
+        </InspectorSection>
+
+        <InspectorSection title="Typography & Appearance">
+          <Field label="Typography">{tokenSelect("typography", token("typography"))}</Field>
+          <Field label="Fill">{tokenSelect("fill", token("fill"))}</Field>
+          <Field label="Border">{tokenSelect("border", token("border"))}</Field>
+          <Field label="Radius">{tokenSelect("radius", token("radius"))}</Field>
+          <Field label="Shadow">{tokenSelect("shadow", token("shadow"))}</Field>
+        </InspectorSection>
+
+        <InspectorSection title="Visibility">
+          <div className="flex items-center justify-between">
+            <Toggle
+              label="Visible"
+              checked={primaryNode.editor?.visible !== false}
+              onChange={(checked) => updateSelectedNodes({ editor: { ...primaryNode.editor, visible: checked } })}
+            />
+            <Toggle
+              label="Locked"
+              checked={primaryNode.editor?.locked === true}
+              onChange={(checked) => updateSelectedNodes({ editor: { ...primaryNode.editor, locked: checked } })}
+            />
+          </div>
+        </InspectorSection>
+
+        {!isMultiNode && primaryNode.component ? (
+          <InspectorSection title="Component">
+            <div className="mb-2 text-[10px] text-slate-500">{primaryNode.component.registryId}</div>
+            <input
+              aria-label="Component variant"
+              value={primaryNode.component.variant ?? ""}
+              onChange={(event) =>
+                applySemantic((current) =>
+                  applyCommand(current, {
+                    type: "SetVariant",
+                    commandId: `inspector.variant.${primaryNode.id}.${Date.now()}`,
+                    nodeId: primaryNode.id,
+                    variant: event.target.value,
+                  }),
+                )
+              }
+              placeholder="variant"
+              className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-[11px] text-slate-200"
+            />
+          </InspectorSection>
+        ) : null}
+
+        {!isMultiNode ? (
+          <InspectorSection title="Responsive">
+            <div className="space-y-2">
+              {BREAKPOINTS.map((breakpoint) => {
+                const rule = findResponsiveRule(primaryNode, breakpoint);
+                return (
+                  <div key={breakpoint} className="grid grid-cols-[36px_1fr_auto] items-center gap-2">
+                    <span className="text-[10px] font-medium text-slate-300">{breakpoint}</span>
+                    <input
+                      aria-label={`${breakpoint} min width`}
+                      type="number"
+                      min={0}
+                      value={rule?.minWidth ?? ""}
+                      onChange={(event) => updateResponsiveRule(primaryNode.id, breakpoint, { minWidth: event.target.value ? Number(event.target.value) : undefined })}
+                      placeholder="min"
+                      className="rounded border border-slate-700 bg-slate-950 px-2 py-1 text-[10px] text-slate-200"
+                    />
+                    <label className="flex items-center gap-1 text-[10px] text-slate-500">
+                      <input
+                        type="checkbox"
+                        checked={rule?.hidden === true}
+                        onChange={(event) => updateResponsiveRule(primaryNode.id, breakpoint, { hidden: event.target.checked })}
+                      />
+                      hide
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          </InspectorSection>
+        ) : null}
+
+        <InspectorSection title="Semantic metadata">
+          <div className="grid grid-cols-2 gap-2 text-[10px]">
+            <span className="text-slate-500">ID</span><span className="truncate text-right text-slate-300">{primaryNode.id}</span>
+            <span className="text-slate-500">Parent</span><span className="truncate text-right text-slate-300">{primaryNode.parentId ?? "root"}</span>
+            <span className="text-slate-500">Frame</span><span className="truncate text-right text-slate-300">{primaryNode.frameId ?? "none"}</span>
+          </div>
+          {commonSlots.length ? <p className="mt-2 text-[10px] text-slate-500">Common token slots: {commonSlots.join(", ")}</p> : null}
+        </InspectorSection>
+
+        <InspectorDiagnostics diagnostics={diagnostics} />
+        {inspectorError ? <div className="rounded border border-red-500/40 bg-red-500/10 p-2 text-[10px] text-red-300">{inspectorError}</div> : null}
+        <ResetButton onClick={resetSelection} />
+      </div>
+    );
+  };
+
   const addSection = () => {
     const root = document.nodes["screen.dashboard.root"];
     if (!root) return;
@@ -458,6 +765,10 @@ export default function EditorCanvas() {
         <strong className="mr-6 text-sm text-white">UIForge</strong>
         <span className="text-slate-400">Expense App</span>
 
+        <div className="mr-3 flex items-center gap-1">
+          <button type="button" aria-label="Undo" disabled={!historyPast.length} onClick={undo} className="rounded px-2 py-1.5 text-slate-300 hover:bg-slate-800 disabled:opacity-30">↶</button>
+          <button type="button" aria-label="Redo" disabled={!historyFuture.length} onClick={redo} className="rounded px-2 py-1.5 text-slate-300 hover:bg-slate-800 disabled:opacity-30">↷</button>
+        </div>
         <div className="ml-auto flex items-center gap-2">
           <button
             className="rounded-md px-3 py-1.5 text-slate-300 hover:bg-slate-800"
@@ -657,48 +968,14 @@ export default function EditorCanvas() {
           />
         </main>
 
-        <aside className="border-l border-slate-800 bg-slate-900/70 p-3 text-xs text-slate-300">
+        <aside className="border-l border-slate-800 bg-slate-900/70 p-3 text-xs text-slate-300" data-testid="semantic-inspector">
           <div className="mb-3 flex gap-3 border-b border-slate-800 pb-2">
-            <b>Design</b>
+            <b className="text-slate-100">Design</b>
             <span className="text-slate-500">Prototype</span>
           </div>
-          <p className="text-[10px] uppercase tracking-wider text-slate-500">
-            Canvas
-          </p>
-          <p className="mt-1">Infinite workspace</p>
-          <p className="mt-4 text-[10px] uppercase tracking-wider text-slate-500">
-            Frames
-          </p>
-          <p className="mt-1">{document.frames?.length ?? 0} semantic frames</p>
-          <p className="mt-4 text-[10px] uppercase tracking-wider text-slate-500">
-            Selected semantic object
-          </p>
-          <p className="mt-1 text-cyan-300">{selectedSemanticId ?? "None"}</p>
-          <p className="mt-2 text-slate-500">
-            {selectedNodeId
-              ? (document.nodes[selectedNodeId]?.content?.label ??
-                document.nodes[selectedNodeId]?.type)
-              : selectedFrameId
-                ? document.frames?.find((frame) => frame.id === selectedFrameId)
-                    ?.name
-                : "Nothing selected"}
-          </p>
-          <p className="mt-4 text-[10px] uppercase tracking-wider text-slate-500">
-            Sections
-          </p>
-          <p className="mt-1">
-            {
-              Object.values(document.nodes).filter(
-                (node) => node.type === "section",
-              ).length
-            }{" "}
-            sections
-          </p>
-          <p className="mt-4 text-[10px] uppercase tracking-wider text-slate-500">
-            Source of truth
-          </p>
-          <p className="mt-1 text-cyan-300">UI Schema</p>
-          <p className="mt-1 text-slate-500">tldraw = projection</p>
+          <div className="max-h-[680px] overflow-auto pr-1">
+            {renderInspector()}
+          </div>
         </aside>
       </div>
 
