@@ -17,7 +17,7 @@ describe("semantic inspector model", () => {
   });
 
   it("rejects invalid dimensions and unknown tokens", () => {
-    const source = dashboardFixture.nodes["card.expense"];
+    const source = dashboardFixture.nodes["dashboard.cta"];
     expect(source).toBeDefined();
     const node = structuredClone(source!);
     node.editor = { ...node.editor, width: 0 };
@@ -28,7 +28,7 @@ describe("semantic inspector model", () => {
   });
 
   it("detects duplicate responsive breakpoints", () => {
-    const source = dashboardFixture.nodes["card.expense"];
+    const source = dashboardFixture.nodes["dashboard.cta"];
     expect(source).toBeDefined();
     const node = structuredClone(source!);
     node.responsive = [
