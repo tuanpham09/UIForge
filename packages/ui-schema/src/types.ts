@@ -150,6 +150,8 @@ export interface NodeStyle {
 export interface UINode {
   id: NodeId;
   screenId: ScreenId;
+  /** Optional owning frame; screen remains the canonical top-level context. */
+  frameId?: FrameId;
   parentId: NodeId | null;
   childrenIds: NodeId[];
   type: SemanticNodeType;
