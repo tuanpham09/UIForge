@@ -31,6 +31,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { type Editor, Tldraw, toRichText } from "tldraw";
+import RendererPreview from "./renderer-preview";
 import "tldraw/tldraw.css";
 import {
   BREAKPOINTS,
@@ -158,6 +159,8 @@ export default function EditorCanvas() {
   const initialDocumentRef = useRef<UIDocument>(cloneDocument());
   const [document, setDocument] = useState<UIDocument>(() => structuredClone(initialDocumentRef.current));
   const [selectedFrameId, setSelectedFrameId] = useState<FrameId | null>(null);
+  const [selectedScreenId, setSelectedScreenId] = useState(() => cloneDocument().screens[0]?.id ?? "");
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [selectedNodeId, setSelectedNodeId] = useState<NodeId | null>(null);
   const [selectedFrameIds, setSelectedFrameIds] = useState<FrameId[]>([]);
   const [selectedNodeIds, setSelectedNodeIds] = useState<NodeId[]>([]);
@@ -172,6 +175,40 @@ export default function EditorCanvas() {
   const [aiNotice, setAiNotice] = useState<string | null>(null);
   const [prototypeTransitioning, setPrototypeTransitioning] = useState(false);
   const [hotspotHinting, setHotspotHinting] = useState(false);
+
+  useEffect(() => {
+    if (!document.screens.some((screen) => screen.id === selectedScreenId)) {
+      setSelectedScreenId(document.screens[0]?.id ?? "");
+    }
+  }, [document.screens, selectedScreenId]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable ||
+          target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT")
+      ) {
+        return;
+      }
+
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+        event.preventDefault();
+        if (event.shiftKey) redo(); else undo();
+      } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "y") {
+        event.preventDefault();
+        redo();
+      } else if (event.key === "Escape") {
+        setPreviewOpen(false);
+        setAiMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  });
   const [clientReady, setClientReady] = useState(false);
   const [customFrame, setCustomFrame] = useState<CustomFrameDraft>({
     open: false,
@@ -278,6 +315,11 @@ export default function EditorCanvas() {
     setSelectedNodeId(nodeIds[0] ?? null);
     setSelectedFrameId(frameIds[0] ?? null);
 
+    const selectedScreen =
+      (frameIds[0] && document.frames?.find((frame) => frame.id === frameIds[0])?.screenId) ??
+      (nodeIds[0] && document.nodes[nodeIds[0]]?.screenId);
+    if (selectedScreen) setSelectedScreenId(selectedScreen);
+
     const nextFrameId = frameIds[0] ?? null;
     if (!frameSelectionInitializedRef.current) {
       frameSelectionInitializedRef.current = true;
@@ -378,6 +420,18 @@ export default function EditorCanvas() {
       setDocument(next);
       return future.slice(1);
     });
+  };
+
+  const selectScreen = (screenId: string) => {
+    setSelectedScreenId(screenId);
+    const frame = document.frames?.find((item) => item.screenId === screenId);
+    if (!frame) return;
+    setSelectedFrameId(frame.id);
+    setSelectedFrameIds([frame.id]);
+    setSelectedNodeId(null);
+    setSelectedNodeIds([]);
+    syncViewportToFrame(frame.id);
+    editorRef.current?.select(`shape:${frame.id}` as never);
   };
 
   const selectSemanticLayer = (layer: SemanticLayer) => {
@@ -1427,6 +1481,9 @@ export default function EditorCanvas() {
           <button type="button" data-testid="design-ui" disabled={(document.metadata.designStage ?? "wireframe") !== "wireframe" || designBusy} onClick={designUi} className="rounded-md bg-cyan-500 px-3 py-1.5 font-medium text-slate-950 disabled:cursor-not-allowed disabled:opacity-40">
             {designBusy ? "Designing…" : "✨ Design UI"}
           </button>
+          <button type="button" data-testid="preview-button" onClick={() => setPreviewOpen((open) => !open)} className={`rounded-md px-3 py-1.5 ${previewOpen ? "bg-slate-700 text-white" : "text-slate-200 hover:bg-slate-800"}`}>
+            {previewOpen ? "✕ Close Preview" : "Preview"}
+          </button>
           <button type="button" data-testid="present-button" onClick={enterPresent} className="rounded-md px-3 py-1.5 text-slate-200 hover:bg-slate-800">
             ▶ Present
           </button>
@@ -1437,12 +1494,19 @@ export default function EditorCanvas() {
         <aside className="border-r border-slate-800 bg-slate-900/70 p-3 text-xs">
           <p className="mb-2 font-semibold text-slate-400">SCREENS</p>
           {document.screens.map((screen) => (
-            <div
+            <button
               key={screen.id}
-              className="rounded-md bg-slate-800 px-2 py-2 text-slate-200"
+              type="button"
+              onClick={() => selectScreen(screen.id)}
+              aria-pressed={selectedScreenId === screen.id}
+              className={`w-full rounded-md px-2 py-2 text-left text-slate-200 ${
+                selectedScreenId === screen.id
+                  ? "bg-cyan-500/20 text-cyan-200 ring-1 ring-cyan-500/40"
+                  : "bg-slate-800 hover:bg-slate-700"
+              }`}
             >
               {screen.name}
-            </div>
+            </button>
           ))}
 
           <p className="mb-2 mt-5 font-semibold text-slate-400">FLOW</p>
@@ -1807,6 +1871,37 @@ export default function EditorCanvas() {
             <button type="button" onClick={() => setPrototypeSession((current) => (current ? goBack(current) : current))} className="rounded px-3 py-1.5 hover:bg-slate-800">← Back</button>
             <span>{prototypeSession.history.length + 1} / {document.screens.length}</span>
           </footer>
+        </div>
+      ) : null}
+
+      {previewOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Renderer preview"
+          data-testid="renderer-preview-overlay"
+        >
+          <div className="max-h-full w-full max-w-6xl overflow-auto rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
+              <div>
+                <p className="text-sm font-semibold text-white">Preview</p>
+                <p className="text-[10px] text-slate-500">
+                  {document.screens.find((screen) => screen.id === selectedScreenId)?.name ?? "Selected screen"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPreviewOpen(false)}
+                className="rounded px-2 py-1 text-xs text-slate-300 hover:bg-slate-800"
+              >
+                ✕ Close
+              </button>
+            </div>
+            <div className="p-4">
+              <RendererPreview document={document} screenId={selectedScreenId} />
+            </div>
+          </div>
         </div>
       ) : null}
 

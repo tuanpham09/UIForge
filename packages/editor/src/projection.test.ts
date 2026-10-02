@@ -37,4 +37,19 @@ describe("visual design projection", () => {
       expect(button.props.labelColor).toBe("white");
     }
   });
+  it("preserves the button fallback when no style tokens are present", () => {
+    const visual = structuredClone(dashboardFixture);
+    visual.metadata.designStage = "visual";
+    const cta = visual.nodes["dashboard.cta"];
+    if (!cta) throw new Error("dashboard CTA fixture missing");
+    cta.style = undefined;
+    const projection = projectDocument(visual);
+    const button = projection.shapes.find(
+      (shape) => shape.meta.nodeId === "dashboard.cta",
+    );
+    expect(button?.type).toBe("geo");
+    if (button?.type === "geo") {
+      expect(button.props.color).toBe("blue");
+    }
+  });
 });

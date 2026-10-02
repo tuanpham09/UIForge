@@ -10,10 +10,16 @@ test("web shell renders the primary semantic canvas workspace", async ({
     "data-client-ready",
     "true",
   );
+  await page.getByTestId("preview-button").click();
   await expect(page.getByTestId("renderer-preview")).toBeVisible();
   await expect(page.getByTestId("renderer-diagnostics")).toContainText(
     "Preview transition → screen.mobile-list",
   );
+  await page
+    .getByRole("dialog", { name: "Renderer preview" })
+    .getByRole("button", { name: "✕ Close" })
+    .click();
+  await expect(page.getByTestId("renderer-preview")).toBeHidden();
   await expect(page).toHaveTitle("UIForge");
 
   await expect(page.getByTestId("semantic-inspector")).toBeVisible();
@@ -73,6 +79,10 @@ test("web shell renders the primary semantic canvas workspace", async ({
   await expect(page.getByTestId("prototype-runner")).toContainText(
     "Visual Design",
   );
+  await page.screenshot({
+    path: "artifacts/editor/issue-55-prototype-runner.png",
+    fullPage: true,
+  });
   await page.getByTestId("hotspot-hint").click();
   await expect(page.getByTestId("hotspot-hint")).toContainText("Hotspots on");
 
@@ -88,6 +98,9 @@ test("web shell renders the primary semantic canvas workspace", async ({
 
   await runner.getByRole("button", { name: "✕ Exit" }).click();
   await expect(page.getByTestId("uiforge-editor-workspace")).toBeVisible();
+
+  await page.getByTestId("preview-button").click();
+  await expect(page.getByTestId("renderer-preview")).toBeVisible();
 
   await page.screenshot({
     path: "artifacts/responsive/issue-47-device-preview.png",

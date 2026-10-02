@@ -43,6 +43,26 @@ function nodeLabel(node: UINode): string {
   );
 }
 
+function tldrawColorForToken(
+  token: string | undefined,
+  fallback: GeoProps["color"],
+): GeoProps["color"] {
+  if (!token) return fallback;
+  if (token.includes("primary")) return "blue";
+  if (token.includes("success")) return "green";
+  if (token.includes("warning")) return "yellow";
+  if (token.includes("error")) return "red";
+  if (token.includes("foreground") || token.includes("gray.900"))
+    return "black";
+  if (
+    token.includes("border") ||
+    token.includes("mutedForeground") ||
+    token.includes("gray")
+  )
+    return "grey";
+  return fallback;
+}
+
 function visualGeoStyle(document: UIDocument, node: UINode): GeoProps {
   const { width, height } = dimensions(node);
   const base = {
@@ -65,12 +85,19 @@ function visualGeoStyle(document: UIDocument, node: UINode): GeoProps {
     };
   }
 
+  const fillToken = node.style?.tokens?.fill;
+  const color = tldrawColorForToken(
+    fillToken ?? node.style?.tokens?.border,
+    node.type === "button" ? "blue" : "grey",
+  );
+  const labelColor = tldrawColorForToken(node.style?.tokens?.color, "black");
+
   switch (node.type) {
     case "button":
       return {
         ...base,
         fill: "solid",
-        color: "blue",
+        color,
         labelColor: "white",
         size: "m",
         font: "sans",
@@ -82,8 +109,8 @@ function visualGeoStyle(document: UIDocument, node: UINode): GeoProps {
       return {
         ...base,
         fill: "solid",
-        color: "grey",
-        labelColor: "black",
+        color,
+        labelColor,
         size: "s",
         font: "sans",
         dash: "solid",
@@ -94,8 +121,8 @@ function visualGeoStyle(document: UIDocument, node: UINode): GeoProps {
       return {
         ...base,
         fill: "solid",
-        color: "grey",
-        labelColor: "black",
+        color,
+        labelColor,
         size: "m",
         font: "sans",
         dash: "solid",
@@ -106,7 +133,7 @@ function visualGeoStyle(document: UIDocument, node: UINode): GeoProps {
       return {
         ...base,
         fill: "semi",
-        color: "grey",
+        color,
         labelColor: "grey",
         size: "s",
         font: "sans",
@@ -119,8 +146,8 @@ function visualGeoStyle(document: UIDocument, node: UINode): GeoProps {
       return {
         ...base,
         fill: "none",
-        color: "grey",
-        labelColor: "black",
+        color,
+        labelColor,
         size: "s",
         font: "sans",
         dash: "solid",
@@ -131,8 +158,8 @@ function visualGeoStyle(document: UIDocument, node: UINode): GeoProps {
       return {
         ...base,
         fill: "none",
-        color: "grey",
-        labelColor: "black",
+        color,
+        labelColor,
         size: "s",
         font: "sans",
         dash: "solid",

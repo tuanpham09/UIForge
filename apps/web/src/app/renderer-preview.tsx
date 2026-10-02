@@ -2,56 +2,46 @@
 
 import { defaultTokenSet } from "@uiforge/design-tokens";
 import { getViewport, renderScreen } from "@uiforge/renderer";
-import { dashboardFixture } from "@uiforge/ui-schema";
+import type { UIDocument } from "@uiforge/ui-schema";
 import { useMemo, useState } from "react";
 
-const screens = dashboardFixture.screens;
-
 export default function RendererPreview({
+  document,
+  screenId,
   initialPreset = "wide",
 }: {
+  document: UIDocument;
+  screenId: string;
   initialPreset?: "wide" | "desktop" | "tablet" | "mobile";
 }) {
-  const [screenId, setScreenId] = useState(screens[0]?.id ?? "");
-  const [preset] = useState<"wide" | "desktop" | "tablet" | "mobile">(
-    initialPreset,
-  );
+  const [preset, setPreset] = useState<
+    "wide" | "desktop" | "tablet" | "mobile"
+  >(initialPreset);
   const viewport = useMemo(() => getViewport(preset), [preset]);
   const result = useMemo(
     () =>
-      renderScreen(dashboardFixture, screenId, defaultTokenSet, {
+      renderScreen(document, screenId, defaultTokenSet, {
         viewport,
       }),
-    [screenId, viewport],
+    [document, screenId, viewport],
   );
 
   return (
     <div className="overflow-hidden rounded-xl border border-slate-700 bg-white text-slate-900">
       <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 bg-slate-50 p-3">
-        {screens.map((screen) => (
-          <button
-            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm"
-            key={screen.id}
-            onClick={() => setScreenId(screen.id)}
-            type="button"
-          >
-            {screen.name}
-          </button>
-        ))}
-        <form className="flex flex-wrap gap-2" method="get">
+        <div className="flex flex-wrap gap-2">
           {(["wide", "desktop", "tablet", "mobile"] as const).map((item) => (
             <button
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm"
+              className={`rounded-md border px-3 py-1.5 text-sm ${preset === item ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700"}`}
               data-testid={`viewport-${item}`}
               key={item}
-              name="viewport"
-              type="submit"
-              value={item}
+              type="button"
+              onClick={() => setPreset(item)}
             >
               {item}
             </button>
           ))}
-        </form>
+        </div>
         <span
           className="ml-auto text-xs text-slate-500"
           data-testid="renderer-viewport"
