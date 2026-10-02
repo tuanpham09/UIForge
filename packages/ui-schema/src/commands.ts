@@ -107,6 +107,52 @@ export function applyCommand(
   validateUIDocument(document);
 
   switch (command.type) {
+    case "CreateFrame": {
+      const frames = document.frames ?? [];
+      if (frames.some((frame) => frame.id === command.frame.id)) {
+        throw new UICommandError(`frame already exists: ${command.frame.id}`);
+      }
+      if (
+        !document.screens.some(
+          (screen) => screen.id === command.frame.screenId,
+        )
+      ) {
+        throw new UICommandError(
+          `screen not found: ${command.frame.screenId}`,
+        );
+      }
+      if (command.frame.width <= 0 || command.frame.height <= 0) {
+        throw new UICommandError("frame dimensions must be positive");
+      }
+      document.frames = [...frames, clone(command.frame)];
+      break;
+    }
+    case "UpdateFrame": {
+      const frames = document.frames ?? [];
+      const index = frames.findIndex((frame) => frame.id === command.frameId);
+      if (index < 0) {
+        throw new UICommandError(`frame not found: ${command.frameId}`);
+      }
+      const next = {
+        ...frames[index],
+        ...clone(command.patch),
+        id: frames[index].id,
+      };
+      if (next.width <= 0 || next.height <= 0) {
+        throw new UICommandError("frame dimensions must be positive");
+      }
+      frames[index] = next;
+      document.frames = frames;
+      break;
+    }
+    case "DeleteFrame": {
+      const frames = document.frames ?? [];
+      if (!frames.some((frame) => frame.id === command.frameId)) {
+        throw new UICommandError(`frame not found: ${command.frameId}`);
+      }
+      document.frames = frames.filter((frame) => frame.id !== command.frameId);
+      break;
+    }
     case "CreateNode": {
       if (document.nodes[command.node.id]) {
         throw new UICommandError(`node already exists: ${command.node.id}`);
