@@ -2,6 +2,7 @@ export * from "./frame-presets";
 export * from "./history";
 export * from "./layers";
 export * from "./mutations";
+export * from "./penpot-canvas-spike";
 export * from "./projection";
 export * from "./reconcile";
 export * from "./serialization";
