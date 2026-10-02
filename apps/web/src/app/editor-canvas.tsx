@@ -598,7 +598,7 @@ export default function EditorCanvas() {
     }
     const frameId = selectedFrameIds[0];
     const source = original.frames?.find((frame) => frame.id === frameId);
-    if (source) {
+    if (frameId && source) {
       updateFrame(frameId, structuredClone(source));
     }
   };
