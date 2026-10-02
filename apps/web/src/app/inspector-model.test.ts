@@ -1,0 +1,51 @@
+// biome-ignore-all format: inspector contracts are intentionally compact
+import { dashboardFixture } from "@uiforge/ui-schema";
+import { describe, expect, it } from "vitest";
+import {
+  commonTokenSlots,
+  findResponsiveRule,
+  inspectFrame,
+  inspectNode,
+} from "./inspector-model";
+
+describe("semantic inspector model", () => {
+  it("reports valid frame diagnostics", () => {
+    const frame = dashboardFixture.frames?.[0];
+    if (!frame) throw new Error("dashboard fixture frame is missing");
+    expect(inspectFrame(frame)).toEqual([
+      { severity: "ok", code: "OK", message: "No issues" },
+    ]);
+  });
+
+  it("rejects invalid dimensions and unknown tokens", () => {
+    const source = dashboardFixture.nodes["dashboard.cta"];
+    if (!source) throw new Error("dashboard fixture node is missing");
+    const node = structuredClone(source);
+    node.editor = { ...node.editor, width: 0 };
+    node.style = { tokens: { fill: "color.does-not-exist" } };
+    const diagnostics = inspectNode(node);
+    expect(diagnostics.some((item) => item.code === "INVALID_WIDTH")).toBe(true);
+    expect(diagnostics.some((item) => item.code === "UNKNOWN_TOKEN")).toBe(true);
+  });
+
+  it("detects duplicate responsive breakpoints", () => {
+    const source = dashboardFixture.nodes["dashboard.cta"];
+    if (!source) throw new Error("dashboard fixture node is missing");
+    const node = structuredClone(source);
+    node.responsive = [
+      { breakpoint: "mobile", minWidth: 360 },
+      { breakpoint: "mobile", minWidth: 480 },
+    ];
+    expect(inspectNode(node).some((item) => item.code === "DUPLICATE_BREAKPOINT")).toBe(true);
+    expect(findResponsiveRule(node, "mobile")?.minWidth).toBe(360);
+  });
+
+  it("finds token slots common to multiple nodes", () => {
+    const nodes = Object.values(dashboardFixture.nodes).filter((node) => node.type !== "screen-root").slice(0, 2);
+    const [first, second] = nodes;
+    if (!first || !second) throw new Error("dashboard fixture needs two nodes");
+    first.style = { tokens: { fill: "color.surface", radius: "radius.md" } };
+    second.style = { tokens: { fill: "color.surface", shadow: "shadow.subtle" } };
+    expect(commonTokenSlots([first, second])).toEqual(["fill"]);
+  });
+});

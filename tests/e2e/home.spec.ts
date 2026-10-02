@@ -12,8 +12,11 @@ test("web shell renders the primary semantic canvas workspace", async ({
   );
   await expect(page).toHaveTitle("UIForge");
 
-  await expect(page.getByText("1 semantic frames")).toBeVisible();
-  await expect(page.getByText("1 sections")).toBeVisible();
+  await expect(page.getByTestId("semantic-inspector")).toBeVisible();
+  await expect(
+    page.getByText("Select a Frame, Section, Component or Layer"),
+  ).toBeVisible();
+  await expect(page.getByText("LAYERS")).toBeVisible();
 
   await page.locator("summary").filter({ hasText: "Frame +" }).click();
   const menu = page.getByTestId("frame-preset-menu");
@@ -22,7 +25,7 @@ test("web shell renders the primary semantic canvas workspace", async ({
   await expect(menu.getByText("Desktop 1440")).toBeVisible();
 
   await page.screenshot({
-    path: "artifacts/editor/issue-44-workspace.png",
+    path: "artifacts/editor/issue-46-workspace.png",
     fullPage: true,
   });
 
