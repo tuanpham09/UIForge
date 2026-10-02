@@ -49,14 +49,24 @@ function buildNodeLayers(
   };
 }
 
-function frameLayer(document: UIDocument, frame: Frame, depth: number): SemanticLayer {
-  const root = document.nodes[document.screens.find((screen) => screen.id === frame.screenId)?.rootNodeId ?? ""];
+function frameLayer(
+  document: UIDocument,
+  frame: Frame,
+  depth: number,
+): SemanticLayer {
+  const root =
+    document.nodes[
+      document.screens.find((screen) => screen.id === frame.screenId)
+        ?.rootNodeId ?? ""
+    ];
   const children = root
     ? root.childrenIds
         .map((nodeId) => document.nodes[nodeId])
         .filter((node): node is UINode => Boolean(node))
         .filter((node) => node.frameId === frame.id)
-        .map((node) => buildNodeLayers(document, node.id, depth + 1, true, false))
+        .map((node) =>
+          buildNodeLayers(document, node.id, depth + 1, true, false),
+        )
         .filter((layer): layer is SemanticLayer => layer !== null)
     : [];
 
@@ -80,7 +90,9 @@ export function buildLayerTree(document: UIDocument): SemanticLayer[] {
       .map((frame) => frameLayer(document, frame, 1));
 
     const frameNodeIds = new Set(
-      frames.flatMap((frame) => frame.children.map((child) => child.nodeId).filter(Boolean)),
+      frames.flatMap((frame) =>
+        frame.children.map((child) => child.nodeId).filter(Boolean),
+      ),
     );
 
     const root = document.nodes[screen.rootNodeId];
