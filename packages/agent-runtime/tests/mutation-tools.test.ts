@@ -7,11 +7,11 @@ describe("semantic mutation agent tools", () => {
   it("proposes a valid node update without mutating the source document", async () => {
     const document = structuredClone(workspaceFixture);
     const node = Object.values(document.nodes).find((item) => item.type === "text");
-    expect(node).toBeDefined();
+    if (!node) throw new Error("fixture text node not found");
     const context = AgentRuntime.createContext(document);
     const result = await createAgentToolRegistry().execute(
       "update_node",
-      { nodeId: node!.id, patch: { content: { ...node!.content, text: "Updated" } } },
+      { nodeId: node.id, patch: { content: { ...node.content, text: "Updated" } } },
       context,
       "call-update",
     );
@@ -22,7 +22,9 @@ describe("semantic mutation agent tools", () => {
 
   it("rejects invalid destructive operations with a structured error", async () => {
     const document = structuredClone(workspaceFixture);
-    const root = document.screens[0]!.rootNodeId;
+    const screen = document.screens[0];
+    if (!screen) throw new Error("fixture screen not found");
+    const root = screen.rootNodeId;
     const result = await createAgentToolRegistry().execute(
       "delete_node",
       { nodeId: root },
@@ -36,7 +38,7 @@ describe("semantic mutation agent tools", () => {
   it("validates responsive, token, layout and component proposals", async () => {
     const document = structuredClone(workspaceFixture);
     const node = Object.values(document.nodes).find((item) => item.type !== "screen-root");
-    expect(node).toBeDefined();
+    if (!node) throw new Error("fixture node not found");
     const registry = createAgentToolRegistry();
     const context = AgentRuntime.createContext(document);
     for (const [name, input] of [
