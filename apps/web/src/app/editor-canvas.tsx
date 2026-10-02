@@ -205,13 +205,12 @@ export default function EditorCanvas() {
   }, [projected]);
 
   const syncCanvasSelection = (editor: Editor) => {
-    const selections = editor
-      .getSelectedShapes()
-      .map((shape) => ({
-        id: shape.meta?.nodeId as string | undefined,
-        semanticType: shape.meta?.semanticType,
-      }))
-      .filter((item): item is { id: string; semanticType: unknown } => Boolean(item.id));
+    const selections = editor.getSelectedShapes().flatMap((shape) => {
+      const id = shape.meta?.nodeId;
+      return typeof id === "string"
+        ? [{ id, semanticType: shape.meta?.semanticType }]
+        : [];
+    });
     const nodeIds = selections
       .filter((item) => item.semanticType !== "frame")
       .map((item) => item.id as NodeId);
@@ -303,22 +302,6 @@ export default function EditorCanvas() {
         frameId,
         patch,
       }),
-    );
-  };
-
-  const updateSelectedNodes = (patch: NodePatch) => {
-    if (!selectedNodeIds.length) return;
-    applySemantic((current) =>
-      selectedNodeIds.reduce(
-        (doc, nodeId) =>
-          applyCommand(doc, {
-            type: "UpdateNode",
-            commandId: `inspector.multi-update.${nodeId}.${Date.now()}`,
-            nodeId,
-            patch,
-          }),
-        current,
-      ),
     );
   };
 
@@ -498,14 +481,49 @@ export default function EditorCanvas() {
     setCustomFrame((current) => ({ ...current, open: false }));
   };
 
+  const updateSelectedEditor = (
+    mutate: (
+      editor: NonNullable<UIDocument["nodes"][string]["editor"]>,
+    ) => NonNullable<UIDocument["nodes"][string]["editor"]>,
+  ) => {
+    if (!selectedNodeIds.length) return;
+    applySemantic((current) =>
+      selectedNodeIds.reduce((doc, nodeId) => {
+        const node = doc.nodes[nodeId];
+        if (!node) return doc;
+        return applyCommand(doc, {
+          type: "UpdateNode",
+          commandId: `inspector.multi-editor.${nodeId}.${Date.now()}`,
+          nodeId,
+          patch: { editor: mutate(node.editor ?? {}) },
+        });
+      }, current),
+    );
+  };
+
+  const updateLayoutToken = (slot: "gap" | "padding", token: string) => {
+    if (!primaryNode || isMultiNode || !token) return;
+    const nextLayout = { ...primaryNode.layout };
+    if (slot === "gap") {
+      nextLayout.gap = { token };
+    } else {
+      nextLayout.padding = {
+        ...nextLayout.padding,
+        inline: { token },
+      };
+    }
+    updateNode(primaryNode.id, { layout: nextLayout });
+  };
+
   const updateSelectedToken = (slot: string, token: string) => {
     if (!token) return;
-    if (selectedNodeIds.length === 1) {
+    const [nodeId] = selectedNodeIds;
+    if (selectedNodeIds.length === 1 && nodeId) {
       applySemantic((current) =>
         applyCommand(current, {
           type: "SetToken",
-          commandId: `inspector.token.${selectedNodeIds[0]}.${slot}.${Date.now()}`,
-          nodeId: selectedNodeIds[0] as NodeId,
+          commandId: `inspector.token.${nodeId}.${slot}.${Date.now()}`,
+          nodeId,
           slot,
           token,
         }),
