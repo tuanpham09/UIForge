@@ -1,7 +1,7 @@
 import {
+  type DesignToken,
   defaultTokenSet,
   validateTokenReference,
-  type DesignToken,
 } from "@uiforge/design-tokens";
 import type {
   Frame,
@@ -139,6 +139,6 @@ export function commonTokenSlots(nodes: UINode[]): string[] {
   if (!nodes.length) return [];
   const first = Object.keys(nodes[0]?.style?.tokens ?? {});
   return first.filter((slot) =>
-    nodes.every((node) => Object.prototype.hasOwnProperty.call(node.style?.tokens ?? {}, slot)),
+    nodes.every((node) => Object.hasOwn(node.style?.tokens ?? {}, slot)),
   );
 }
