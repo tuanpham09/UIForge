@@ -322,7 +322,7 @@ export default function EditorCanvas() {
       .map((node) => ({
         id: `transition.${node.id}`,
         source: { screenId: node.screenId, nodeId: node.id },
-        trigger: { type: "click" },
+        trigger: { type: "click" as const },
         action: {
           type: "navigate" as const,
           destination: { screenId: node.interaction?.targetScreenId as string },
