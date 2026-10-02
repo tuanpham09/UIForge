@@ -1,3 +1,4 @@
+// biome-ignore-all format: inspector contracts are intentionally compact
 import {
   type DesignToken,
   defaultTokenSet,
