@@ -80,7 +80,7 @@ export function validateUIDocument(value: unknown): UIDocument {
     throw new UISchemaValidationError(issues);
   }
 
-  const nodes = value.nodes as Record<string, unknown>;
+  const frames = Array.isArray(value.frames) ? value.frames : [];\n  const frameIds = frames.map((frame) => (frame as { id?: unknown })?.id);\n  if (new Set(frameIds).size !== frameIds.length) issues.push("frame IDs must be unique");\n  for (const frame of frames) {\n    if (!isRecord(frame) || !isNonEmptyString(frame.id) || !isNonEmptyString(frame.screenId) || !isNonEmptyString(frame.presetId) || !isNonEmptyString(frame.name)) {\n      issues.push("invalid frame");\n      continue;\n    }\n    if (!screenIds.includes(frame.screenId)) issues.push(`frame ${frame.id} references missing screen ${frame.screenId}`);\n    if (typeof frame.x !== "number" || typeof frame.y !== "number" || typeof frame.width !== "number" || typeof frame.height !== "number" || frame.width <= 0 || frame.height <= 0) issues.push(`frame ${frame.id} has invalid geometry`);\n    if (!isNonEmptyString(frame.presetVersion)) issues.push(`frame ${frame.id} is missing presetVersion`);\n  }\n\n  const nodes = value.nodes as Record<string, unknown>;
   const screens = value.screens as unknown[];
   const screenIds = screens.map((screen) => (screen as { id?: unknown })?.id);
 
