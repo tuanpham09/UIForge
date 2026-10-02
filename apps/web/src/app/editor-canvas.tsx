@@ -576,7 +576,9 @@ export default function EditorCanvas() {
               ? (document.nodes[selectedNodeId]?.content?.label ??
                 document.nodes[selectedNodeId]?.type)
               : selectedFrameId
-                ? document.frames?.find((frame) => frame.id === selectedFrameId)?.name
+                ? document.frames?.find(
+                    (frame) => frame.id === selectedFrameId,
+                  )?.name
                 : "Nothing selected"}
           </p>
           <p className="mt-4 text-[10px] uppercase tracking-wider text-slate-500">
