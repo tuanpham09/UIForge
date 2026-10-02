@@ -17,7 +17,7 @@ describe("semantic mutation agent tools", () => {
     );
     expect(result.ok).toBe(true);
     expect((result.output as { proposal: { commands: Array<{ type: string }> } }).proposal.commands[0]?.type).toBe("UpdateNode");
-    expect(document.nodes[node!.id]?.content?.text).not.toBe("Updated");
+    expect(document.nodes[node.id]?.content?.text).not.toBe("Updated");
   });
 
   it("rejects invalid destructive operations with a structured error", async () => {
@@ -42,10 +42,10 @@ describe("semantic mutation agent tools", () => {
     const registry = createAgentToolRegistry();
     const context = AgentRuntime.createContext(document);
     for (const [name, input] of [
-      ["set_token", { nodeId: node!.id, slot: "fill", token: "primary.500" }],
-      ["set_layout", { nodeId: node!.id, layout: { mode: "flex", direction: "row" } }],
-      ["set_responsive_rule", { nodeId: node!.id, rule: { breakpoint: "mobile", hidden: true } }],
-      ["create_component", { nodeId: node!.id, registryId: "button", variant: "primary" }],
+      ["set_token", { nodeId: node.id, slot: "fill", token: "primary.500" }],
+      ["set_layout", { nodeId: node.id, layout: { mode: "flex", direction: "row" } }],
+      ["set_responsive_rule", { nodeId: node.id, rule: { breakpoint: "mobile", hidden: true } }],
+      ["create_component", { nodeId: node.id, registryId: "button", variant: "primary" }],
     ] as const) {
       const result = await registry.execute(name, input, context, `call-${name}`);
       expect(result.ok).toBe(true);
