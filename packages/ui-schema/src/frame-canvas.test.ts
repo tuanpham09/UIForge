@@ -6,7 +6,7 @@ import {
   FRAME_PRESETS,
   getFramePreset,
   type UIDocument,
-} from "@uiforge/ui-schema";
+} from "./index";
 import { describe, expect, it } from "vitest";
 
 describe("frame preset registry", () => {
