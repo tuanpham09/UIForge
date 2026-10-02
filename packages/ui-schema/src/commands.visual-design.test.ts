@@ -25,8 +25,12 @@ describe("ApplyVisualDesign command", () => {
     });
 
     expect(next.metadata.designStage).toBe("visual");
-    expect(next.nodes["dashboard.cta"]?.style?.tokens?.fill).toBe("color.primary");
-    expect(next.nodes["dashboard.cta"]?.component?.registryId).toBe("uiforge.button");
+    expect(next.nodes["dashboard.cta"]?.style?.tokens?.fill).toBe(
+      "color.primary",
+    );
+    expect(next.nodes["dashboard.cta"]?.component?.registryId).toBe(
+      "uiforge.button",
+    );
     expect(next.nodes["dashboard.cta"]?.layout.mode).toBe("flex");
     expect(next.nodes["dashboard.cta"]?.editor?.width).toBe(160);
   });
