@@ -24,6 +24,14 @@ export interface ProjectedShape {
     w: number;
     h: number;
     geo: "rectangle";
+    fill?: "none" | "semi" | "solid" | "pattern";
+    color?: "black" | "grey" | "light-violet" | "violet" | "blue" | "light-blue" | "red" | "orange" | "yellow" | "green" | "light-green" | "white";
+    labelColor?: "black" | "grey" | "light-violet" | "violet" | "blue" | "light-blue" | "red" | "orange" | "yellow" | "green" | "light-green" | "white";
+    size?: "s" | "m" | "l" | "xl";
+    font?: "draw" | "sans" | "serif" | "mono";
+    align?: "start" | "middle" | "end";
+    verticalAlign?: "start" | "middle" | "end";
+    dash?: "draw" | "solid" | "dashed" | "dotted" | "none";
   };
   label: string;
   meta: UIForgeShapeMeta;
