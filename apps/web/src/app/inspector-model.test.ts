@@ -1,3 +1,4 @@
+// biome-ignore-all format: inspector contracts are intentionally compact
 import { dashboardFixture } from "@uiforge/ui-schema";
 import { describe, expect, it } from "vitest";
 import {
