@@ -321,7 +321,7 @@ export default function EditorCanvas() {
       .map((node) => ({
         id: `transition.${node.id}`,
         source: { screenId: node.screenId, nodeId: node.id },
-        trigger: { type: (node.interaction?.trigger === "tap" ? "tap" : "click") as "click" | "tap" },
+        trigger: { type: "click" },
         action: {
           type: "navigate" as const,
           destination: { screenId: node.interaction?.targetScreenId as string },
@@ -1458,12 +1458,16 @@ export default function EditorCanvas() {
                     y: shape.y,
                     opacity: shape.opacity ?? 1,
                     isLocked: shape.isLocked ?? false,
-                    props: {
-                      w: shape.props.w,
-                      h: shape.props.h,
-                      geo: shape.props.geo,
-                      richText: toRichText(shape.label),
-                    },
+                    props:
+                      shape.type === "geo"
+                        ? {
+                            ...shape.props,
+                            richText: toRichText(shape.label),
+                          }
+                        : {
+                            ...shape.props,
+                            richText: toRichText(shape.label),
+                          },
                     meta: shape.meta,
                   })),
                 );
