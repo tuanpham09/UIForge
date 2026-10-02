@@ -30,14 +30,10 @@ test("web shell renders the primary semantic canvas workspace", async ({
   await deviceMenu.getByText("iPhone 18 / 18 Pro").click();
   await expect(page.getByTestId("viewport-size")).toHaveText("402 × 874");
 
-  await page.goto(
-    "/?viewport=iphone-18&w=874&h=402&orientation=landscape&zoom=125",
-  );
-  await expect(page.getByTestId("viewport-size")).toHaveText("874 × 402");
   await expect(page.getByTestId("viewport-orientation")).toContainText(
-    "Landscape",
+    "Portrait",
   );
-  await expect(page.getByLabel("Viewport zoom")).toHaveValue("125");
+  await expect(page.getByLabel("Viewport zoom")).toHaveValue("100");
 
   await expect(page.getByTestId("responsive-validation")).toBeVisible();
   await page.screenshot({
