@@ -9,7 +9,8 @@ import type {
   UINode,
 } from "@uiforge/ui-schema";
 
-export const VISUAL_DESIGN_CONTRACT_VERSION = "uiforge.visual-design/v2" as const;
+export const VISUAL_DESIGN_CONTRACT_VERSION =
+  "uiforge.visual-design/v2" as const;
 
 export type VisualDesignPatch = {
   nodeId: string;
@@ -93,7 +94,8 @@ const componentFor = (node: UINode): ComponentInstance | undefined => {
         : node.type === "card"
           ? "uiforge.card"
           : undefined;
-  if (!registryId || !componentRegistry.components[registryId]) return node.component;
+  if (!registryId || !componentRegistry.components[registryId])
+    return node.component;
 
   const definition = componentRegistry.components[registryId];
   const preferredVariant =
@@ -102,7 +104,9 @@ const componentFor = (node: UINode): ComponentInstance | undefined => {
       : node.type === "card"
         ? "default"
         : "default";
-  const variant = definition.variants.some((item) => item.id === preferredVariant)
+  const variant = definition.variants.some(
+    (item) => item.id === preferredVariant,
+  )
     ? preferredVariant
     : definition.variants[0]?.id;
   return { registryId, ...(variant ? { variant } : {}) };
@@ -188,9 +192,12 @@ function visualEditor(
   }
 
   const frame =
-    document.frames?.find((candidate) => candidate.screenId === node.screenId) ??
-    document.frames?.[0];
-  const rootId = document.screens.find((screen) => screen.id === node.screenId)?.rootNodeId;
+    document.frames?.find(
+      (candidate) => candidate.screenId === node.screenId,
+    ) ?? document.frames?.[0];
+  const rootId = document.screens.find(
+    (screen) => screen.id === node.screenId,
+  )?.rootNodeId;
   const root = rootId ? document.nodes[rootId] : undefined;
   const size = defaultSize(node);
   const frameX = frame?.x ?? 80;
@@ -210,7 +217,9 @@ function visualEditor(
   };
 }
 
-export function buildVisualDesignProposal(document: UIDocument): VisualDesignProposal {
+export function buildVisualDesignProposal(
+  document: UIDocument,
+): VisualDesignProposal {
   if ((document.metadata.designStage ?? "wireframe") !== "wireframe") {
     throw new Error("VISUAL_DESIGN_SOURCE_MUST_BE_WIREFRAME");
   }
