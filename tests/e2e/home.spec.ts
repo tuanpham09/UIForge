@@ -49,6 +49,25 @@ test("web shell renders the primary semantic canvas workspace", async ({
 
   await expect(page.getByTestId("responsive-validation")).toBeVisible();
 
+  await expect(page.getByTestId("design-chat-toggle")).toBeVisible();
+  await page.getByTestId("design-chat-toggle").click();
+  await expect(page.getByTestId("agent-design-chat")).toBeVisible();
+  await page.getByTestId("agent-chat-input").fill("add button");
+  await page.getByTestId("agent-chat-send").click();
+  await expect(page.getByTestId("agent-proposal")).toContainText(
+    "Add a button",
+  );
+  await page.getByTestId("agent-reject").click();
+  await expect(page.getByTestId("agent-proposal")).toBeHidden();
+  await page.getByTestId("agent-chat-input").fill("add button");
+  await page.getByTestId("agent-chat-send").click();
+  await expect(page.getByTestId("agent-proposal")).toBeVisible();
+  await page.getByTestId("agent-apply").click();
+  await expect(page.getByTestId("agent-proposal")).toContainText(
+    "Applied to UI Schema.",
+  );
+  await page.getByRole("button", { name: "Close Design Chat" }).click();
+
   await expect(page.getByTestId("design-stage-switcher")).toBeVisible();
   await expect(page.getByTestId("design-ui")).toBeEnabled();
   await page.getByTestId("design-ui").click();
