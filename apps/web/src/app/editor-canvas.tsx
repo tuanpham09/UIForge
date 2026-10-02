@@ -952,7 +952,14 @@ export default function EditorCanvas() {
         </InspectorSection>
 
         <InspectorDiagnostics diagnostics={diagnostics} />
-        {inspectorError ? <div className="rounded border border-red-500/40 bg-red-500/10 p-2 text-[10px] text-red-300">{inspectorError}</div> : null}
+        {inspectorError ? (
+          <div
+            data-testid="design-error"
+            className="rounded border border-red-500/40 bg-red-500/10 p-2 text-[10px] text-red-300"
+          >
+            {inspectorError}
+          </div>
+        ) : null}
         <ResetButton onClick={resetSelection} />
       </div>
     );
