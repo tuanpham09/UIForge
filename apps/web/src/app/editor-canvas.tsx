@@ -164,7 +164,6 @@ export default function EditorCanvas() {
     if (typeof window === "undefined") return viewportFromPreset("iphone-16");
     return parseViewport(new URLSearchParams(window.location.search));
   });
-  const [deviceMenuOpen, setDeviceMenuOpen] = useState(false);
   const [viewportDiagnostics, setViewportDiagnostics] = useState<
     ReturnType<typeof validateViewport>
   >([]);
@@ -1078,59 +1077,47 @@ export default function EditorCanvas() {
           <div className="absolute left-3 right-3 top-3 z-10 rounded-xl border border-slate-700 bg-slate-900/95 p-2 shadow-xl backdrop-blur">
             <div className="flex flex-wrap items-center gap-2 text-[11px]">
               <span className="font-semibold uppercase tracking-wider text-slate-500">DEVICE</span>
-              <div className="relative">
-                <button
-                  type="button"
+              <details className="relative" data-testid="device-menu">
+                <summary
                   data-testid="device-preset-trigger"
-                  onPointerDown={(event) => event.stopPropagation()}
-                  onClick={() => setDeviceMenuOpen((open) => !open)}
-                  className="rounded-md border border-slate-700 bg-slate-950 px-3 py-1.5 text-slate-200"
+                  className="cursor-pointer list-none rounded-md border border-slate-700 bg-slate-950 px-3 py-1.5 text-slate-200"
                 >
                   {DEVICE_PRESETS.find((item) => item.id === viewport.presetId)?.name ?? "Custom"} ▾
-                </button>
-                {deviceMenuOpen ? (
-                  <div
-                    onPointerDown={(event) => event.stopPropagation()}
-                    className="absolute left-0 top-9 z-30 w-64 rounded-xl border border-slate-700 bg-slate-900 p-2 shadow-2xl">
-                    {(["mobile", "tablet", "desktop"] as const).map((category) => (
-                      <div key={category}>
-                        <p className="px-2 pt-2 text-[10px] uppercase tracking-wider text-slate-500">
-                          {category === "mobile" ? "iPhone" : category}
-                        </p>
-                        {DEVICE_PRESETS.filter((item) => item.category === category).map((item) => (
-                          <button
-                            key={item.id}
-                            type="button"
-                            onPointerDown={(event) => event.stopPropagation()}
-                            className="flex w-full justify-between rounded px-2 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-800"
-                            onClick={() => {
-                              setPreviewViewport(viewportFromPreset(item.id, viewport.orientation));
-                              setDeviceMenuOpen(false);
-                            }}
-                          >
-                            <span>{item.name}</span>
-                            <span className="text-slate-500">{item.width}×{item.height}</span>
-                          </button>
-                        ))}
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      className="mt-2 w-full rounded px-2 py-1.5 text-left text-xs text-slate-300 hover:bg-slate-800"
-                      onClick={() => {
-                        const width = Number(globalThis.prompt("Viewport width", String(viewport.width)));
-                        const height = Number(globalThis.prompt("Viewport height", String(viewport.height)));
-                        if (Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0) {
-                          setPreviewViewport(customViewport(width, height, viewport.zoom));
-                        }
-                        setDeviceMenuOpen(false);
-                      }}
-                    >
-                      Custom…
-                    </button>
-                  </div>
-                ) : null}
-              </div>
+                </summary>
+                <div className="absolute left-0 top-9 z-30 w-64 rounded-xl border border-slate-700 bg-slate-900 p-2 shadow-2xl">
+                  {(["mobile", "tablet", "desktop"] as const).map((category) => (
+                    <div key={category}>
+                      <p className="px-2 pt-2 text-[10px] uppercase tracking-wider text-slate-500">
+                        {category === "mobile" ? "iPhone" : category}
+                      </p>
+                      {DEVICE_PRESETS.filter((item) => item.category === category).map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          className="flex w-full justify-between rounded px-2 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-800"
+                          onClick={() => setPreviewViewport(viewportFromPreset(item.id, viewport.orientation))}
+                        >
+                          <span>{item.name}</span>
+                          <span className="text-slate-500">{item.width}×{item.height}</span>
+                        </button>
+                      ))}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    className="mt-2 w-full rounded px-2 py-1.5 text-left text-xs text-slate-300 hover:bg-slate-800"
+                    onClick={() => {
+                      const width = Number(globalThis.prompt("Viewport width", String(viewport.width)));
+                      const height = Number(globalThis.prompt("Viewport height", String(viewport.height)));
+                      if (Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0) {
+                        setPreviewViewport(customViewport(width, height, viewport.zoom));
+                      }
+                    }}
+                  >
+                    Custom…
+                  </button>
+                </div>
+              </details>
               <button
                 type="button"
                 aria-label="Toggle orientation"
