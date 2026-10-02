@@ -8,7 +8,7 @@ import {
   type UIDocument,
 } from "@uiforge/ui-schema";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Tldraw, toRichText, type Editor } from "tldraw";
+import { type Editor, Tldraw, toRichText } from "tldraw";
 import "tldraw/tldraw.css";
 
 const cloneDocument = (): UIDocument => structuredClone(dashboardFixture);
@@ -25,8 +25,9 @@ export default function EditorCanvas() {
       ),
     [document],
   );
-  const [projected, setProjected] =
-    useState<Awaited<typeof projection> | null>(null);
+  const [projected, setProjected] = useState<Awaited<typeof projection> | null>(
+    null,
+  );
 
   useEffect(() => {
     let active = true;
@@ -56,9 +57,7 @@ export default function EditorCanvas() {
       meta: shape.meta,
     }));
 
-    editor.createShapes(
-      shapes.filter((shape) => !editor.getShape(shape.id)),
-    );
+    editor.createShapes(shapes.filter((shape) => !editor.getShape(shape.id)));
 
     for (const shape of shapes) {
       if (editor.getShape(shape.id)) editor.updateShape(shape);
@@ -162,9 +161,8 @@ export default function EditorCanvas() {
                   Add Frame
                 </p>
 
-                {(
-                  ["mobile", "tablet", "android", "desktop"] as const
-                ).map((category) => (
+                {(["mobile", "tablet", "android", "desktop"] as const).map(
+                  (category) => (
                   <div key={category}>
                     <p className="px-2 pt-2 text-[10px] uppercase text-slate-500">
                       {category}
@@ -186,8 +184,8 @@ export default function EditorCanvas() {
                       </button>
                     ))}
                   </div>
-                ))}
-
+                ),
+                )}
                 <button
                   className="mt-1 w-full rounded px-2 py-1.5 text-left text-xs text-slate-300 hover:bg-slate-800"
                   type="button"
@@ -270,9 +268,7 @@ export default function EditorCanvas() {
           <p className="mt-4 text-[10px] uppercase tracking-wider text-slate-500">
             Frames
           </p>
-          <p className="mt-1">
-            {document.frames?.length ?? 0} semantic frames
-          </p>
+          <p className="mt-1">{document.frames?.length ?? 0} semantic frames</p>
           <p className="mt-4 text-[10px] uppercase tracking-wider text-slate-500">
             Sections
           </p>
@@ -308,10 +304,7 @@ export default function EditorCanvas() {
         >
           + Section
         </button>
-        <button
-          type="button"
-          className="rounded px-2 py-1 hover:bg-slate-800"
-        >
+        <button type="button" className="rounded px-2 py-1 hover:bg-slate-800">
           + Component
         </button>
         <span className="ml-auto text-slate-500">
