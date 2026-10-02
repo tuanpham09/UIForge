@@ -178,7 +178,7 @@ function projectText(
     meta: {
       source: "uiforge",
       projectionVersion: EDITOR_PROJECTION_VERSION,
-      documentId,
+      documentId: document.id,
       screenId: node.screenId,
       nodeId: node.id,
       semanticType: node.type,
@@ -252,7 +252,7 @@ function projectFrame(
     meta: {
       source: "uiforge",
       projectionVersion: EDITOR_PROJECTION_VERSION,
-      documentId: document.id,
+      documentId,
       screenId: frame.screenId,
       nodeId: frame.id,
       semanticType: "frame",
