@@ -61,7 +61,30 @@ export function projectNode(
 
 export function projectDocument(document: UIDocument): EditorProjection {
   const nodes = Object.values(document.nodes);
-  const shapes = nodes.map((node, index) => projectNode(document, node, index));
+  const frameShapes: ProjectedShape[] = (document.frames ?? []).map((frame) => ({
+    id: createShapeId(frame.id),
+    type: "geo",
+    x: frame.x,
+    y: frame.y,
+    props: {
+      w: frame.width,
+      h: frame.height,
+      geo: "rectangle",
+    },
+    label: `${frame.name} · ${frame.width} × ${frame.height}`,
+    meta: {
+      source: "uiforge",
+      projectionVersion: EDITOR_PROJECTION_VERSION,
+      documentId: document.id,
+      screenId: frame.screenId,
+      nodeId: frame.id,
+      semanticType: "frame",
+    },
+  }));
+  const shapes = [
+    ...frameShapes,
+    ...nodes.map((node, index) => projectNode(document, node, index)),
+  ];
   const flows = nodes
     .filter((node) => node.interaction?.targetScreenId)
     .map((node) => ({
