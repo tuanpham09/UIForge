@@ -6,7 +6,10 @@ test("web shell renders the primary semantic canvas workspace", async ({
   await page.goto("/");
 
   await expect(page.getByTestId("uiforge-editor-workspace")).toBeVisible();
-  await expect(page.getByTestId("uiforge-editor-workspace")).toHaveAttribute("data-client-ready", "true");
+  await expect(page.getByTestId("uiforge-editor-workspace")).toHaveAttribute(
+    "data-client-ready",
+    "true",
+  );
   await expect(page.getByTestId("renderer-preview")).toBeVisible();
   await expect(page.getByTestId("renderer-diagnostics")).toContainText(
     "Preview transition → screen.mobile-list",
