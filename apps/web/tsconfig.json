@@ -3,7 +3,11 @@
   "compilerOptions": {
     "plugins": [{ "name": "next" }],
     "incremental": true,
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@uiforge/design-intelligence": ["../../packages/design-intelligence/src/index.ts"]
+    }
   },
   "include": [".next/types/**/*.ts", "next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
