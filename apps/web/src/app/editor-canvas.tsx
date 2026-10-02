@@ -28,6 +28,7 @@ import {
   type UIDocument,
 } from "@uiforge/ui-schema";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { type Editor, Tldraw, toRichText } from "tldraw";
 import "tldraw/tldraw.css";
 import {
@@ -976,13 +977,15 @@ export default function EditorCanvas() {
         patches: proposal.patches,
         stage: "visual",
       });
-      setHistoryPast((past) => [
-        ...past.slice(-49),
-        structuredClone(document),
-      ]);
-      setHistoryFuture([]);
-      setDocument(next);
-      setInspectorError(null);
+      flushSync(() => {
+        setHistoryPast((past) => [
+          ...past.slice(-49),
+          structuredClone(document),
+        ]);
+        setHistoryFuture([]);
+        setDocument(next);
+        setInspectorError(null);
+      });
     } catch (error) {
       setInspectorError(error instanceof Error ? error.message : String(error));
     } finally {
