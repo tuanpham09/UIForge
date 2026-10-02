@@ -81,6 +81,13 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
       - name: E2E
         run: pnpm test:e2e
+      - name: Upload Issue 55 prototype evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-55-prototype-runner
+          path: artifacts/editor/issue-48-prototype-runner.png
+          if-no-files-found: error
       - name: Upload renderer evidence
         if: always()
         uses: actions/upload-artifact@v4
