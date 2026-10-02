@@ -51,8 +51,13 @@ test("web shell renders the primary semantic canvas workspace", async ({
 
   await page.getByTestId("present-button").click();
   await expect(page.getByTestId("prototype-runner")).toBeVisible();
-  await expect(page.getByTestId("prototype-runner")).toContainText("Visual Design");
-  await page.getByTestId("prototype-runner").getByRole("button", { name: "✕ Exit" }).click();
+  await expect(page.getByTestId("prototype-runner")).toContainText(
+    "Visual Design",
+  );
+  await page
+    .getByTestId("prototype-runner")
+    .getByRole("button", { name: "✕ Exit" })
+    .click();
   await expect(page.getByTestId("uiforge-editor-workspace")).toBeVisible();
 
   await page.screenshot({
