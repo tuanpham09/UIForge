@@ -9,10 +9,10 @@ import {
 } from "@uiforge/editor";
 import {
   createPrototypeSession,
-  goBack,
-  resolveTransition,
   type ExperienceGraph,
+  goBack,
   type PrototypeSession,
+  resolveTransition,
 } from "@uiforge/experience-graph";
 import {
   applyCommand,
