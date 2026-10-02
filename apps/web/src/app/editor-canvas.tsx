@@ -231,6 +231,19 @@ export default function EditorCanvas() {
 
   const frameSelectionInitializedRef = useRef(false);
   const lastSyncedFrameIdRef = useRef<FrameId | null>(null);
+  const lastCanvasSelectionKeyRef = useRef("");
+  const pendingCanvasGeometryRef = useRef(
+    new Map<
+      string,
+      {
+        semanticType: "frame" | "node";
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      }
+    >(),
+  );
   const [viewportDiagnostics, setViewportDiagnostics] = useState<
     ReturnType<typeof validateViewport>
   >([]);
@@ -310,6 +323,9 @@ export default function EditorCanvas() {
     const frameIds = selections
       .filter((item) => item.semanticType === "frame")
       .map((item) => item.id as FrameId);
+    const selectionKey = `${frameIds.join(",")}|${nodeIds.join(",")}`;
+    if (selectionKey === lastCanvasSelectionKeyRef.current) return;
+    lastCanvasSelectionKeyRef.current = selectionKey;
     setSelectedNodeIds(nodeIds);
     setSelectedFrameIds(frameIds);
     setSelectedNodeId(nodeIds[0] ?? null);
@@ -1637,12 +1653,61 @@ export default function EditorCanvas() {
               editor.setCurrentTool("select");
 
               const sync = () => syncCanvasSelection(editor);
+              const commitCanvasGeometry = () => {
+                const pending = Array.from(pendingCanvasGeometryRef.current.entries());
+                if (pending.length === 0) return;
+
+                pendingCanvasGeometryRef.current.clear();
+                applySemantic((current) => {
+                  let next = current;
+                  for (const [id, geometry] of pending) {
+                    if (geometry.semanticType === "frame") {
+                      const frame = next.frames?.find((item) => item.id === id);
+                      if (!frame) continue;
+                      next = applyCommand(next, {
+                        type: "UpdateFrame",
+                        commandId: `canvas.drag-end.frame.${id}`,
+                        frameId: id as FrameId,
+                        patch: {
+                          x: geometry.x,
+                          y: geometry.y,
+                          width: geometry.width,
+                          height: geometry.height,
+                        },
+                      });
+                    } else {
+                      const node = next.nodes[id];
+                      if (!node) continue;
+                      next = applyCommand(next, {
+                        type: "UpdateNode",
+                        commandId: `canvas.drag-end.node.${id}`,
+                        nodeId: id as NodeId,
+                        patch: {
+                          editor: {
+                            ...node.editor,
+                            x: geometry.x,
+                            y: geometry.y,
+                            width: geometry.width,
+                            height: geometry.height,
+                          },
+                        },
+                      });
+                    }
+                  }
+                  return next;
+                });
+              };
+
               const unsubscribe = editor.store.listen(
                 (entry) => {
                   for (const [, [, next]] of Object.entries(
                     entry.changes.updated,
                   )) {
-                    if (next.typeName !== "shape" || next.type !== "geo") {
+                    if (
+                      next.typeName !== "shape" ||
+                      next.type !== "geo" ||
+                      next.meta?.source !== "uiforge"
+                    ) {
                       continue;
                     }
 
@@ -1651,29 +1716,19 @@ export default function EditorCanvas() {
                       nodeId?: unknown;
                     };
                     if (
-                      meta.semanticType !== "frame" ||
+                      (meta.semanticType !== "frame" &&
+                        meta.semanticType !== "node") ||
                       typeof meta.nodeId !== "string"
                     ) {
                       continue;
                     }
 
-                    const frameId = meta.nodeId as FrameId;
-                    applySemantic((current) => {
-                      const frame = current.frames?.find(
-                        (item) => item.id === frameId,
-                      );
-                      if (!frame) return current;
-                      return applyCommand(current, {
-                        type: "UpdateFrame",
-                        commandId: `canvas.update-frame.${frameId}.${Math.round(next.x)}.${Math.round(next.y)}`,
-                        frameId,
-                        patch: {
-                          x: next.x,
-                          y: next.y,
-                          width: next.props.w,
-                          height: next.props.h,
-                        },
-                      });
+                    pendingCanvasGeometryRef.current.set(meta.nodeId, {
+                      semanticType: meta.semanticType,
+                      x: next.x,
+                      y: next.y,
+                      width: next.props.w,
+                      height: next.props.h,
                     });
                   }
 
@@ -1682,7 +1737,10 @@ export default function EditorCanvas() {
                 { source: "user", scope: "document" },
               );
 
-              editor.on("change", sync);
+              const handlePointerUp = () => {
+                commitCanvasGeometry();
+              };
+              window.addEventListener("pointerup", handlePointerUp);
               sync();
 
               if (projected) {
@@ -1706,7 +1764,7 @@ export default function EditorCanvas() {
 
               return () => {
                 unsubscribe();
-                editor.off("change", sync);
+                window.removeEventListener("pointerup", handlePointerUp);
               };
             }}
             />
