@@ -83,17 +83,12 @@ export default function EditorCanvas() {
     const projectedIds = new Set(shapes.map((shape) => shape.id));
 
     for (const shape of editor.getCurrentPageShapes()) {
-      if (
-        shape.meta?.source === "uiforge" &&
-        !projectedIds.has(shape.id)
-      ) {
+      if (shape.meta?.source === "uiforge" && !projectedIds.has(shape.id)) {
         editor.deleteShape(shape.id);
       }
     }
 
-    editor.createShapes(
-      shapes.filter((shape) => !editor.getShape(shape.id)),
-    );
+    editor.createShapes(shapes.filter((shape) => !editor.getShape(shape.id)));
 
     for (const shape of shapes) {
       if (editor.getShape(shape.id)) editor.updateShape(shape);
@@ -101,9 +96,9 @@ export default function EditorCanvas() {
   }, [projected]);
 
   const syncCanvasSelection = (editor: Editor) => {
-    const selected = editor.getSelectedShapes().find(
-      (shape) => shape.meta?.semanticType === "frame",
-    );
+    const selected = editor
+      .getSelectedShapes()
+      .find((shape) => shape.meta?.semanticType === "frame");
     setSelectedFrameId((selected?.meta?.nodeId as FrameId | undefined) ?? null);
   };
 
@@ -380,9 +375,7 @@ export default function EditorCanvas() {
           <p className="mt-4 text-[10px] uppercase tracking-wider text-slate-500">
             Selected frame
           </p>
-          <p className="mt-1 text-cyan-300">
-            {selectedFrameId ?? "None"}
-          </p>
+          <p className="mt-1 text-cyan-300">{selectedFrameId ?? "None"}</p>
           <p className="mt-4 text-[10px] uppercase tracking-wider text-slate-500">
             Sections
           </p>
@@ -438,9 +431,7 @@ export default function EditorCanvas() {
           aria-label="Create custom frame"
         >
           <div className="w-80 rounded-xl border border-slate-700 bg-slate-900 p-4 shadow-2xl">
-            <h2 className="text-sm font-semibold text-white">
-              Custom frame
-            </h2>
+            <h2 className="text-sm font-semibold text-white">Custom frame</h2>
             <div className="mt-4 grid grid-cols-2 gap-3">
               <label className="text-xs text-slate-400">
                 Width
