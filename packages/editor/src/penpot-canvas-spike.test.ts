@@ -36,7 +36,9 @@ describe("Penpot canvas spike", () => {
     expect(spike.selection.id).toBe(first.id);
 
     spike = moveSelected(spike, { x: 20, y: 10 });
-    expect(spike.rects[0].x).toBe(first.x + 20);
+    const moved = spike.rects.find((rect) => rect.id === first.id);
+    expect(moved).toBeDefined();
+    expect(moved?.x).toBe(first.x + 20);
 
     spike = resizeSelected(spike, { width: 300, height: 140 });
     expect(spike.selection.bounds?.width).toBe(300);
