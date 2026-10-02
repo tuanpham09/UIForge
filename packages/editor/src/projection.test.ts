@@ -52,5 +52,4 @@ describe("visual design projection", () => {
       expect(button.props.color).toBe("blue");
     }
   });
-
 });
