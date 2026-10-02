@@ -1458,16 +1458,10 @@ export default function EditorCanvas() {
                     y: shape.y,
                     opacity: shape.opacity ?? 1,
                     isLocked: shape.isLocked ?? false,
-                    props:
-                      shape.type === "geo"
-                        ? {
-                            ...shape.props,
-                            richText: toRichText(shape.label),
-                          }
-                        : {
-                            ...shape.props,
-                            richText: toRichText(shape.label),
-                          },
+                    props: {
+                      ...shape.props,
+                      richText: toRichText(shape.label),
+                    },
                     meta: shape.meta,
                   })),
                 );
