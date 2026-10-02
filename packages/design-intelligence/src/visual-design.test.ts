@@ -27,6 +27,18 @@ describe("wireframe to visual design", () => {
     expect(button?.editor?.width).toBeGreaterThan(0);
   });
 
+  it("produces a command-applicable proposal for the full fixture", async () => {
+    const proposal = buildVisualDesignProposal(dashboardFixture);
+    const { applyCommand } = await import("@uiforge/ui-schema");
+    const next = applyCommand(dashboardFixture, {
+      type: "ApplyVisualDesign",
+      commandId: "test.full-visual-design",
+      stage: proposal.targetStage,
+      patches: proposal.patches,
+    });
+    expect(next.metadata.designStage).toBe("visual");
+  });
+
   it("hides the semantic screen root because the device frame is its visual container", () => {
     const proposal = buildVisualDesignProposal(dashboardFixture);
     const root = proposal.patches.find(
