@@ -1,13 +1,13 @@
-import { describe, expect, it } from "vitest";
 import {
-  FRAME_PRESETS,
-  FRAME_PRESET_REGISTRY_VERSION,
   applyCommand,
   createFrameFromPreset,
   dashboardFixture,
+  FRAME_PRESET_REGISTRY_VERSION,
+  FRAME_PRESETS,
   getFramePreset,
   type UIDocument,
 } from "@uiforge/ui-schema";
+import { describe, expect, it } from "vitest";
 
 describe("frame preset registry", () => {
   it("contains every required device group", () => {
@@ -27,9 +27,7 @@ describe("frame preset registry", () => {
       "desktop-1440",
       "desktop-1920",
     ]) {
-      expect(getFramePreset(id)?.version).toBe(
-        FRAME_PRESET_REGISTRY_VERSION,
-      );
+      expect(getFramePreset(id)?.version).toBe(FRAME_PRESET_REGISTRY_VERSION);
     }
   });
 
@@ -75,14 +73,14 @@ describe("issue #44 semantic canvas commands", () => {
       frame,
     });
 
-    expect(
-      document.frames?.find((item) => item.id === frame.id),
-    ).toMatchObject({
-      width: 390,
-      height: 844,
-      x: 100,
-      y: 120,
-    });
+    expect(document.frames?.find((item) => item.id === frame.id)).toMatchObject(
+      {
+        width: 390,
+        height: 844,
+        x: 100,
+        y: 120,
+      },
+    );
 
     document = applyCommand(document, {
       type: "UpdateFrame",
@@ -91,14 +89,14 @@ describe("issue #44 semantic canvas commands", () => {
       patch: { x: 240, y: 300, width: 420, height: 860 },
     });
 
-    expect(
-      document.frames?.find((item) => item.id === frame.id),
-    ).toMatchObject({
-      x: 240,
-      y: 300,
-      width: 420,
-      height: 860,
-    });
+    expect(document.frames?.find((item) => item.id === frame.id)).toMatchObject(
+      {
+        x: 240,
+        y: 300,
+        width: 420,
+        height: 860,
+      },
+    );
 
     document = applyCommand(document, {
       type: "DeleteFrame",
