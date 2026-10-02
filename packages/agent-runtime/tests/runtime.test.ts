@@ -79,7 +79,7 @@ describe("AgentRuntime", () => {
 
   it("stops on a failed tool and emits failure events", async () => {
     const registry = new AgentToolRegistry();
-    registry.register({ name: "fail", description: "Always fails", validateInput: () => true, execute: () => { throw new Error("boom"); } });
+    registry.register({ name: "fail", description: "Always fails", validateInput: (input): input is unknown => true, execute: () => { throw new Error("boom"); } });
     const events: string[] = [];
     const runtime = new AgentRuntime(registry, (event) => events.push(event.type));
     const run = await runtime.run(context(), [{ id: "call-1", toolName: "fail", input: {} }]);
