@@ -13,7 +13,7 @@ export interface UIForgeShapeMeta {
   semanticType: UINode["type"];
 }
 
-export interface ProjectedShape {
+export interface ProjectedGeoShape {
   id: TLShapeId;
   type: "geo";
   x: number;
@@ -36,6 +36,27 @@ export interface ProjectedShape {
   label: string;
   meta: UIForgeShapeMeta;
 }
+
+export interface ProjectedTextShape {
+  id: TLShapeId;
+  type: "text";
+  x: number;
+  y: number;
+  opacity?: number;
+  isLocked?: boolean;
+  props: {
+    color?: "black" | "grey" | "light-violet" | "violet" | "blue" | "light-blue" | "red" | "orange" | "yellow" | "green" | "light-green" | "white";
+    size?: "s" | "m" | "l" | "xl";
+    font?: "draw" | "sans" | "serif" | "mono";
+    textAlign?: "start" | "middle" | "end";
+    autoSize?: boolean;
+    w?: number;
+  };
+  label: string;
+  meta: UIForgeShapeMeta;
+}
+
+export type ProjectedShape = ProjectedGeoShape | ProjectedTextShape;
 
 export interface ProjectedFlow {
   id: TLShapeId;
