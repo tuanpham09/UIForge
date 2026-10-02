@@ -25,7 +25,9 @@ describe("viewport preview model", () => {
 
   it("round-trips viewport state through URL parameters", () => {
     const source = customViewport(1111, 777, 125);
-    const parsed = parseViewport(\n      new URLSearchParams(serializeViewport(source)),\n    );
+    const parsed = parseViewport(
+      new URLSearchParams(serializeViewport(source)),
+    );
     expect(parsed).toEqual(source);
   });
 
