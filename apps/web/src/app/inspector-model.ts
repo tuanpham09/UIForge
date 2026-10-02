@@ -21,7 +21,7 @@ export const TOKEN_OPTIONS: DesignToken[] = [
   ...Object.values(defaultTokenSet.primitives),
 ];
 
-export const BREAKPOINTS = ["sm", "md", "lg", "xl"] as const;
+export const BREAKPOINTS = ["mobile", "tablet", "desktop", "wide"] as const;
 
 export function nodeLabel(node: UINode): string {
   return node.content?.label ?? node.content?.text ?? node.type;
