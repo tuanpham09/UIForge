@@ -178,7 +178,7 @@ function projectText(
     meta: {
       source: "uiforge",
       projectionVersion: EDITOR_PROJECTION_VERSION,
-      documentId: document.id,
+      documentId,
       screenId: node.screenId,
       nodeId: node.id,
       semanticType: node.type,
@@ -227,6 +227,7 @@ export function projectNode(
 }
 
 function projectFrame(
+  documentId: string,
   frame: NonNullable<UIDocument["frames"]>[number],
 ): ProjectedGeoShape {
   return {
@@ -262,7 +263,7 @@ function projectFrame(
 export function projectDocument(document: UIDocument): EditorProjection {
   const nodes = Object.values(document.nodes);
   const frameShapes = (document.frames ?? []).map((frame) =>
-    projectFrame(frame),
+    projectFrame(document.id, frame),
   );
   const shapes = [
     ...frameShapes,
