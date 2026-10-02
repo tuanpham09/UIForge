@@ -39,7 +39,6 @@ import {
   serializeViewport,
   validateViewport,
   viewportFromPreset,
-  type PreviewOrientation,
   type ViewportState,
 } from "./viewport-model";
 
@@ -1242,7 +1241,6 @@ export default function EditorCanvas() {
             <div className="flex flex-wrap items-center gap-2 text-[10px]">
               <span className="font-semibold uppercase tracking-wider text-slate-500">Responsive validation</span>
               {(["mobile", "tablet", "desktop", "wide"] as const).map((breakpoint) => {
-                const active = BREAKPOINTS.findIndex((item) => item === breakpoint);
                 const currentWidth = viewport.width;
                 const valid =
                   breakpoint === "mobile" ? currentWidth <= 767 :
