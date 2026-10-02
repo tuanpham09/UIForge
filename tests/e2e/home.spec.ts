@@ -79,6 +79,10 @@ test("web shell renders the primary semantic canvas workspace", async ({
   await expect(page.getByTestId("prototype-runner")).toContainText(
     "Visual Design",
   );
+  await page.screenshot({
+    path: "artifacts/editor/issue-55-prototype-runner.png",
+    fullPage: true,
+  });
   await page.getByTestId("hotspot-hint").click();
   await expect(page.getByTestId("hotspot-hint")).toContainText("Hotspots on");
 
