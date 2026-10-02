@@ -1,4 +1,5 @@
 import type {
+  Frame,
   NodeId,
   ReparentNodeCommand,
   UICommand,
@@ -129,10 +130,14 @@ export function applyCommand(
       if (index < 0) {
         throw new UICommandError(`frame not found: ${command.frameId}`);
       }
-      const next = {
-        ...frames[index],
+      const current = frames[index];
+      if (!current) {
+        throw new UICommandError(`frame not found: ${command.frameId}`);
+      }
+      const next: Frame = {
+        ...current,
         ...clone(command.patch),
-        id: frames[index].id,
+        id: current.id,
       };
       if (next.width <= 0 || next.height <= 0) {
         throw new UICommandError("frame dimensions must be positive");
