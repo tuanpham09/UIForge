@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import {
   applyCommand,
   createFrameFromPreset,
@@ -7,7 +8,6 @@ import {
   getFramePreset,
   type UIDocument,
 } from "./index";
-import { describe, expect, it } from "vitest";
 
 describe("frame preset registry", () => {
   it("contains every required device group", () => {
@@ -128,7 +128,10 @@ describe("issue #44 semantic canvas commands", () => {
       node: section,
     });
 
+    const rootNode = document.nodes[root.id];
+    if (!rootNode) throw new Error("dashboard root was deleted");
+
     expect(document.nodes[sectionId].parentId).toBe(root.id);
-    expect(document.nodes[root.id].childrenIds).toContain(sectionId);
+    expect(rootNode.childrenIds).toContain(sectionId);
   });
 });
