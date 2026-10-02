@@ -972,29 +972,26 @@ export default function EditorCanvas() {
     if ((document.metadata.designStage ?? "wireframe") !== "wireframe") return;
     setDesignBusy(true);
     try {
-      const proposal = buildVisualDesignProposal(document);
-      const next = applyCommand(document, {
+      // Generate and apply one semantic revision from an immutable snapshot.
+      // This keeps the wireframe recoverable as a single Undo step.
+      const source = structuredClone(document);
+      const proposal = buildVisualDesignProposal(source);
+      const next = applyCommand(source, {
         type: "ApplyVisualDesign",
-        commandId: `design-ui.${document.revision.revision + 1}`,
+        commandId: `design-ui.${source.revision.revision + 1}`,
         patches: proposal.patches,
         stage: "visual",
       });
-      flushSync(() => {
-        setHistoryPast((past) => [
-          ...past.slice(-49),
-          structuredClone(document),
-        ]);
-        setHistoryFuture([]);
-        setDocument(next);
-        setInspectorError(null);
-      });
+      setHistoryPast((past) => [...past.slice(-49), source]);
+      setHistoryFuture([]);
+      setInspectorError(null);
+      setDocument(next);
     } catch (error) {
       setInspectorError(error instanceof Error ? error.message : String(error));
     } finally {
       setDesignBusy(false);
     }
   };
-
   const enterPresent = () => {
     try {
       setPrototypeSession(createPrototypeSession(experienceGraph));
