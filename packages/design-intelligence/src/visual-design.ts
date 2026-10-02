@@ -92,9 +92,7 @@ const componentFor = (node: UINode): ComponentInstance | undefined => {
         ? "uiforge.input"
         : node.type === "card"
           ? "uiforge.card"
-          : node.type === "section"
-            ? "uiforge.form"
-            : undefined;
+          : undefined;
   if (!registryId || !componentRegistry.components[registryId]) return node.component;
 
   const definition = componentRegistry.components[registryId];
