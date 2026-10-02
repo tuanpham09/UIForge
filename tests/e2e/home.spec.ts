@@ -15,6 +15,8 @@ test("web shell renders the primary semantic canvas workspace", async ({
   await expect(page.getByTestId("renderer-diagnostics")).toContainText(
     "Preview transition → screen.mobile-list",
   );
+  await page.getByTestId("preview-button").click();
+  await expect(page.getByTestId("renderer-preview")).toBeHidden();
   await expect(page).toHaveTitle("UIForge");
 
   await expect(page.getByTestId("semantic-inspector")).toBeVisible();
@@ -89,6 +91,9 @@ test("web shell renders the primary semantic canvas workspace", async ({
 
   await runner.getByRole("button", { name: "✕ Exit" }).click();
   await expect(page.getByTestId("uiforge-editor-workspace")).toBeVisible();
+
+  await page.getByTestId("preview-button").click();
+  await expect(page.getByTestId("renderer-preview")).toBeVisible();
 
   await page.screenshot({
     path: "artifacts/responsive/issue-47-device-preview.png",
