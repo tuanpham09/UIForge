@@ -1,5 +1,4 @@
 // biome-ignore-all format: design chat MVP contract remains compact for review
-import type { AgentEvent } from "./contracts";
 import {
   applyCommands,
   type NodeId,
