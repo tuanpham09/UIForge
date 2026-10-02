@@ -7,6 +7,7 @@
     "dev": "tsx src/http.ts",
     "stdio": "tsx src/stdio.ts",
     "http": "tsx src/http.ts",
+    "demo:call": "tsx call-mcp-demo.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "build": "tsc --noEmit"
