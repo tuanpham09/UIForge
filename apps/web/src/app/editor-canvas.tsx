@@ -26,6 +26,7 @@ import {
   type NodePatch,
   type ResponsiveRule,
   type UIDocument,
+  workspaceFixture,
 } from "@uiforge/ui-schema";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
@@ -1786,7 +1787,7 @@ export default function EditorCanvas() {
             </div>
           </header>
           <main className="flex flex-1 items-center justify-center overflow-auto p-8">
-            <div className={`w-[390px] min-h-[620px] overflow-hidden rounded-[32px] border border-slate-600 bg-white text-slate-900 shadow-2xl transition-transform duration-250 ${prototypeTransitioning ? "translate-x-8 opacity-60" : ""}`}>
+            <div className={`w-[390px] min-h-[620px] overflow-hidden rounded-[32px] border border-slate-600 bg-white text-slate-900 shadow-2xl transition-transform duration-[250ms] ${prototypeTransitioning ? "translate-x-8 opacity-60" : ""}`}>
               <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3 text-[11px]">
                 <span>9:41</span>
                 <span>{document.screens.find((s) => s.id === prototypeSession.current.screenId)?.name ?? "Prototype"}</span>
