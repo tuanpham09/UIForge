@@ -42,8 +42,8 @@ test("web shell renders the primary semantic canvas workspace", async ({
   await expect(page.getByTestId("design-stage-switcher")).toBeVisible();
   await expect(page.getByTestId("design-ui")).toBeEnabled();
   await page.getByTestId("design-ui").click();
-  await expect(page.getByTestId("design-ui")).toBeDisabled();
   await expect(page.getByText("Editable visual design")).toBeVisible();
+  await expect(page.getByTestId("design-ui")).toBeDisabled();
   await page.screenshot({
     path: "artifacts/editor/issue-48-visual-design.png",
     fullPage: true,
