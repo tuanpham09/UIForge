@@ -1,3 +1,4 @@
+// biome-ignore-all format: agent runtime contract remains compact for review
 import { describe, expect, it } from "vitest";
 import { workspaceFixture } from "@uiforge/ui-schema";
 import { AgentRuntime, AgentToolRegistry, createCoreAgentToolRegistry } from "../src";
