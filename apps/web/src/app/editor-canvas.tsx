@@ -1744,8 +1744,6 @@ export default function EditorCanvas() {
               sync();
 
               if (projected) {
-
-              if (projected) {
                 editor.createShapes(
                   projected.shapes.map((shape) => ({
                     id: shape.id,
