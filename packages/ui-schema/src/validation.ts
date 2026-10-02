@@ -80,161 +80,43 @@ export function validateUIDocument(value: unknown): UIDocument {
     throw new UISchemaValidationError(issues);
   }
 
-  const frames = Array.isArray(value.frames) ? value.frames : [];\n  const frameIds = frames.map((frame) => (frame as { id?: unknown })?.id);\n  if (new Set(frameIds).size !== frameIds.length) issues.push("frame IDs must be unique");\n  for (const frame of frames) {\n    if (!isRecord(frame) || !isNonEmptyString(frame.id) || !isNonEmptyString(frame.screenId) || !isNonEmptyString(frame.presetId) || !isNonEmptyString(frame.name)) {\n      issues.push("invalid frame");\n      continue;\n    }\n    if (!screenIds.includes(frame.screenId)) issues.push(`frame ${frame.id} references missing screen ${frame.screenId}`);\n    if (typeof frame.x !== "number" || typeof frame.y !== "number" || typeof frame.width !== "number" || typeof frame.height !== "number" || frame.width <= 0 || frame.height <= 0) issues.push(`frame ${frame.id} has invalid geometry`);\n    if (!isNonEmptyString(frame.presetVersion)) issues.push(`frame ${frame.id} is missing presetVersion`);\n  }\n\n  const nodes = value.nodes as Record<string, unknown>;
-  const screens = value.screens as unknown[];
-  const screenIds = screens.map((screen) => (screen as { id?: unknown })?.id);
+  const frames = Array.isArray(value.frames) ? value.frames : [];
+  const frameIds = frames.map((frame) => (frame as { id?: unknown })?.id);
 
-  if (new Set(screenIds).size !== screenIds.length) {
-    issues.push("screen IDs must be unique");
+  if (new Set(frameIds).size !== frameIds.length) {
+    issues.push("frame IDs must be unique");
   }
 
-  for (const [key, node] of Object.entries(nodes)) {
-    if (key !== (node as { id?: string })?.id) {
-      issues.push(`node key/id mismatch: ${key}`);
-    }
-    if (!isNode(node)) {
-      issues.push(`invalid node: ${key}`);
-      continue;
-    }
-    if (!screenIds.includes(node.screenId)) {
-      issues.push(`node ${key} references missing screen ${node.screenId}`);
-    }
-    if (new Set(node.childrenIds).size !== node.childrenIds.length) {
-      issues.push(`node ${key} contains duplicate child IDs`);
-    }
-
-    for (const childId of node.childrenIds) {
-      const child = nodes[childId];
-      if (!child) {
-        issues.push(`node ${key} references missing child ${childId}`);
-      } else if ((child as { parentId?: string | null }).parentId !== node.id) {
-        issues.push(
-          `child ${childId} does not point back to parent ${node.id}`,
-        );
-      } else if ((child as { screenId?: string }).screenId !== node.screenId) {
-        issues.push(`child ${childId} belongs to another screen`);
-      }
-    }
-
-    if (node.parentId !== null) {
-      const parent = nodes[node.parentId];
-      if (!parent) {
-        issues.push(`node ${key} references missing parent ${node.parentId}`);
-      } else {
-        if (!(parent as UINode).childrenIds.includes(node.id)) {
-          issues.push(
-            `parent ${node.parentId} does not contain child ${node.id}`,
-          );
-        }
-        if ((parent as UINode).screenId !== node.screenId) {
-          issues.push(`parent ${node.parentId} belongs to another screen`);
-        }
-      }
-    }
-
-    if (node.interaction?.interactive) {
-      if (
-        !node.accessibility?.accessibleName &&
-        !["text", "image"].includes(node.type)
-      ) {
-        issues.push(
-          `interactive node ${key} requires accessibility.accessibleName`,
-        );
-      }
-      if (
-        node.interaction.targetNodeId &&
-        !nodes[node.interaction.targetNodeId]
-      ) {
-        issues.push(`interactive node ${key} references missing target node`);
-      }
-    }
-  }
-
-  for (const screen of screens) {
+  for (const frame of frames) {
     if (
-      !isRecord(screen) ||
-      !isNonEmptyString(screen.id) ||
-      !isNonEmptyString(screen.name)
+      !isRecord(frame) ||
+      !isNonEmptyString(frame.id) ||
+      !isNonEmptyString(frame.screenId) ||
+      !isNonEmptyString(frame.presetId) ||
+      !isNonEmptyString(frame.name)
     ) {
-      issues.push("invalid screen");
+      issues.push("invalid frame");
       continue;
     }
 
-    if (!isNonEmptyString(screen.rootNodeId) || !nodes[screen.rootNodeId]) {
-      issues.push(`screen ${screen.id} has invalid rootNodeId`);
-    } else {
-      const root = nodes[screen.rootNodeId] as UINode;
-      if (root.type !== "screen-root") {
-        issues.push(`screen ${screen.id} root must be a screen-root node`);
-      }
-      if (root.parentId !== null) {
-        issues.push(`screen ${screen.id} root must not have a parent`);
-      }
-    }
-
-    if (!Array.isArray(screen.nodeIds)) {
-      issues.push(`screen ${screen.id} nodeIds must be an array`);
-    } else {
-      if (new Set(screen.nodeIds).size !== screen.nodeIds.length) {
-        issues.push(`screen ${screen.id} contains duplicate node IDs`);
-      }
-      for (const nodeId of screen.nodeIds) {
-        const node = nodes[nodeId];
-        if (!node) {
-          issues.push(`screen ${screen.id} references missing node ${nodeId}`);
-        } else if ((node as UINode).screenId !== screen.id) {
-          issues.push(`node ${nodeId} belongs to another screen`);
-        }
-      }
-    }
-  }
-
-  const nodeIds = Object.keys(nodes) as NodeId[];
-  if (new Set(nodeIds).size !== nodeIds.length) {
-    issues.push("node IDs must be unique");
-  }
-
-  const screenMembership = new Map<string, number>();
-  for (const screen of screens) {
-    if (!isRecord(screen) || !Array.isArray(screen.nodeIds)) continue;
-    for (const nodeId of screen.nodeIds) {
-      screenMembership.set(
-        String(nodeId),
-        (screenMembership.get(String(nodeId)) ?? 0) + 1,
+    if (!screenIds.includes(frame.screenId)) {
+      issues.push(
+        `frame ${frame.id} references missing screen ${frame.screenId}`,
       );
     }
-  }
 
-  for (const nodeId of nodeIds) {
-    if ((screenMembership.get(nodeId) ?? 0) !== 1) {
-      issues.push(`node ${nodeId} must belong to exactly one screen`);
+    if (
+      typeof frame.x !== "number" ||
+      typeof frame.y !== "number" ||
+      typeof frame.width !== "number" ||
+      typeof frame.height !== "number" ||
+      frame.width <= 0 ||
+      frame.height <= 0
+    ) {
+      issues.push(`frame ${frame.id} has invalid geometry`);
+    }
+
+    if (!isNonEmptyString(frame.presetVersion)) {
+      issues.push(`frame ${frame.id} is missing presetVersion`);
     }
   }
-
-  const visiting = new Set<string>();
-  const visited = new Set<string>();
-  const visit = (nodeId: string) => {
-    if (visiting.has(nodeId)) {
-      issues.push(`node hierarchy cycle detected at ${nodeId}`);
-      return;
-    }
-    if (visited.has(nodeId)) return;
-
-    visiting.add(nodeId);
-    const node = nodes[nodeId] as UINode | undefined;
-    for (const childId of node?.childrenIds ?? []) {
-      visit(String(childId));
-    }
-    visiting.delete(nodeId);
-    visited.add(nodeId);
-  };
-
-  for (const nodeId of nodeIds) {
-    visit(nodeId);
-  }
-
-  if (issues.length > 0) {
-    throw new UISchemaValidationError(issues);
-  }
-  return value as unknown as UIDocument;
-}
