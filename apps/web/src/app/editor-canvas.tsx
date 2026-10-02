@@ -1095,7 +1095,10 @@ export default function EditorCanvas() {
                           key={item.id}
                           type="button"
                           className="flex w-full justify-between rounded px-2 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-800"
-                          onClick={() => setPreviewViewport(viewportFromPreset(item.id, viewport.orientation))}
+                          onClick={(event) => {
+                            setPreviewViewport(viewportFromPreset(item.id, viewport.orientation));
+                            event.currentTarget.closest("details")?.removeAttribute("open");
+                          }}
                         >
                           <span>{item.name}</span>
                           <span className="text-slate-500">{item.width}×{item.height}</span>
@@ -1106,12 +1109,13 @@ export default function EditorCanvas() {
                   <button
                     type="button"
                     className="mt-2 w-full rounded px-2 py-1.5 text-left text-xs text-slate-300 hover:bg-slate-800"
-                    onClick={() => {
+                    onClick={(event) => {
                       const width = Number(globalThis.prompt("Viewport width", String(viewport.width)));
                       const height = Number(globalThis.prompt("Viewport height", String(viewport.height)));
                       if (Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0) {
                         setPreviewViewport(customViewport(width, height, viewport.zoom));
                       }
+                      event.currentTarget.closest("details")?.removeAttribute("open");
                     }}
                   >
                     Custom…
