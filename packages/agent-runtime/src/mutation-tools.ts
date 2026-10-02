@@ -1,8 +1,6 @@
 // biome-ignore-all format: agent mutation tools remain compact for review
 import {
   applyCommand,
-  type CodeMapping,
-  type EditorLayoutMetadata,
   type LayoutSpec,
   type NodeId,
   type NodeStyle,
