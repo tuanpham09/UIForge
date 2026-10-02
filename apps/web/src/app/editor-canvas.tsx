@@ -2,6 +2,8 @@
 "use client";
 
 import { buildVisualDesignProposal } from "@uiforge/design-intelligence";
+import AgentDesignChat from "./agent-design-chat";
+import type { DesignProposal } from "@uiforge/agent-runtime";
 import {
   buildLayerTree,
   filterLayers,
@@ -175,6 +177,7 @@ export default function EditorCanvas() {
   const [aiNotice, setAiNotice] = useState<string | null>(null);
   const [prototypeTransitioning, setPrototypeTransitioning] = useState(false);
   const [hotspotHinting, setHotspotHinting] = useState(false);
+  const [designChatOpen, setDesignChatOpen] = useState(false);
 
   useEffect(() => {
     if (!document.screens.some((screen) => screen.id === selectedScreenId)) {
@@ -204,6 +207,7 @@ export default function EditorCanvas() {
       } else if (event.key === "Escape") {
         setPreviewOpen(false);
         setAiMenuOpen(false);
+        setDesignChatOpen(false);
       }
     };
     window.addEventListener("keydown", onKeyDown);
@@ -1364,6 +1368,15 @@ export default function EditorCanvas() {
     );
   };
 
+  const applyDesignChatProposal = (proposal: DesignProposal) => {
+    try {
+      applySemantic((current) => applyCommands(current, proposal.commands));
+      setAiNotice(`Applied: ${proposal.summary}`);
+    } catch (error) {
+      setInspectorError(error instanceof Error ? error.message : String(error));
+    }
+  };
+
   const addSection = () => {
     const root = document.nodes["screen.dashboard.root"];
     if (!root) return;
@@ -1494,6 +1507,7 @@ export default function EditorCanvas() {
               </span>
             ))}
           </div>
+          <button type="button" data-testid="design-chat-toggle" onClick={() => setDesignChatOpen((open) => !open)} className={`rounded-md px-3 py-1.5 ${designChatOpen ? "bg-cyan-500/20 text-cyan-200" : "text-slate-300 hover:bg-slate-800"}`}>💬 Chat</button>
           <button type="button" data-testid="design-ui" disabled={(document.metadata.designStage ?? "wireframe") !== "wireframe" || designBusy} onClick={designUi} className="rounded-md bg-cyan-500 px-3 py-1.5 font-medium text-slate-950 disabled:cursor-not-allowed disabled:opacity-40">
             {designBusy ? "Designing…" : "✨ Design UI"}
           </button>
@@ -1506,7 +1520,7 @@ export default function EditorCanvas() {
         </div>
       </header>
 
-      <div className="grid h-[728px] grid-cols-[190px_1fr_220px]">
+      <div className={`grid h-[728px] ${designChatOpen ? "grid-cols-[190px_1fr_220px_340px]" : "grid-cols-[190px_1fr_220px]"}`}>
         <aside className="border-r border-slate-800 bg-slate-900/70 p-3 text-xs">
           <p className="mb-2 font-semibold text-slate-400">SCREENS</p>
           {document.screens.map((screen) => (
@@ -1807,6 +1821,15 @@ export default function EditorCanvas() {
             {renderInspector()}
           </div>
         </aside>
+        <AgentDesignChat
+          document={document}
+          screenId={selectedScreenId}
+          nodeIds={selectedNodeIds}
+          frameIds={selectedFrameIds}
+          open={designChatOpen}
+          onClose={() => setDesignChatOpen(false)}
+          onApply={applyDesignChatProposal}
+        />
       </div>
 
       <footer className="flex h-12 items-center gap-2 border-t border-slate-800 bg-slate-900 px-3 text-xs text-slate-300">
