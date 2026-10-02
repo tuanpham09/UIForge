@@ -10,6 +10,7 @@ export type NodeId = string;
 export type AssetId = string;
 export type CommandId = string;
 export type TokenRef = string;
+export type DesignStage = "wireframe" | "visual";
 
 export type SemanticNodeType =
   | "screen-root"
@@ -214,6 +215,8 @@ export interface UIDocumentMetadata {
   description?: string;
   productIntentRef?: string;
   designStrategyRef?: string;
+  /** Current editable design stage. Wireframe is the structural source; visual is the styled design revision. */
+  designStage?: DesignStage;
 }
 
 export interface UIDocument {
@@ -313,6 +316,17 @@ export interface SetCodeMappingCommand {
   mapping: CodeMapping;
 }
 
+export interface ApplyVisualDesignCommand {
+  type: "ApplyVisualDesign";
+  commandId: CommandId;
+  patches: Array<{
+    nodeId: NodeId;
+    style?: NodeStyle;
+    component?: ComponentInstance;
+  }>;
+  stage?: DesignStage;
+}
+
 export type UICommand =
   | CreateFrameCommand
   | UpdateFrameCommand
@@ -325,7 +339,8 @@ export type UICommand =
   | SetTokenCommand
   | SetVariantCommand
   | SetResponsiveRuleCommand
-  | SetCodeMappingCommand;
+  | SetCodeMappingCommand
+  | ApplyVisualDesignCommand;
 
 export interface MigrationContext {
   readonly from: string;
