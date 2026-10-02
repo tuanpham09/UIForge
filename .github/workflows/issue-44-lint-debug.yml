@@ -23,7 +23,12 @@ jobs:
       - run: pnpm install --no-frozen-lockfile
       - name: Capture Biome diagnostics
         run: |
-          pnpm lint > lint-output.txt 2>&1 || true
+          {
+            echo "=== LINT ==="
+            pnpm lint
+            echo "=== TYPECHECK ==="
+            pnpm typecheck
+          } > lint-output.txt 2>&1 || true
           cat lint-output.txt
       - name: Comment diagnostics
         uses: actions/github-script@v7
