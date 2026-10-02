@@ -7,12 +7,319 @@ import {
 } from "@uiforge/editor";
 import {
   BREAKPOINTS,
-  TOKEN_OPTIONS,
   commonTokenSlots,
+  findResponsiveRule,
   inspectFrame,
   inspectNode,
   nodeLabel,
+  TOKEN_OPTIONS,
+  selectedObject,
+} from "./inspector-model";
+import {
+  applyCommand,
+  createFrameFromPreset,
+  dashboardFixture,
+  FRAME_PRESETS,
+  type Frame,
+  type FrameId,
+  type NodeId,
+  type NodePatch,
+  type ResponsiveRule,
+  type UIDocument,
+} from "@uiforge/ui-schema";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { type Editor, Tldraw, toRichText } from "tldraw";
+import "tldraw/tldraw.css";
+
+const cloneDocument = (): UIDocument => structuredClone(dashboardFixture);
+
+type CustomFrameDraft = {
+  open: boolean;
+  width: string;
+  height: string;
+};
+
+type InspectorSectionProps = { title: string; children: React.ReactNode };
+function InspectorSection({ title, children }: InspectorSectionProps) {
+  return (
+    <section>
+      <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">{title}</p>
+      <div className="space-y-2">{children}</div>
+    </section>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="block text-[10px] text-slate-500">
+      <span>{label}</span>
+      <div className="mt-1">{children}</div>
+    </div>
+  );
+}
+
+function NumberPair({
+  label,
+  value,
+  min,
+  onCommit,
+}: {
+  label: string;
+  value: number;
+  min?: number;
+  onCommit: (value: number) => void;
+}) {
+  const [draft, setDraft] = useState(String(value));
+  useEffect(() => setDraft(String(value)), [value]);
+  return (
+    <label className="flex items-center gap-2 text-[10px] text-slate-500">
+      <span className="w-3">{label}</span>
+      <input
+        aria-label={label}
+        type="number"
+        min={min}
+        value={draft}
+        onChange={(event) => setDraft(event.target.value)}
+        onBlur={() => {
+          const next = Number(draft);
+          if (!Number.isFinite(next) || (min !== undefined && next < min)) return;
+          onCommit(next);
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") event.currentTarget.blur();
+        }}
+        className="min-w-0 flex-1 rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-[11px] text-slate-200"
+      />
+    </label>
+  );
+}
+
+function Toggle({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (value: boolean) => void;
+}) {
+  return (
+    <label className="flex items-center gap-2 text-[10px] text-slate-400">
+      <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} />
+      {label}
+    </label>
+  );
+}
+
+function InspectorDiagnostics({
+  diagnostics,
+}: {
+  diagnostics: { severity: "error" | "warning" | "ok"; code: string; message: string }[];
+}) {
+  const hasError = diagnostics.some((item) => item.severity === "error");
+  return (
+    <section>
+      <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Diagnostics</p>
+      <div className={`rounded border p-2 text-[10px] ${hasError ? "border-red-500/40 bg-red-500/10 text-red-300" : "border-emerald-500/30 bg-emerald-500/5 text-emerald-300"}`}>
+        {diagnostics.map((item) => <div key={item.code + item.message}>✓ {item.message}</div>)}
+      </div>
+    </section>
+  );
+}
+
+function ResetButton({ onClick }: { onClick: () => void }) {
+  return <button type="button" onClick={onClick} className="w-full rounded border border-slate-700 px-2 py-1.5 text-[10px] text-slate-400 hover:bg-slate-800">Reset to snapshot</button>;
+}
+
+export default function EditorCanvas() {
+  const initialDocumentRef = useRef<UIDocument>(cloneDocument());
+  const [document, setDocument] = useState<UIDocument>(() => structuredClone(initialDocumentRef.current));
+  const [selectedFrameId, setSelectedFrameId] = useState<FrameId | null>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<NodeId | null>(null);
+  const [selectedFrameIds, setSelectedFrameIds] = useState<FrameId[]>([]);
+  const [selectedNodeIds, setSelectedNodeIds] = useState<NodeId[]>([]);
+  const [layerQuery, setLayerQuery] = useState("");
+  const [historyPast, setHistoryPast] = useState<UIDocument[]>([]);
+  const [historyFuture, setHistoryFuture] = useState<UIDocument[]>([]);
+  const [inspectorError, setInspectorError] = useState<string | null>(null);
+  const [customFrame, setCustomFrame] = useState<CustomFrameDraft>({
+    open: false,
+    width: "390",
+    height: "844",
+  });
+  const editorRef = useRef<Editor | null>(null);
+
+  const projection = useMemo(
+    () =>
+      import("@uiforge/editor").then(({ projectDocument }) =>
+        projectDocument(document),
+      ),
+    [document],
+  );
+  const [projected, setProjected] = useState<Awaited<typeof projection> | null>(
+    null,
+  );
+
+  useEffect(() => {
+    let active = true;
+    void projection.then((value) => {
+      if (active) setProjected(value);
+    });
+    return () => {
+      active = false;
+    };
+  }, [projection]);
+
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor || !projected) return;
+
+    const shapes = projected.shapes.map((shape) => ({
+      id: shape.id,
+      type: shape.type,
+      x: shape.x,
+      y: shape.y,
+      props: {
+        w: shape.props.w,
+        h: shape.props.h,
+        geo: shape.props.geo,
+        opacity: shape.props.opacity,
+        richText: toRichText(shape.label),
+      },
+      meta: shape.meta,
+    }));
+    const projectedIds = new Set(shapes.map((shape) => shape.id));
+
+    for (const shape of editor.getCurrentPageShapes()) {
+      if (shape.meta?.source === "uiforge" && !projectedIds.has(shape.id)) {
+        editor.deleteShape(shape.id);
+      }
+    }
+
+    editor.createShapes(shapes.filter((shape) => !editor.getShape(shape.id)));
+
+    for (const shape of shapes) {
+      if (editor.getShape(shape.id)) editor.updateShape(shape);
+    }
+  }, [projected]);
+
+  const syncCanvasSelection = (editor: Editor) => {
+    const selections = editor
+      .getSelectedShapes()
+      .map((shape) => ({
+        id: shape.meta?.nodeId as string | undefined,
+        semanticType: shape.meta?.semanticType,
+      }))
+      .filter((item): item is { id: string; semanticType: unknown } => Boolean(item.id));
+    const nodeIds = selections
+      .filter((item) => item.semanticType !== "frame")
+      .map((item) => item.id as NodeId);
+    const frameIds = selections
+      .filter((item) => item.semanticType === "frame")
+      .map((item) => item.id as FrameId);
+    setSelectedNodeIds(nodeIds);
+    setSelectedFrameIds(frameIds);
+    setSelectedNodeId(nodeIds[0] ?? null);
+    setSelectedFrameId(frameIds[0] ?? null);
+  };
+
+  const layerTree = useMemo(
+    () => filterLayers(buildLayerTree(document), layerQuery),
+    [document, layerQuery],
+  );
+
+  const selectedSemanticId = selectedNodeId ?? selectedFrameId;
+
+  const applySemantic = (builder: (current: UIDocument) => UIDocument) => {
+    try {
+      setDocument((current) => {
+        const next = builder(current);
+        if (next === current) return current;
+        setHistoryPast((past) => [...past.slice(-49), structuredClone(current)]);
+        setHistoryFuture([]);
+        return next;
+      });
+      setInspectorError(null);
+    } catch (error) {
+      setInspectorError(error instanceof Error ? error.message : String(error));
+    }
+  };
+
+  const undo = () => {
+    setHistoryPast((past) => {
+      const previous = past[past.length - 1];
+      if (!previous) return past;
+      setHistoryFuture((future) => [structuredClone(document), ...future.slice(0, 49)]);
+      setDocument(previous);
+      return past.slice(0, -1);
+    });
+  };
+
+  const redo = () => {
+    setHistoryFuture((future) => {
+      const next = future[0];
+      if (!next) return future;
+      setHistoryPast((past) => [...past.slice(-49), structuredClone(document)]);
+      setDocument(next);
+      return future.slice(1);
+    });
+  };
+
+  const selectSemanticLayer = (layer: SemanticLayer) => {
+    const id = layer.nodeId ?? layer.frameId;
+    if (!id || !editorRef.current) return;
+    editorRef.current.select(`shape:${id}` as never);
+    if (layer.kind === "frame") {
+      setSelectedFrameId(id as FrameId);
+      setSelectedFrameIds([id as FrameId]);
+      setSelectedNodeId(null);
+      setSelectedNodeIds([]);
+    }
+    if (layer.kind === "node") {
+      setSelectedNodeId(id as NodeId);
+      setSelectedNodeIds([id as NodeId]);
+      setSelectedFrameId(null);
+      setSelectedFrameIds([]);
+    }
+  };
+
+  const updateNode = (nodeId: NodeId, patch: NodePatch) => {
+    applySemantic((current) =>
+      applyCommand(current, {
+        type: "UpdateNode",
+        commandId: `inspector.update-node.${nodeId}.${Date.now()}`,
+        nodeId,
+        patch,
+      }),
+    );
+  };
+
+  const updateFrame = (frameId: FrameId, patch: Partial<Omit<Frame, "id">>) => {
+    applySemantic((current) =>
+      applyCommand(current, {
+        type: "UpdateFrame",
+        commandId: `inspector.update-frame.${frameId}.${Date.now()}`,
+        frameId,
+        patch,
+      }),
+    );
+  };
+
+use client";
+
+import {
+  buildLayerTree,
+  filterLayers,
+  type SemanticLayer,
+} from "@uiforge/editor";
+import {
+  BREAKPOINTS,
+  commonTokenSlots,
   findResponsiveRule,
+  inspectFrame,
+  inspectNode,
+  nodeLabel,
+  TOKEN_OPTIONS,
   selectedObject,
 } from "./inspector-model";
 import {
@@ -688,14 +995,12 @@ export default function EditorCanvas() {
               <NumberPair label="H" value={primaryNode.editor?.height ?? 0} min={1} onCommit={(value) => updateSelectedEditor((editor) => ({ ...editor, height: value }))} />
             </>
           ) : (
-            <>
-              <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2">
                 <NumberPair label="X" value={primaryNode.editor?.x ?? 0} onCommit={(value) => updateNode(primaryNode.id, { editor: { ...primaryNode.editor, x: value } })} />
                 <NumberPair label="Y" value={primaryNode.editor?.y ?? 0} onCommit={(value) => updateNode(primaryNode.id, { editor: { ...primaryNode.editor, y: value } })} />
                 <NumberPair label="W" value={primaryNode.editor?.width ?? 0} min={1} onCommit={(value) => updateNode(primaryNode.id, { editor: { ...primaryNode.editor, width: value } })} />
                 <NumberPair label="H" value={primaryNode.editor?.height ?? 0} min={1} onCommit={(value) => updateNode(primaryNode.id, { editor: { ...primaryNode.editor, height: value } })} />
               </div>
-            </>
           )}
           <label className="block text-[10px] text-slate-500">
             Auto layout
@@ -711,8 +1016,8 @@ export default function EditorCanvas() {
           </label>
           {!isMultiNode && (
             <div className="grid grid-cols-2 gap-2">
-              <label className="text-[10px] text-slate-500">Gap{layoutTokenSelect("gap", layout.gap?.token)}</label>
-              <label className="text-[10px] text-slate-500">Padding{layoutTokenSelect("padding", layout.padding?.inline?.token)}</label>
+              <Field label="Gap">{layoutTokenSelect("gap", layout.gap?.token)}</Field>
+              <Field label="Padding">{layoutTokenSelect("padding", layout.padding?.inline?.token)}</Field>
             </div>
           )}
         </InspectorSection>
