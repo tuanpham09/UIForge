@@ -11,7 +11,7 @@ export class AgentToolRegistry {
   }
 
   has(name: string): boolean { return this.tools.has(name); }
-  list(): readonly AgentToolDefinition[] { return [...this.tools.values()]; }
+  list(): readonly Pick<AgentToolDefinition, "name" | "description">[] { return [...this.tools.values()].map(({ name, description }) => ({ name, description })); }
 
   async execute(name: string, input: unknown, context: AgentContext, callId: string): Promise<AgentToolResult> {
     const started = Date.now();
