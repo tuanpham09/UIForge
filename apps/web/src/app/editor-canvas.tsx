@@ -160,11 +160,12 @@ export default function EditorCanvas() {
     height: "844",
   });
   const editorRef = useRef<Editor | null>(null);
-  const frameViewportSyncReadyRef = useRef(false);
   const [viewport, setViewport] = useState<ViewportState>(() => {
     if (typeof window === "undefined") return viewportFromPreset("iphone-16");
     return parseViewport(new URLSearchParams(window.location.search));
   });
+  const frameSelectionInitializedRef = useRef(false);
+  const lastSyncedFrameIdRef = useRef<FrameId | null>(null);
   const [viewportDiagnostics, setViewportDiagnostics] = useState<
     ReturnType<typeof validateViewport>
   >([]);
@@ -183,12 +184,18 @@ export default function EditorCanvas() {
     setViewport(next);
     updateViewportUrl(next);
     const editor = editorRef.current;
-    const frame = selectedFrameId
-      ? document.frames?.find((item) => item.id === selectedFrameId)
-      : undefined;
-    if (editor && frame) {
+    if (editor) {
       editor.zoomToFit({ animation: { duration: 120 } });
     }
+  };
+
+  const syncViewportToFrame = (frameId: FrameId) => {
+    const frame = document.frames?.find((item) => item.id === frameId);
+    if (!frame) return;
+    const next = customViewport(frame.width, frame.height, viewport.zoom);
+    setViewport(next);
+    updateViewportUrl(next);
+    lastSyncedFrameIdRef.current = frameId;
   };
 
   const projection = useMemo(
@@ -262,6 +269,14 @@ export default function EditorCanvas() {
     setSelectedFrameIds(frameIds);
     setSelectedNodeId(nodeIds[0] ?? null);
     setSelectedFrameId(frameIds[0] ?? null);
+
+    const nextFrameId = frameIds[0] ?? null;
+    if (!frameSelectionInitializedRef.current) {
+      frameSelectionInitializedRef.current = true;
+      lastSyncedFrameIdRef.current = nextFrameId;
+    } else if (nextFrameId && nextFrameId !== lastSyncedFrameIdRef.current) {
+      syncViewportToFrame(nextFrameId);
+    }
   };
 
   useEffect(() => {
@@ -289,27 +304,6 @@ export default function EditorCanvas() {
   );
 
   const selectedSemanticId = selectedNodeId ?? selectedFrameId;
-
-  useEffect(() => {
-    if (!selectedFrameId) return;
-    if (!frameViewportSyncReadyRef.current) {
-      frameViewportSyncReadyRef.current = true;
-      return;
-    }
-    const frame = document.frames?.find((item) => item.id === selectedFrameId);
-    if (!frame) return;
-    const next = customViewport(frame.width, frame.height, viewport.zoom);
-    setViewport(next);
-    if (typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      new URLSearchParams(serializeViewport(next)).forEach((value, key) => {
-        url.searchParams.set(key, value);
-      });
-      window.history.replaceState({}, "", url);
-    }
-    // Frame dimensions remain canonical; preview state mirrors them without
-    // persisting viewport selection into the UI Schema.
-  }, [document.frames, selectedFrameId, viewport.zoom]);
 
   const applySemantic = (builder: (current: UIDocument) => UIDocument) => {
     try {
@@ -353,6 +347,7 @@ export default function EditorCanvas() {
     if (layer.kind === "frame") {
       setSelectedFrameId(id as FrameId);
       setSelectedFrameIds([id as FrameId]);
+      syncViewportToFrame(id as FrameId);
       setSelectedNodeId(null);
       setSelectedNodeIds([]);
     }
