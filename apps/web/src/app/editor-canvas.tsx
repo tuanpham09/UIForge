@@ -163,28 +163,28 @@ export default function EditorCanvas() {
 
                 {(["mobile", "tablet", "android", "desktop"] as const).map(
                   (category) => (
-                  <div key={category}>
-                    <p className="px-2 pt-2 text-[10px] uppercase text-slate-500">
-                      {category}
-                    </p>
+                    <div key={category}>
+                      <p className="px-2 pt-2 text-[10px] uppercase text-slate-500">
+                        {category}
+                      </p>
 
-                    {FRAME_PRESETS.filter(
-                      (item) => item.category === category,
-                    ).map((item) => (
-                      <button
-                        key={item.id}
-                        className="flex w-full justify-between rounded px-2 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-800"
-                        type="button"
-                        onClick={() => addFrame(item.id)}
-                      >
-                        <span>{item.name}</span>
-                        <span className="text-slate-500">
-                          {item.width}×{item.height}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                ),
+                      {FRAME_PRESETS.filter(
+                        (item) => item.category === category,
+                      ).map((item) => (
+                        <button
+                          key={item.id}
+                          className="flex w-full justify-between rounded px-2 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-800"
+                          type="button"
+                          onClick={() => addFrame(item.id)}
+                        >
+                          <span>{item.name}</span>
+                          <span className="text-slate-500">
+                            {item.width}×{item.height}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  ),
                 )}
                 <button
                   className="mt-1 w-full rounded px-2 py-1.5 text-left text-xs text-slate-300 hover:bg-slate-800"
