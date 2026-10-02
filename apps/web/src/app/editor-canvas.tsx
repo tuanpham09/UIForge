@@ -287,7 +287,7 @@ export default function EditorCanvas() {
           type="button"
           className="rounded px-2 py-1 hover:bg-slate-800"
           onClick={() => {
-            document
+            globalThis.document
               .querySelector<HTMLDetailsElement>("[data-testid='frame-menu']")
               ?.setAttribute("open", "");
           }}
