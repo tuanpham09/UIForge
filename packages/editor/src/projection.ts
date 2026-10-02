@@ -61,7 +61,8 @@ export function projectNode(
 
 export function projectDocument(document: UIDocument): EditorProjection {
   const nodes = Object.values(document.nodes);
-  const frameShapes: ProjectedShape[] = (document.frames ?? []).map((frame) => ({
+  const frameShapes: ProjectedShape[] = (document.frames ?? []).map(
+    (frame) => ({
     id: createShapeId(frame.id),
     type: "geo",
     x: frame.x,
