@@ -209,6 +209,7 @@ export const mobileListFixture = (() => {
   return result;
 })();
 
+
 /**
  * Integrated editor fixture used by the workspace/Present flow.
  * It keeps multiple screens and frames in one canonical UI Schema document so
@@ -222,8 +223,7 @@ export const workspaceFixture = (() => {
   document.metadata = {
     ...document.metadata,
     name: "UIForge Workspace fixture",
-    description:
-      "Multi-screen workspace fixture for editor and prototype flows.",
+    description: "Multi-screen workspace fixture for editor and prototype flows.",
   };
 
   for (const screen of mobile.screens) {
