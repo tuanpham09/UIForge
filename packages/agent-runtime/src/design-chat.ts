@@ -8,7 +8,6 @@ import {
 } from "@uiforge/ui-schema";
 import type { AgentContext, AgentEvent } from "./contracts";
 import { AgentRuntime } from "./runtime";
-import type { AgentContext } from "./contracts";
 import { createCoreAgentToolRegistry } from "./tools";
 
 export interface DesignChatSelection {
