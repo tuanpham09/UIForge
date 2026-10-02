@@ -179,6 +179,7 @@ export default function EditorCanvas() {
     height: "844",
   });
   const editorRef = useRef<Editor | null>(null);
+  const prototypeTransitionTimeoutRef = useRef<ReturnType<typeof globalThis.setTimeout> | null>(null);
   // Keep the first render deterministic between SSR and hydration.
   // URL state is applied only after mount so a shareable viewport cannot change
   // the server-rendered device label before React hydrates.
@@ -1126,6 +1127,10 @@ export default function EditorCanvas() {
   };
 
   const exitPresent = () => {
+    if (prototypeTransitionTimeoutRef.current !== null) {
+      globalThis.clearTimeout(prototypeTransitionTimeoutRef.current);
+      prototypeTransitionTimeoutRef.current = null;
+    }
     setPresent(false);
     setPrototypeSession(null);
     setPrototypeTransitioning(false);
@@ -1146,7 +1151,11 @@ export default function EditorCanvas() {
 
     setPrototypeTransitioning(true);
     setHotspotHinting(false);
-    globalThis.setTimeout(() => {
+    if (prototypeTransitionTimeoutRef.current !== null) {
+      globalThis.clearTimeout(prototypeTransitionTimeoutRef.current);
+    }
+    prototypeTransitionTimeoutRef.current = globalThis.setTimeout(() => {
+      prototypeTransitionTimeoutRef.current = null;
       setPrototypeSession(result.session);
       setPrototypeTransitioning(false);
     }, 250);
@@ -1200,7 +1209,7 @@ export default function EditorCanvas() {
           key={node.id}
           type="button"
           onClick={activate}
-          className="h-11 w-full rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+          className={`h-11 w-full rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 ${focusRing}`}
         >
           {label}
         </button>

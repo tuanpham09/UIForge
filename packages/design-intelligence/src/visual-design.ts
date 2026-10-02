@@ -204,14 +204,21 @@ function visualEditor(
   const frameY = frame?.y ?? 80;
   const frameWidth = frame?.width ?? 390;
   const frameHeight = frame?.height ?? 844;
-  const siblings = root?.childrenIds ?? [];
+  const parent = node.parentId ? document.nodes[node.parentId] : undefined;
+  const siblings = parent?.childrenIds ?? root?.childrenIds ?? [];
   const siblingIndex = Math.max(0, siblings.indexOf(node.id));
+  const parentEditor = parent ? visualEditor(document, parent) : undefined;
+  const parentX = parentEditor?.x ?? frameX + 24;
+  const parentY = parentEditor?.y ?? frameY + 72;
+  const parentHeight = parentEditor?.height ?? 0;
   const width = Math.min(size.width, Math.max(160, frameWidth - 48));
 
   return {
     ...existing,
-    x: frameX + 24,
-    y: frameY + 72 + siblingIndex * (size.height + 16),
+    x: parent ? parentX : frameX + 24,
+    y: parent
+      ? parentY + parentHeight + 16 + siblingIndex * (size.height + 16)
+      : frameY + 72 + siblingIndex * (size.height + 16),
     width,
     height: Math.min(size.height, Math.max(32, frameHeight - 96)),
   };
