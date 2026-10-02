@@ -309,6 +309,9 @@ export interface SetCodeMappingCommand {
 }
 
 export type UICommand =
+  | CreateFrameCommand
+  | UpdateFrameCommand
+  | DeleteFrameCommand
   | CreateNodeCommand
   | UpdateNodeCommand
   | DeleteNodeCommand
