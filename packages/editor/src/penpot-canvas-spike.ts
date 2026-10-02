@@ -89,6 +89,7 @@ export function hitTest(
 ): CanvasRect | null {
   for (let index = rects.length - 1; index >= 0; index -= 1) {
     const rect = rects[index];
+    if (!rect) continue;
     if (
       point.x >= rect.x &&
       point.x <= rect.x + rect.width &&
