@@ -3,7 +3,6 @@
 import { type NodeId, type ScreenId, type UINode, validateUIDocument } from "@uiforge/ui-schema";
 import type { AgentToolDefinition } from "./contracts";
 import { AgentToolRegistry } from "./registry";
-import { registerMutationTools } from "./mutation-tools";
 
 type EmptyInput = Record<string, never>;
 type ScreenInput = { screenId: ScreenId };
