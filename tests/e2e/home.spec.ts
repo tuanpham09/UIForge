@@ -42,6 +42,9 @@ test("web shell renders the primary semantic canvas workspace", async ({
   await expect(page.getByTestId("design-stage-switcher")).toBeVisible();
   await expect(page.getByTestId("design-ui")).toBeEnabled();
   await page.getByTestId("design-ui").click();
+  await expect(page.getByTestId("design-stage-status")).not.toContainText(
+    "Design error:",
+  );
   await expect(page.getByText("Editable visual design")).toBeVisible();
   await expect(page.getByTestId("design-ui")).toBeDisabled();
   await page.screenshot({
