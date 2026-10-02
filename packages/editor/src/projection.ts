@@ -42,13 +42,13 @@ export function projectNode(
     type: "geo",
     x: point.x,
     y: point.y,
+    opacity: node.editor?.visible === false ? 0 : 1,
+    isLocked: node.editor?.locked === true,
     props: {
       w: size.width,
       h: size.height,
       geo: "rectangle",
-      opacity: node.editor?.visible === false ? 0 : 1,
     },
-    isLocked: node.editor?.locked === true,
     label: nodeLabel(node),
     meta: {
       source: "uiforge",
