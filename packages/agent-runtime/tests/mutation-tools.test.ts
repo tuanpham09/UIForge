@@ -66,7 +66,12 @@ describe("semantic mutation agent tools", () => {
         { nodeId: node.id, registryId: "button", variant: "primary" },
       ],
     ] as const) {
-      const result = await registry.execute(name, input, context, `call-${name}`);
+      const result = await registry.execute(
+        name,
+        input,
+        context,
+        `call-${name}`,
+      );
       expect(result.ok).toBe(true);
     }
   });
