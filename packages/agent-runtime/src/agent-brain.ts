@@ -1,5 +1,6 @@
 // biome-ignore-all format: agent brain contract remains compact for review
 // biome-ignore-all assist/source/organizeImports: compact runtime imports
+import { applyCommand, type UICommand } from "@uiforge/ui-schema";
 import { compactAgentMessages } from "./context-memory";
 import type { AgentContext, AgentMessage, AgentToolCall, AgentToolResult } from "./contracts";
 import type { AgentToolRegistry } from "./registry";
@@ -13,10 +14,16 @@ export interface AgentBrainOptions { maxIterations?:number; systemPrompt?:string
 export interface AgentBrainResult { status:"completed"|"failed"|"max_iterations"; message:AgentMessage; toolResults:AgentToolResult[]; iterations:number; messages:AgentMessage[]; }
 const now=()=>new Date().toISOString();
 const id=(prefix:string,index:number)=>`${prefix}.${index}`;
+const mutationCommands=(result:AgentToolResult):UICommand[]=>{
+ if(!result.ok||typeof result.output!=="object"||result.output===null)return[];
+ const proposal=(result.output as {proposal?:{commands?:unknown}}).proposal;
+ return Array.isArray(proposal?.commands)?proposal.commands as UICommand[]:[];
+};
 export class AgentBrain {
  constructor(private readonly provider:AgentModelProvider,private readonly registry:AgentToolRegistry,private readonly options:AgentBrainOptions={}) {}
  async run(context:AgentContext,prompt:string):Promise<AgentBrainResult>{
   const maxIterations=Math.max(1,this.options.maxIterations??8);
+  const workingContext:AgentContext={...context,document:structuredClone(context.document)};
   const messages:AgentMessage[]=compactAgentMessages(this.options.history??[],this.options.maxContextMessages??32);
   if(this.options.systemPrompt&&!messages.some((message)=>message.role==="system"))messages.unshift({id:id("system",0),role:"system",content:this.options.systemPrompt,createdAt:now()});
   messages.push({id:id("user",Date.now()),role:"user",content:prompt,createdAt:now()});
@@ -30,7 +37,14 @@ export class AgentBrain {
    const calls=response.toolCalls??[];
    if(calls.length===0||response.stopReason==="stop")return{status:"completed",message:response.message,toolResults,iterations:iteration+1,messages:compactAgentMessages(messages,this.options.maxContextMessages??32)};
    for(const call of calls){
-    const result=await this.registry.execute(call.toolName,call.input,context,call.id);
+    let result=await this.registry.execute(call.toolName,call.input,workingContext,call.id);
+    if(result.ok){
+     try{
+      for(const command of mutationCommands(result))workingContext.document=applyCommand(workingContext.document,command);
+     }catch(error){
+      result={...result,ok:false,output:undefined,error:{code:"EXECUTION_FAILED",message:error instanceof Error?error.message:String(error)}};
+     }
+    }
     toolResults.push(result);
     messages.push({id:`tool-result.${call.id}`,role:"tool",content:JSON.stringify({callId:result.callId,toolName:result.toolName,ok:result.ok,output:result.output,error:result.error}),createdAt:now()});
    }
