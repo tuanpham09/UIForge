@@ -5,7 +5,7 @@ export type AgentMessageRole="user"|"assistant"|"system"|"tool";
 export interface AgentMessage { id:string; role:AgentMessageRole; content:string; createdAt:string; toolCalls?:readonly AgentToolCall[]; }
 export interface AgentSession { id:string; createdAt:string; messages:AgentMessage[]; }
 export interface AgentPlan { id:string; goal:string; steps:string[]; createdAt:string; }
-export interface AgentToolCall { id:string; toolName:string; input:unknown; }
+export interface AgentToolCall { id:string; toolName:string; input:unknown; providerItemId?:string; }
 export interface AgentToolError { code:"UNKNOWN_TOOL"|"INVALID_INPUT"|"EXECUTION_FAILED"|"CANCELLED"; message:string; details?:unknown; }
 export interface AgentToolResult { callId:string; toolName:string; ok:boolean; output?:unknown; error?:AgentToolError; durationMs:number; }
 export interface AgentContext { document:UIDocument; selection?:{screenId?:ScreenId;nodeIds:NodeId[];frameIds:string[]}; sessionId:string; runId:string; }
