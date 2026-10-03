@@ -1,6 +1,10 @@
 // biome-ignore-all format: compact product UI surface
 // biome-ignore-all assist/source/organizeImports: compact product import surface
+"use client";
 
+import { AGENT_PROVIDER_PRESETS, getAgentProviderPreset, runDesignChat, type AgentMessage, type AgentProviderConfig, type DesignChatResult, type DesignProposal } from "@uiforge/agent-runtime";
+import type { NodeId, ScreenId, UIDocument } from "@uiforge/ui-schema";
+import { useMemo, useState } from "react";
 "use client";
 
 import { type DesignChatResult, type DesignProposal, runDesignChat, type AgentMessage, type AgentProviderConfig, AGENT_PROVIDER_PRESETS, getAgentProviderPreset } from "@uiforge/agent-runtime";
