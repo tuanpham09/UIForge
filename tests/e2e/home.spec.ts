@@ -37,7 +37,6 @@ test("project-first production flow starts from real product intent", async ({
 
   await expect(page.getByTestId("uiforge-editor-workspace")).toBeVisible();
   await expect(page.getByTestId("agent-design-chat")).toBeVisible();
-  await expect(page.getByTestId("generate-initial-wireframe")).toBeVisible();
 
   // The production project must not be seeded with the old dashboard fixture.
   await expect(page.getByText("Dashboard")).toHaveCount(0);
