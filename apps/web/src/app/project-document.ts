@@ -1,7 +1,7 @@
 import {
   createFrameFromPreset,
-  type UIDocument,
   type ScreenId,
+  type UIDocument,
 } from "@uiforge/ui-schema";
 
 export type ProjectPlatform = "web" | "mobile" | "both";
@@ -83,7 +83,8 @@ export function createProjectDocument(input: {
   return document;
 }
 
-const documentKey = (projectId: string) => `uiforge.project.document.v1.${projectId}`;
+const documentKey = (projectId: string) =>
+  `uiforge.project.document.v1.${projectId}`;
 
 export function readProjectDocument(projectId: string): UIDocument | null {
   if (typeof window === "undefined") return null;
@@ -96,7 +97,10 @@ export function readProjectDocument(projectId: string): UIDocument | null {
   }
 }
 
-export function writeProjectDocument(projectId: string, document: UIDocument): void {
+export function writeProjectDocument(
+  projectId: string,
+  document: UIDocument,
+): void {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(documentKey(projectId), JSON.stringify(document));
 }
