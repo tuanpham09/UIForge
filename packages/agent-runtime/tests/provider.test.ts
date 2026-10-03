@@ -1,0 +1,71 @@
+import { describe, expect, it, vi } from "vitest";
+import { OpenAICompatibleProvider } from "../src/provider";
+
+describe("OpenAICompatibleProvider", () => {
+  it("replays Gemini tool calls with tool name and non-empty assistant content", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        choices: [{ message: { role: "assistant", content: "", tool_calls: [{
+          id: "call_1",
+          type: "function",
+          function: { name: "read_project", arguments: "{}" },
+        }] } }],
+      }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        choices: [{ message: { role: "assistant", content: "Inspection complete." } }],
+      }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const provider = new OpenAICompatibleProvider({
+      id: "gemini",
+      name: "Google Gemini",
+      protocol: "openai-chat",
+      apiKey: "test-key",
+      model: "gemini-3.6-flash",
+      baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
+    });
+
+    const first = await provider.complete({
+      messages: [{ id: "u1", role: "user", content: "Inspect the project", createdAt: new Date().toISOString() }],
+      tools: [{ name: "read_project", description: "Read project", inputSchema: { type: "object" } }],
+    });
+
+    await provider.complete({
+      messages: [
+        { id: "u1", role: "user", content: "Inspect the project", createdAt: new Date().toISOString() },
+        first.message,
+        { id: "tool-result.call_1", role: "tool", content: JSON.stringify({ ok: true }), createdAt: new Date().toISOString() },
+      ],
+      tools: [{ name: "read_project", description: "Read project", inputSchema: { type: "object" } }],
+    });
+
+    const [, init] = fetchMock.mock.calls[1] as [string, RequestInit];
+    const body = JSON.parse(String(init.body)) as { messages: Array<Record<string, unknown>> };
+    expect(body.messages).toEqual(expect.arrayContaining([
+      expect.objectContaining({ role: "assistant", content: "Calling tools..." }),
+      expect.objectContaining({ role: "tool", name: "read_project", tool_call_id: "call_1" }),
+    ]));
+    vi.unstubAllGlobals();
+  });
+
+  it("includes provider HTTP status and error message", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      error: { message: "Invalid argument" },
+    }), { status: 400 })));
+
+    const provider = new OpenAICompatibleProvider({
+      id: "gemini",
+      name: "Google Gemini",
+      protocol: "openai-chat",
+      apiKey: "test-key",
+      model: "gemini-3.6-flash",
+      baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
+    });
+
+    await expect(provider.complete({
+      messages: [{ id: "u1", role: "user", content: "Inspect", createdAt: new Date().toISOString() }],
+      tools: [],
+    })).rejects.toThrow("HTTP 400: Invalid argument");
+    vi.unstubAllGlobals();
+  });
+});
