@@ -27,7 +27,6 @@ import {
   type NodePatch,
   type ResponsiveRule,
   type UIDocument,
-  workspaceFixture,
 } from "@uiforge/ui-schema";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
@@ -57,7 +56,11 @@ import {
 } from "./viewport-model";
 
 
-const cloneDocument = (): UIDocument => structuredClone(workspaceFixture);
+type EditorCanvasProps = {
+  initialDocument: UIDocument;
+  onDocumentChange?: (document: UIDocument) => void;
+  autoOpenAgentChat?: boolean;
+};
 
 type CustomFrameDraft = {
   open: boolean;
@@ -157,11 +160,11 @@ function ResetButton({ onClick }: { onClick: () => void }) {
   return <button type="button" onClick={onClick} className="w-full rounded border border-slate-700 px-2 py-1.5 text-[10px] text-slate-400 hover:bg-slate-800">Reset to snapshot</button>;
 }
 
-export default function EditorCanvas() {
-  const initialDocumentRef = useRef<UIDocument>(cloneDocument());
+export default function EditorCanvas({ initialDocument, onDocumentChange, autoOpenAgentChat = false }: EditorCanvasProps) {
+  const initialDocumentRef = useRef<UIDocument>(structuredClone(initialDocument));
   const [document, setDocument] = useState<UIDocument>(() => structuredClone(initialDocumentRef.current));
   const [selectedFrameId, setSelectedFrameId] = useState<FrameId | null>(null);
-  const [selectedScreenId, setSelectedScreenId] = useState(() => cloneDocument().screens[0]?.id ?? "");
+  const [selectedScreenId, setSelectedScreenId] = useState(() => initialDocument.screens[0]?.id ?? "");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [selectedNodeId, setSelectedNodeId] = useState<NodeId | null>(null);
   const [selectedFrameIds, setSelectedFrameIds] = useState<FrameId[]>([]);
@@ -177,7 +180,11 @@ export default function EditorCanvas() {
   const [aiNotice, setAiNotice] = useState<string | null>(null);
   const [prototypeTransitioning, setPrototypeTransitioning] = useState(false);
   const [hotspotHinting, setHotspotHinting] = useState(false);
-  const [designChatOpen, setDesignChatOpen] = useState(false);
+  const [designChatOpen, setDesignChatOpen] = useState(autoOpenAgentChat);
+
+  useEffect(() => {
+    onDocumentChange?.(structuredClone(document));
+  }, [document, onDocumentChange]);
 
   useEffect(() => {
     if (!document.screens.some((screen) => screen.id === selectedScreenId)) {
