@@ -1,8 +1,13 @@
-import { describe, expect, it } from "vitest";
-import { createFullAgentToolRegistry } from "../src/tools";
-import { createMcpSession, executeMcpTool, mcpServerInfo, mcpToolList } from "../src/mcp-bridge";
-import { handleMcpJsonRpc } from "../src/mcp-jsonrpc";
 import { workspaceFixture } from "@uiforge/ui-schema";
+import { describe, expect, it } from "vitest";
+import {
+  createMcpSession,
+  executeMcpTool,
+  mcpServerInfo,
+  mcpToolList,
+} from "../src/mcp-bridge";
+import { handleMcpJsonRpc } from "../src/mcp-jsonrpc";
+import { createFullAgentToolRegistry } from "../src/tools";
 
 describe("UIForge MCP bridge", () => {
   it("advertises the semantic agent tools", () => {
