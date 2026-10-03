@@ -11,3 +11,6 @@ export * from "./provider-config";
 export * from "./registry";
 export * from "./runtime";
 export * from "./tools";
+
+export * from "./mcp-bridge";
+export * from "./mcp-jsonrpc";
