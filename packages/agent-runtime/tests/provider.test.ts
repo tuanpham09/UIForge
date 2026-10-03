@@ -163,9 +163,13 @@ describe("OpenAICompatibleProvider", () => {
   it("includes raw provider error when response is not JSON", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue(
-        new Response("INVALID_ARGUMENT: malformed tool call", { status: 400 }),
-      ),
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response("INVALID_ARGUMENT: malformed tool call", {
+            status: 400,
+          }),
+        ),
     );
 
     const provider = new OpenAICompatibleProvider(config);
@@ -181,9 +185,7 @@ describe("OpenAICompatibleProvider", () => {
         ],
         tools: [],
       }),
-    ).rejects.toThrow(
-      "HTTP 400: INVALID_ARGUMENT: malformed tool call",
-    );
+    ).rejects.toThrow("HTTP 400: INVALID_ARGUMENT: malformed tool call");
     vi.unstubAllGlobals();
   });
 });
