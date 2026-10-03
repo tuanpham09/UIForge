@@ -104,7 +104,7 @@ test("project-first production flow starts from real product intent", async ({
                 screenId: screen.id,
                 parentId: screen.rootNodeId,
                 childrenIds: [],
-                type: "section",
+                type: "card",
                 layout: { mode: "stack", direction: "column" },
                 content: { label: "Expense overview" },
               },
@@ -114,17 +114,34 @@ test("project-first production flow starts from real product intent", async ({
               commandId: "command.e2e.expense-list",
               node: {
                 id: "node.e2e.expense-list",
-                screenId: "screen.e2e.expenses",
-                parentId: "node.e2e.expenses.root",
+                screenId: screen.id,
+                parentId: screen.rootNodeId,
                 childrenIds: [],
-                type: "section",
+                type: "list",
                 layout: { mode: "stack", direction: "column" },
-                content: { label: "Expense list" },
+                content: { label: "Recent expenses" },
+              },
+            },
+            {
+              type: "CreateNode",
+              commandId: "command.e2e.add-expense",
+              node: {
+                id: "node.e2e.add-expense",
+                screenId: screen.id,
+                parentId: screen.rootNodeId,
+                childrenIds: [],
+                type: "button",
+                layout: { mode: "flex", direction: "row" },
+                content: { label: "Add expense" },
               },
             },
           ],
           summary: "Create the initial expense overview and expense list flow.",
-          preview: ["Create section node.e2e.hero"],
+          preview: [
+            "Create card node.e2e.hero",
+            "Create list node.e2e.expense-list",
+            "Create button node.e2e.add-expense",
+          ],
           risk: "safe",
           status: "pending",
         },
@@ -148,4 +165,17 @@ test("project-first production flow starts from real product intent", async ({
     "Create the initial expense overview and expense list flow.",
   );
   await expect(page.getByText(/deterministic mutation rule/i)).toHaveCount(0);
+  await page.getByTestId("agent-apply").click();
+  await expect(page.getByTestId("design-stage-status")).toContainText(
+    "Structural wireframe",
+  );
+  await expect(
+    page.getByTestId("canvas").getByText("Expense overview"),
+  ).toBeVisible();
+  await expect(
+    page.getByTestId("canvas").getByText("Recent expenses"),
+  ).toBeVisible();
+  await expect(
+    page.getByTestId("canvas").getByText("Add expense"),
+  ).toBeVisible();
 });
