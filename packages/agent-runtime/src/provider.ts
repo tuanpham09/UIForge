@@ -1,9 +1,5 @@
 // biome-ignore-all format: provider adapters remain compact for review
-import { OpenAIResponsesProvider } from "./openai-provider";
-import type { AgentModelProvider, AgentModelRequest, AgentModelResponse } from "./agent-brain";
-import type { AgentMessage, AgentToolCall } from "./contracts";
-import type { AgentProviderConfig } from "./provider-config";
-
+// biome-ignore-all assist/source/organizeImports: compact provider imports
 type ChatMessage = { role: "system" | "user" | "assistant" | "tool"; content: string; tool_call_id?: string; tool_calls?: Array<{ id: string; type: "function"; function: { name: string; arguments: string } }> };
 type ChatResponse = { choices?: Array<{ message?: { role?: string; content?: string; tool_calls?: Array<{ id?: string; function?: { name?: string; arguments?: string } }> } }>; error?: { message?: string } };
 
