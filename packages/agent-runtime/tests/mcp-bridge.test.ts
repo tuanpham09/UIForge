@@ -17,24 +17,57 @@ describe("UIForge MCP bridge", () => {
   });
 
   it("forces mutations into proposal-only dry runs", async () => {
-    const session = createMcpSession(structuredClone(workspaceFixture), { nodeIds: [], frameIds: [] });
-    const result = await executeMcpTool(createFullAgentToolRegistry(), session, "delete_node", { nodeId: "missing", recursive: true, dryRun: false }, "1");
+    const session = createMcpSession(structuredClone(workspaceFixture), {
+      nodeIds: [],
+      frameIds: [],
+    });
+    const result = await executeMcpTool(
+      createFullAgentToolRegistry(),
+      session,
+      "delete_node",
+      { nodeId: "missing", recursive: true, dryRun: false },
+      "1",
+    );
     expect(result.ok).toBe(false);
     expect(session.document.revision.revision).toBe(0);
   });
 
   it("supports initialize, tools/list and resource reads", async () => {
-    const session = createMcpSession(structuredClone(workspaceFixture), { nodeIds: [], frameIds: [] });
-    const init = await handleMcpJsonRpc({ jsonrpc: "2.0", id: 1, method: "initialize", params: {} }, session.token);
-    const tools = await handleMcpJsonRpc({ jsonrpc: "2.0", id: 2, method: "tools/list", params: {} }, session.token);
-    const resource = await handleMcpJsonRpc({ jsonrpc: "2.0", id: 3, method: "resources/read", params: { uri: "uiforge://document" } }, session.token);
-    expect(init?.result).toMatchObject({ serverInfo: { name: "UIForge MCP Bridge" } });
-    expect((tools?.result as { tools: unknown[] }).tools.length).toBeGreaterThan(5);
+    const session = createMcpSession(structuredClone(workspaceFixture), {
+      nodeIds: [],
+      frameIds: [],
+    });
+    const init = await handleMcpJsonRpc(
+      { jsonrpc: "2.0", id: 1, method: "initialize", params: {} },
+      session.token,
+    );
+    const tools = await handleMcpJsonRpc(
+      { jsonrpc: "2.0", id: 2, method: "tools/list", params: {} },
+      session.token,
+    );
+    const resource = await handleMcpJsonRpc(
+      {
+        jsonrpc: "2.0",
+        id: 3,
+        method: "resources/read",
+        params: { uri: "uiforge://document" },
+      },
+      session.token,
+    );
+    expect(init?.result).toMatchObject({
+      serverInfo: { name: "UIForge MCP Bridge" },
+    });
+    expect(
+      (tools?.result as { tools: unknown[] }).tools.length,
+    ).toBeGreaterThan(5);
     expect(resource?.result).toBeTruthy();
   });
 
   it("rejects an unknown session", async () => {
-    const response = await handleMcpJsonRpc({ jsonrpc: "2.0", id: 1, method: "tools/list" }, "invalid");
+    const response = await handleMcpJsonRpc(
+      { jsonrpc: "2.0", id: 1, method: "tools/list" },
+      "invalid",
+    );
     expect(response?.error?.code).toBe(-32001);
   });
 
