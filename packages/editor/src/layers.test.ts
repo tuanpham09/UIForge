@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
-import { buildLayerTree, flattenLayers, filterLayers } from "./layers";
 import type { UIDocument, UINode } from "@uiforge/ui-schema";
+import { describe, expect, it } from "vitest";
+import { buildLayerTree, filterLayers, flattenLayers } from "./layers";
 
 function node(
   id: string,
@@ -72,9 +72,15 @@ function fixture(): UIDocument {
       },
     ],
     nodes: {
-      "root.home": node("root.home", "screen.home", null, ["header", "title", "cta"], {
-        type: "screen-root",
-      }),
+      "root.home": node(
+        "root.home",
+        "screen.home",
+        null,
+        ["header", "title", "cta"],
+        {
+          type: "screen-root",
+        },
+      ),
       header: node("header", "screen.home", "root.home", ["title"], {
         frameId: "frame.home",
         content: { label: "Header" },
@@ -89,14 +95,26 @@ function fixture(): UIDocument {
         type: "button",
         content: { label: "Get started" },
       }),
-      "root.settings": node("root.settings", "screen.settings", null, ["settings-title"], {
-        type: "screen-root",
-      }),
-      "settings-title": node("settings-title", "screen.settings", "root.settings", [], {
-        frameId: "frame.settings",
-        type: "text",
-        content: { text: "Settings" },
-      }),
+      "root.settings": node(
+        "root.settings",
+        "screen.settings",
+        null,
+        ["settings-title"],
+        {
+          type: "screen-root",
+        },
+      ),
+      "settings-title": node(
+        "settings-title",
+        "screen.settings",
+        "root.settings",
+        [],
+        {
+          frameId: "frame.settings",
+          type: "text",
+          content: { text: "Settings" },
+        },
+      ),
     },
     assets: {},
   };
@@ -143,7 +161,9 @@ describe("semantic layers", () => {
   });
 
   it("flattens the tree in visual layer order", () => {
-    expect(flattenLayers(buildLayerTree(fixture())).map((layer) => layer.name)).toEqual([
+    expect(
+      flattenLayers(buildLayerTree(fixture())).map((layer) => layer.name),
+    ).toEqual([
       "Home",
       "Home · iPhone 16",
       "Header",
