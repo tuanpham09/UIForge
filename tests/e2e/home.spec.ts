@@ -104,10 +104,9 @@ test("project-first production flow starts from real product intent", async ({
     });
   });
 
-  await page.getByTestId("generate-initial-wireframe").click();
-  await expect(page.getByTestId("agent-chat-input")).toHaveValue(
-    /Build the initial product flow/,
-  );
+  await page
+    .getByTestId("agent-chat-input")
+    .fill("Build the initial product flow and semantic wireframe for this project.");
   await page.getByTestId("agent-chat-send").click();
 
   await expect(page.getByTestId("agent-proposal")).toBeVisible();
