@@ -121,7 +121,8 @@ describe("semantic mutation agent tools", () => {
     }>;
     expect(frames).toHaveLength(2);
     const framePositions = frames.map((command) => {
-      const frame = (command as unknown as { frame: { x: number; y: number } }).frame;
+      const frame = (command as unknown as { frame: { x: number; y: number } })
+        .frame;
       return [frame.x, frame.y];
     });
     expect(framePositions).toEqual([
