@@ -30,6 +30,8 @@ export async function POST(request:Request){
   const sessionId=typeof body.sessionId==="string"&&body.sessionId.length<200?body.sessionId:`design-chat.${Date.now()}`;
   const history=isHistory(body.history)?compactAgentMessages(body.history,32):[];
   const context:AgentContext={document:body.document,selection:{screenId,nodeIds,frameIds},sessionId,runId:`run.${Date.now()}`};
+  const bootstrapMode=body.document.screens.length===1&&Object.keys(body.document.nodes).length<=1;
+  const bootstrapTools=["read_project","read_screen","inspect_selection","validate_ui","create_flow"] as const;
   const plan:AgentPlan={id:`plan.${Date.now()}`,goal:body.prompt,steps:["Use prior conversation context","Inspect the current selection","Read relevant semantic UI","Validate the UI Schema","Propose semantic changes","Wait for user approval"],createdAt:new Date().toISOString()};
   const systemPrompt=[
    "You are UIForge Design Agent. Work only through the provided semantic UI tools.",
@@ -47,11 +49,17 @@ export async function POST(request:Request){
    "Build incrementally: create screens first, then create their child nodes, then add interaction targets only after destination screen IDs are known. Re-read the working screens after mutations to verify the hierarchy before finishing.",
    "The working document is updated after every successful mutation. You may reference IDs created by earlier tool calls in the same run.",
    "For bootstrap: inspect once, create one coherent flow, validate/re-read it, then stop and return the proposal. Do not spend iterations repeatedly searching or rereading unchanged nodes.",
+   ...(bootstrapMode ? [
+    "BOOTSTRAP MODE IS ACTIVE: this is an empty project.",
+    "You may only use read_project, read_screen, inspect_selection, validate_ui, and create_flow.",
+    "create_flow is the only mutation tool available. Do not attempt create_node, create_screen, create_frame, update_node, delete_node, move_node, set_style, set_token, set_layout, set_responsive_rule, or create_component.",
+    "After a successful create_flow, validate or re-read the generated flow once and finish with the proposal."
+   ].join("\n") : ""),
    "A successful create_flow call is sufficient to propose the initial wireframe only when every screen has concrete content. If create_flow rejects the proposal as too thin, fix the flow by adding concrete semantic nodes and call create_flow once more; do not enter a read/search loop.",
    "Do not invent node IDs, screen IDs, token names, or schema values; read them first.",
    `Current document revision: ${body.document.revision.revision}. Active screen: ${screenId??"none"}. Selected nodes: ${nodeIds.join(", ")||"none"}.`,
   ].join("\n");
-  const brain=new AgentBrain(createAgentModelProvider(provider),createFullAgentToolRegistry(),{maxIterations:16,systemPrompt,history,maxContextMessages:40});
+  const brain=new AgentBrain(createAgentModelProvider(provider),createFullAgentToolRegistry(),{maxIterations:bootstrapMode?6:16,systemPrompt,history,maxContextMessages:40,allowedTools:bootstrapMode?bootstrapTools:undefined});
   const run=await brain.run(context,body.prompt);
   const commands=commandsFromResults(run.toolResults);
   const proposal=commands.length?createProposal(body.document,commands,run.message.content||"Proposed UI changes."):undefined;

@@ -120,6 +120,15 @@ describe("semantic mutation agent tools", () => {
       frame: { id: string; screenId: string };
     }>;
     expect(frames).toHaveLength(2);
+    const framePositions = frames.map((command) => {
+      const frame = (command as unknown as { frame: { x: number; y: number } })
+        .frame;
+      return [frame.x, frame.y];
+    });
+    expect(framePositions).toEqual([
+      [80, 80],
+      [566, 80],
+    ]);
     const generatedNodes = commands.filter(
       (command) => command.type === "CreateNode",
     ) as Array<{
