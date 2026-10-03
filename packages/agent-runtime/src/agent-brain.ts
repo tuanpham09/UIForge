@@ -10,7 +10,7 @@ export interface AgentModelTool { name:string; description:string; inputSchema?:
 export interface AgentModelRequest { messages:readonly AgentMessage[]; tools:readonly AgentModelTool[]; }
 export interface AgentModelResponse { message:AgentMessage; toolCalls?:readonly AgentToolCall[]; stopReason?:AgentModelStopReason; }
 export interface AgentModelProvider { complete(request:AgentModelRequest):Promise<AgentModelResponse>; }
-export interface AgentBrainOptions { maxIterations?:number; systemPrompt?:string; history?:readonly AgentMessage[]; maxContextMessages?:number; }
+export interface AgentBrainOptions { maxIterations?:number; systemPrompt?:string; history?:readonly AgentMessage[]; maxContextMessages?:number; allowedTools?:readonly string[]; }
 export interface AgentBrainResult { status:"completed"|"failed"|"max_iterations"; message:AgentMessage; toolResults:AgentToolResult[]; iterations:number; messages:AgentMessage[]; }
 const now=()=>new Date().toISOString();
 const id=(prefix:string,index:number)=>`${prefix}.${index}`;
@@ -37,7 +37,13 @@ export class AgentBrain {
    const calls=response.toolCalls??[];
    if(calls.length===0||response.stopReason==="stop")return{status:"completed",message:response.message,toolResults,iterations:iteration+1,messages:compactAgentMessages(messages,this.options.maxContextMessages??32)};
    for(const call of calls){
-    let result=await this.registry.execute(call.toolName,call.input,workingContext,call.id);
+    const allowed=this.options.allowedTools;
+    let result:AgentToolResult;
+    if(allowed && !allowed.includes(call.toolName)){
+      result={callId:call.id,toolName:call.toolName,ok:false,error:{code:"TOOL_NOT_ALLOWED",message:"Tool "+call.toolName+" is not available in the current agent mode. Use one of the exposed tools instead."},durationMs:0};
+    } else {
+      result=await this.registry.execute(call.toolName,call.input,workingContext,call.id);
+    }
     if(result.ok){
      try{
       for(const command of mutationCommands(result))workingContext.document=applyCommand(workingContext.document,command);
