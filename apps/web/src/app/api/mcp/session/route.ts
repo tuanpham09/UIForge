@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createMcpSession, mcpAuthToken, updateMcpSession } from "@uiforge/agent-runtime";
-import type { NodeId, ScreenId, UIDocument } from "@uiforge/ui-schema";
+import type { NodeId, UIDocument } from "@uiforge/ui-schema";
 
 type Body={document?:unknown;selection?:{screenId?:unknown;nodeIds?:unknown;frameIds?:unknown}};
 const isDocument=(value:unknown):value is UIDocument=>typeof value==="object"&&value!==null&&"nodes" in value&&"screens" in value&&"revision" in value;
