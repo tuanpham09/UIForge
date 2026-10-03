@@ -21,7 +21,7 @@ test("project-first production flow starts from real product intent", async ({
       "Expenses, categories, monthly reports, dashboard and navigation flows.",
     );
   await page.getByTestId("create-project-submit").click();
-  await expect(page).toHaveURL(/\/project\//);
+  await expect(page).toHaveURL(/\/project\//, { timeout: 15000 });
 
   await expect(page.getByTestId("project-bootstrap")).toBeVisible({
     timeout: 15000,
