@@ -4,6 +4,8 @@ import {
   type ComponentInstance,
   type LayoutSpec,
   type NodeId,
+  type Screen,
+  type UINode,
   type NodeStyle,
   type ResponsiveRule,
   type TokenRef,
@@ -13,6 +15,8 @@ import {
 } from "@uiforge/ui-schema";
 import type { AgentToolDefinition } from "./contracts";
 import { AgentToolRegistry } from "./registry";
+
+type CreateScreenInput = { screen: Screen; rootNode: UINode; dryRun?: boolean };
 
 type MutationResult = {
   proposal: { commands: UICommand[] };
@@ -36,6 +40,11 @@ const hasString = (value: Record<string, unknown>, key: string) =>
   typeof value[key] === "string" && value[key].length > 0;
 const optionalDryRun = (value: Record<string, unknown>) =>
   value.dryRun === undefined || typeof value.dryRun === "boolean";
+
+const isCreateScreen = (value: unknown): value is CreateScreenInput => {
+  if (!record(value) || !record(value.screen) || !record(value.rootNode)) return false;
+  return hasString(value.screen, "id") && hasString(value.screen, "name") && hasString(value.screen, "rootNodeId") && hasString(value.rootNode, "id") && value.rootNode.type === "screen-root" && optionalDryRun(value);
+};
 
 const isCreateNode = (value: unknown): value is CreateNodeInput => {
   if (!record(value) || !record(value.node)) return false;
@@ -94,6 +103,16 @@ function mutation<T extends { dryRun?: boolean }>(command: UICommand, input: T, 
   const next = applyCommand(context.document, command);
   return { proposal: { commands: [command] }, dryRun: input.dryRun !== false, revision: next.revision.revision };
 }
+
+const createScreen: AgentToolDefinition<CreateScreenInput, MutationResult> = {
+  name: "create_screen",
+  description: "Propose creation of a new product screen with its semantic screen-root node.",
+  validateInput: isCreateScreen,
+  execute: (input, context) => {
+    const command = { type: "CreateScreen", commandId: stableId("create-screen", input.screen), screen: input.screen, rootNode: input.rootNode } satisfies UICommand;
+    return mutation(command, input, context);
+  },
+};
 
 const createNode: AgentToolDefinition<CreateNodeInput, MutationResult> = {
   name: "create_node",
@@ -178,6 +197,7 @@ const createComponent: AgentToolDefinition<CreateComponentInput, MutationResult>
 };
 
 export function registerMutationTools(registry: AgentToolRegistry): AgentToolRegistry {
+  registry.register(createScreen);
   registry.register(createNode);
   registry.register(updateNode);
   registry.register(deleteNode);
