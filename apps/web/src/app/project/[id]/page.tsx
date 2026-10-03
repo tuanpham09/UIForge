@@ -1,16 +1,18 @@
 "use client";
 
+import { use } from "react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import EditorCanvas from "../../editor-canvas";
 import { getProject, type UIForgeProject } from "../../project-store";
 
-export default function ProjectPage({ params }: { params: { id: string } }) {
+export default function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
+  const { id } = use(params);
   const [project, setProject] = useState<UIForgeProject | null>(null);
   const [bootstrapOpen, setBootstrapOpen] = useState(true);
 
-  useEffect(() => setProject(getProject(params.id)), [params.id]);
+  useEffect(() => setProject(getProject(id)), [id]);
 
   if (!project) {
     return (
@@ -37,7 +39,6 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
               </div>
               <button type="button" aria-label="Close project bootstrap" onClick={() => setBootstrapOpen(false)} className="rounded px-2 py-1 text-slate-500 hover:bg-slate-900">✕</button>
             </div>
-
             <div className="mt-6 grid gap-3 md:grid-cols-3">
               {[
                 ["01", "Understand intent", "Agent reads the product brief and turns it into structured requirements."],
@@ -51,17 +52,13 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
                 </div>
               ))}
             </div>
-
             <div className="mt-5 rounded-xl border border-slate-800 bg-slate-900/40 p-4">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Core features</p>
               <p className="mt-2 text-xs leading-5 text-slate-400">{project.features || "No extra requirements supplied. The agent can infer a first pass from the product description."}</p>
             </div>
-
             <div className="mt-6 flex items-center justify-between border-t border-slate-800 pt-4">
               <button type="button" onClick={() => router.push("/")} className="text-xs text-slate-500 hover:text-slate-300">← Projects</button>
-              <button type="button" data-testid="start-agent-workspace" onClick={() => setBootstrapOpen(false)} className="rounded-lg bg-cyan-400 px-4 py-2 text-xs font-semibold text-slate-950">
-                Enter workspace →
-              </button>
+              <button type="button" data-testid="start-agent-workspace" onClick={() => setBootstrapOpen(false)} className="rounded-lg bg-cyan-400 px-4 py-2 text-xs font-semibold text-slate-950">Enter workspace →</button>
             </div>
           </div>
         </div>
