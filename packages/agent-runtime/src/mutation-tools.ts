@@ -16,6 +16,7 @@ import type { AgentToolDefinition } from "./contracts";
 import { AgentToolRegistry } from "./registry";
 
 type CreateScreenInput = { screen: Screen; rootNode: UINode; dryRun?: boolean };
+type CreateFlowInput = { screens: Array<{ screen: Screen; rootNode: UINode }>; nodes: UINode[]; dryRun?: boolean };
 
 type MutationResult = {
   proposal: { commands: UICommand[] };
@@ -39,6 +40,13 @@ const hasString = (value: Record<string, unknown>, key: string) =>
   typeof value[key] === "string" && value[key].length > 0;
 const optionalDryRun = (value: Record<string, unknown>) =>
   value.dryRun === undefined || typeof value.dryRun === "boolean";
+
+const isCreateFlow = (value: unknown): value is CreateFlowInput => {
+  if (!record(value) || !Array.isArray(value.screens) || !Array.isArray(value.nodes) || value.screens.length === 0 || value.nodes.length === 0) return false;
+  if (!value.screens.every((item) => record(item) && record(item.screen) && record(item.rootNode))) return false;
+  if (!value.nodes.every((node) => record(node) && hasString(node, "id") && hasString(node, "screenId") && hasString(node, "type") && Array.isArray(node.childrenIds))) return false;
+  return optionalDryRun(value);
+};
 
 const isCreateScreen = (value: unknown): value is CreateScreenInput => {
   if (!record(value) || !record(value.screen) || !record(value.rootNode)) return false;
@@ -102,6 +110,27 @@ function mutation<T extends { dryRun?: boolean }>(command: UICommand, input: T, 
   const next = applyCommand(context.document, command);
   return { proposal: { commands: [command] }, dryRun: input.dryRun !== false, revision: next.revision.revision };
 }
+
+const createFlow: AgentToolDefinition<CreateFlowInput, MutationResult> = {
+  name: "create_flow",
+  description: "Propose a complete initial product flow in one operation: multiple screens followed by their semantic nodes. Prefer this for bootstrapping a new project.",
+  validateInput: isCreateFlow,
+  execute: (input, context) => {
+    let working = context.document;
+    const commands: UICommand[] = [];
+    for (const item of input.screens) {
+      const command = { type: "CreateScreen", commandId: stableId("create-flow-screen", item.screen), screen: item.screen, rootNode: item.rootNode } satisfies UICommand;
+      working = applyCommand(working, command);
+      commands.push(command);
+    }
+    for (const node of input.nodes) {
+      const command = { type: "CreateNode", commandId: stableId("create-flow-node", node), node } satisfies UICommand;
+      working = applyCommand(working, command);
+      commands.push(command);
+    }
+    return { proposal: { commands }, dryRun: input.dryRun !== false, revision: working.revision.revision };
+  },
+};
 
 const createScreen: AgentToolDefinition<CreateScreenInput, MutationResult> = {
   name: "create_screen",
@@ -196,6 +225,7 @@ const createComponent: AgentToolDefinition<CreateComponentInput, MutationResult>
 };
 
 export function registerMutationTools(registry: AgentToolRegistry): AgentToolRegistry {
+  registry.register(createFlow);
   registry.register(createScreen);
   registry.register(createNode);
   registry.register(updateNode);
