@@ -10,6 +10,7 @@ const defaultInputSchema=(name:string):unknown=>{
   case"read_screen":return object({screenId:string},["screenId"]);
   case"read_node":return object({nodeId:string},["nodeId"]);
   case"search_nodes":return object({query:string},["query"]);
+  case"create_screen":return object({screen:{type:"object"},rootNode:{type:"object"},dryRun:{type:"boolean"}},["screen","rootNode"]);
   case"create_node":return object({node:{type:"object"},dryRun:{type:"boolean"}},["node"]);
   case"update_node":return object({nodeId:string,patch:{type:"object"},dryRun:{type:"boolean"}},["nodeId","patch"]);
   case"delete_node":return object({nodeId:string,recursive:{type:"boolean"},dryRun:{type:"boolean"}},["nodeId"]);
