@@ -80,7 +80,15 @@ const isCreateComponent = (value: unknown): value is CreateComponentInput => {
   return hasString(value, "nodeId") && hasString(value, "registryId") && optionalDryRun(value);
 };
 
-const commandId = (name: string) => `agent.${name}.${Date.now()}.${Math.random().toString(36).slice(2, 7)}`;
+const stableId = (prefix: string, value: unknown) => {
+  const input = JSON.stringify(value);
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `agent.${prefix}.${(hash >>> 0).toString(16)}`;
+};
 
 function mutation<T extends { dryRun?: boolean }>(command: UICommand, input: T, context: { document: UIDocument }): MutationResult {
   const next = applyCommand(context.document, command);
@@ -91,55 +99,82 @@ const createNode: AgentToolDefinition<CreateNodeInput, MutationResult> = {
   name: "create_node",
   description: "Propose creation of a semantic UI node under an existing parent.",
   validateInput: isCreateNode,
-  execute: (input, context) => mutation({ type: "CreateNode", commandId: commandId("create-node"), node: input.node }, input, context),
+  execute: (input, context) => {
+    const command = { type: "CreateNode", commandId: stableId("create-node", input.node), node: input.node } satisfies UICommand;
+    return mutation(command, input, context);
+  },
 };
 const updateNode: AgentToolDefinition<UpdateNodeInput, MutationResult> = {
   name: "update_node",
   description: "Propose a semantic node update.",
   validateInput: isUpdateNode,
-  execute: (input, context) => mutation({ type: "UpdateNode", commandId: commandId("update-node"), nodeId: input.nodeId, patch: input.patch }, input, context),
+  execute: (input, context) => {
+    const command = { type: "UpdateNode", commandId: stableId("update-node", input), nodeId: input.nodeId, patch: input.patch } satisfies UICommand;
+    return mutation(command, input, context);
+  },
 };
 const deleteNode: AgentToolDefinition<DeleteNodeInput, MutationResult> = {
   name: "delete_node",
   description: "Propose deletion of a semantic node; recursive deletion must be explicitly requested.",
   validateInput: isDeleteNode,
-  execute: (input, context) => mutation({ type: "DeleteNode", commandId: commandId("delete-node"), nodeId: input.nodeId, recursive: input.recursive }, input, context),
+  execute: (input, context) => {
+    const command = { type: "DeleteNode", commandId: stableId("delete-node", input), nodeId: input.nodeId, recursive: input.recursive } satisfies UICommand;
+    return mutation(command, input, context);
+  },
 };
 const moveNode: AgentToolDefinition<MoveNodeInput, MutationResult> = {
   name: "move_node",
   description: "Propose moving a node within its current parent's child order.",
   validateInput: isMoveNode,
-  execute: (input, context) => mutation({ type: "MoveNode", commandId: commandId("move-node"), nodeId: input.nodeId, toIndex: input.toIndex }, input, context),
+  execute: (input, context) => {
+    const command = { type: "MoveNode", commandId: stableId("move-node", input), nodeId: input.nodeId, toIndex: input.toIndex } satisfies UICommand;
+    return mutation(command, input, context);
+  },
 };
 const setStyle: AgentToolDefinition<SetStyleInput, MutationResult> = {
   name: "set_style",
   description: "Propose replacing semantic style token mappings for a node.",
   validateInput: isSetStyle,
-  execute: (input, context) => mutation({ type: "UpdateNode", commandId: commandId("set-style"), nodeId: input.nodeId, patch: { style: input.style } }, input, context),
+  execute: (input, context) => {
+    const command = { type: "UpdateNode", commandId: stableId("set-style", input), nodeId: input.nodeId, patch: { style: input.style } } satisfies UICommand;
+    return mutation(command, input, context);
+  },
 };
 const setToken: AgentToolDefinition<SetTokenInput, MutationResult> = {
   name: "set_token",
   description: "Propose assigning a design token to one semantic style slot.",
   validateInput: isSetToken,
-  execute: (input, context) => mutation({ type: "SetToken", commandId: commandId("set-token"), nodeId: input.nodeId, slot: input.slot, token: input.token }, input, context),
+  execute: (input, context) => {
+    const command = { type: "SetToken", commandId: stableId("set-token", input), nodeId: input.nodeId, slot: input.slot, token: input.token } satisfies UICommand;
+    return mutation(command, input, context);
+  },
 };
 const setLayout: AgentToolDefinition<SetLayoutInput, MutationResult> = {
   name: "set_layout",
   description: "Propose replacing a node's semantic layout specification.",
   validateInput: isSetLayout,
-  execute: (input, context) => mutation({ type: "UpdateNode", commandId: commandId("set-layout"), nodeId: input.nodeId, patch: { layout: input.layout } }, input, context),
+  execute: (input, context) => {
+    const command = { type: "UpdateNode", commandId: stableId("set-layout", input), nodeId: input.nodeId, patch: { layout: input.layout } } satisfies UICommand;
+    return mutation(command, input, context);
+  },
 };
 const setResponsiveRule: AgentToolDefinition<SetResponsiveRuleInput, MutationResult> = {
   name: "set_responsive_rule",
   description: "Propose adding or replacing a responsive rule at a semantic breakpoint.",
   validateInput: isSetResponsiveRule,
-  execute: (input, context) => mutation({ type: "SetResponsiveRule", commandId: commandId("set-responsive-rule"), nodeId: input.nodeId, rule: input.rule }, input, context),
+  execute: (input, context) => {
+    const command = { type: "SetResponsiveRule", commandId: stableId("set-responsive-rule", input), nodeId: input.nodeId, rule: input.rule } satisfies UICommand;
+    return mutation(command, input, context);
+  },
 };
 const createComponent: AgentToolDefinition<CreateComponentInput, MutationResult> = {
   name: "create_component",
   description: "Propose attaching a component instance to an existing semantic node.",
   validateInput: isCreateComponent,
-  execute: (input, context) => mutation({ type: "UpdateNode", commandId: commandId("create-component"), nodeId: input.nodeId, patch: { component: { registryId: input.registryId, variant: input.variant, props: input.props } } }, input, context),
+  execute: (input, context) => {
+    const command = { type: "UpdateNode", commandId: stableId("create-component", input), nodeId: input.nodeId, patch: { component: { registryId: input.registryId, variant: input.variant, props: input.props } } } satisfies UICommand;
+    return mutation(command, input, context);
+  },
 };
 
 export function registerMutationTools(registry: AgentToolRegistry): AgentToolRegistry {
