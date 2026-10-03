@@ -200,6 +200,29 @@ test("project-first production flow starts from real product intent", async ({
   await expect(
     page.getByTestId("canvas").getByText("Add expense"),
   ).toBeVisible();
+
+  // Semantic Layers must mirror the canonical Screen → Frame → Nodes hierarchy.
+  await expect(
+    page.getByTestId("layer-frame-frame.screen.e2e.expenses"),
+  ).toBeVisible();
+  await expect(page.getByTestId("layer-node-node.e2e.hero")).toBeVisible();
+
+  await page.getByTestId("layer-frame-frame.screen.e2e.expenses").click();
+  await expect(
+    page.getByTestId("layer-frame-frame.screen.e2e.expenses"),
+  ).toHaveAttribute("aria-current", "true");
+
+  await page.getByTestId("layer-node-node.e2e.hero").click();
+  await expect(page.getByTestId("layer-node-node.e2e.hero")).toHaveAttribute(
+    "aria-current",
+    "true",
+  );
+  await expect(
+    page.getByTestId("semantic-inspector").getByText("Expense overview", {
+      exact: true,
+    }),
+  ).toBeVisible();
+
   await page.getByRole("button", { name: "Expenses", exact: true }).click();
 
   // Visual design must render the same semantic schema through the real renderer,
