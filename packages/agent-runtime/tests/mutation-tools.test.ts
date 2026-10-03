@@ -111,6 +111,104 @@ describe("semantic mutation agent tools", () => {
     ).toBe(false);
   });
 
+  it("rejects container-only bootstrap screens", async () => {
+    const document = structuredClone(workspaceFixture);
+    const root = document.nodes[document.screens[0]?.rootNodeId ?? ""];
+    if (!root) throw new Error("fixture root node not found");
+
+    const result = await createAgentToolRegistry().execute(
+      "create_flow",
+      {
+        screens: [
+          {
+            screen: {
+              id: "screen.agent.thin",
+              name: "Thin",
+              route: "/thin",
+              rootNodeId: "node.agent.thin.root",
+              nodeIds: ["node.agent.thin.root"],
+            },
+            rootNode: {
+              ...root,
+              id: "node.agent.thin.root",
+              screenId: "screen.agent.thin",
+              childrenIds: [],
+            },
+          },
+        ],
+        nodes: [
+          {
+            ...root,
+            id: "node.agent.thin.section",
+            screenId: "screen.agent.thin",
+            parentId: "node.agent.thin.root",
+            childrenIds: [],
+            type: "section",
+            content: { label: "Header" },
+          },
+        ],
+      },
+      AgentRuntime.createContext(document),
+      "call-thin-flow",
+    );
+
+    expect(result.ok).toBe(false);
+    expect(result.error?.message).toContain("CREATE_FLOW_WIREFRAME_TOO_THIN");
+  });
+
+  it("accepts a bootstrap screen with concrete semantic nodes", async () => {
+    const document = structuredClone(workspaceFixture);
+    const root = document.nodes[document.screens[0]?.rootNodeId ?? ""];
+    if (!root) throw new Error("fixture root node not found");
+
+    const result = await createAgentToolRegistry().execute(
+      "create_flow",
+      {
+        screens: [
+          {
+            screen: {
+              id: "screen.agent.real",
+              name: "Dashboard",
+              route: "/dashboard",
+              rootNodeId: "node.agent.real.root",
+              nodeIds: ["node.agent.real.root"],
+            },
+            rootNode: {
+              ...root,
+              id: "node.agent.real.root",
+              screenId: "screen.agent.real",
+              childrenIds: [],
+            },
+          },
+        ],
+        nodes: [
+          {
+            ...root,
+            id: "node.agent.real.summary",
+            screenId: "screen.agent.real",
+            parentId: "node.agent.real.root",
+            childrenIds: [],
+            type: "card",
+            content: { label: "Today's progress" },
+          },
+          {
+            ...root,
+            id: "node.agent.real.cta",
+            screenId: "screen.agent.real",
+            parentId: "node.agent.real.root",
+            childrenIds: [],
+            type: "button",
+            content: { label: "Start lesson" },
+          },
+        ],
+      },
+      AgentRuntime.createContext(document),
+      "call-real-flow",
+    );
+
+    expect(result.ok).toBe(true);
+  });
+
   it("rejects invalid destructive operations with a structured error", async () => {
     const document = structuredClone(workspaceFixture);
     const screen = document.screens[0];
