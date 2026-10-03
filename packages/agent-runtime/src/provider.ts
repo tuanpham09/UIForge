@@ -4,6 +4,8 @@ import type { AgentModelProvider, AgentModelRequest, AgentModelResponse } from "
 import type { AgentMessage, AgentToolCall } from "./contracts";
 import { OpenAIResponsesProvider } from "./openai-provider";
 import type { AgentProviderConfig } from "./provider-config";
+
+type ChatMessage = { role: "system" | "user" | "assistant" | "tool"; content: string; tool_call_id?: string; tool_calls?: Array<{ id: string; type: "function"; function: { name: string; arguments: string } }> };
 type ChatResponse = { choices?: Array<{ message?: { role?: string; content?: string; tool_calls?: Array<{ id?: string; function?: { name?: string; arguments?: string } }> } }>; error?: { message?: string } };
 
 function toChatMessages(request: AgentModelRequest): ChatMessage[] {
