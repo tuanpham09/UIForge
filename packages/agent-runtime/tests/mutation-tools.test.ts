@@ -93,15 +93,21 @@ describe("semantic mutation agent tools", () => {
       "call-create-flow",
     );
     expect(result.ok).toBe(true);
-    const output = result.output as { proposal: { commands: Array<{ type: string }> } };
+    const output = result.output as {
+      proposal: { commands: Array<{ type: string }> };
+    };
     expect(output.proposal.commands.map((command) => command.type)).toEqual([
       "CreateScreen",
       "CreateScreen",
       "CreateNode",
       "CreateNode",
     ]);
-    expect(document.screens.some((screen) => screen.id === "screen.agent.dashboard")).toBe(false);
-    expect(document.screens.some((screen) => screen.id === "screen.agent.expenses")).toBe(false);
+    expect(
+      document.screens.some((screen) => screen.id === "screen.agent.dashboard"),
+    ).toBe(false);
+    expect(
+      document.screens.some((screen) => screen.id === "screen.agent.expenses"),
+    ).toBe(false);
   });
 
   it("rejects invalid destructive operations with a structured error", async () => {
