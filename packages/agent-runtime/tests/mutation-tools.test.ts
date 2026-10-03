@@ -90,6 +90,7 @@ describe("semantic mutation agent tools", () => {
           },
         ],
       },
+      AgentRuntime.createContext(document),
       "call-create-flow",
     );
     expect(result.ok).toBe(true);
