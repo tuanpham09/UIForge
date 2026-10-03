@@ -28,6 +28,82 @@ describe("semantic mutation agent tools", () => {
     expect(document.nodes[node.id]?.content?.text).not.toBe("Updated");
   });
 
+  it("proposes a complete multi-screen flow atomically", async () => {
+    const document = structuredClone(workspaceFixture);
+    const root = document.screens[0]?.rootNodeId;
+    const rootNode = root ? document.nodes[root] : undefined;
+    if (!rootNode) throw new Error("fixture root node not found");
+    const registry = createAgentToolRegistry();
+    const result = await registry.execute(
+      "create_flow",
+      {
+        screens: [
+          {
+            screen: {
+              id: "screen.agent.dashboard",
+              name: "Dashboard",
+              route: "/dashboard",
+              rootNodeId: "node.agent.dashboard.root",
+              nodeIds: ["node.agent.dashboard.root"],
+            },
+            rootNode: {
+              ...rootNode,
+              id: "node.agent.dashboard.root",
+              screenId: "screen.agent.dashboard",
+              childrenIds: [],
+            },
+          },
+          {
+            screen: {
+              id: "screen.agent.expenses",
+              name: "Expenses",
+              route: "/expenses",
+              rootNodeId: "node.agent.expenses.root",
+              nodeIds: ["node.agent.expenses.root"],
+            },
+            rootNode: {
+              ...rootNode,
+              id: "node.agent.expenses.root",
+              screenId: "screen.agent.expenses",
+              childrenIds: [],
+            },
+          },
+        ],
+        nodes: [
+          {
+            ...rootNode,
+            id: "node.agent.dashboard.summary",
+            screenId: "screen.agent.dashboard",
+            parentId: "node.agent.dashboard.root",
+            childrenIds: [],
+            type: "section",
+            content: { label: "Summary" },
+          },
+          {
+            ...rootNode,
+            id: "node.agent.expenses.list",
+            screenId: "screen.agent.expenses",
+            parentId: "node.agent.expenses.root",
+            childrenIds: [],
+            type: "section",
+            content: { label: "Expense list" },
+          },
+        ],
+      },
+      "call-create-flow",
+    );
+    expect(result.ok).toBe(true);
+    const output = result.output as { proposal: { commands: Array<{ type: string }> } };
+    expect(output.proposal.commands.map((command) => command.type)).toEqual([
+      "CreateScreen",
+      "CreateScreen",
+      "CreateNode",
+      "CreateNode",
+    ]);
+    expect(document.screens.some((screen) => screen.id === "screen.agent.dashboard")).toBe(false);
+    expect(document.screens.some((screen) => screen.id === "screen.agent.expenses")).toBe(false);
+  });
+
   it("rejects invalid destructive operations with a structured error", async () => {
     const document = structuredClone(workspaceFixture);
     const screen = document.screens[0];
