@@ -174,3 +174,4 @@ test("project-first production flow starts from real product intent", async ({
   await expect(page.getByText("Add expense")).toBeVisible();
 });
 
+
