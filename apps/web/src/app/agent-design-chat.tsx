@@ -2,7 +2,7 @@
 // biome-ignore-all assist/source/organizeImports: compact product import surface
 "use client";
 
-import { AGENT_PROVIDER_PRESETS, getAgentProviderPreset, runDesignChat, type AgentMessage, type AgentProviderConfig, type DesignChatResult, type DesignProposal } from "@uiforge/agent-runtime";
+import { AGENT_PROVIDER_PRESETS, getAgentProviderPreset, type AgentMessage, type AgentProviderConfig, type DesignChatResult, type DesignProposal } from "@uiforge/agent-runtime";
 import type { NodeId, ScreenId, UIDocument } from "@uiforge/ui-schema";
 import { useEffect, useMemo, useState } from "react";
 
@@ -46,7 +46,7 @@ export default function AgentDesignChat({document,screenId,nodeIds,frameIds,open
   if(next.memory)setMemory(next.memory);if(next.sessionId)setSession(next.sessionId);return next;
  };
 
- const send=async()=>{const request=draft.trim();if(!request||busy)return;setDraft("");setMessages(items=>[...items,{id:`${Date.now()}`,role:"user",text:request}]);setBusy(true);try{const next=(await runServerAgent(request))??await runDesignChat(document,request,{screenId,nodeIds,frameIds});setResult(next);setMessages(items=>[...items,{id:`${Date.now()}-assistant`,role:"assistant",text:next.reply}]);}finally{setBusy(false);}};
+ const send=async()=>{const request=draft.trim();if(!request||busy)return;setDraft("");setMessages(items=>[...items,{id:`${Date.now()}`,role:"user",text:request}]);setBusy(true);try{const next=await runServerAgent(request);setResult(next);setMessages(items=>[...items,{id:`${Date.now()}-assistant`,role:"assistant",text:next.reply}]);}catch(error){setResult(null);setMessages(items=>[...items,{id:`${Date.now()}-assistant-error`,role:"assistant",text:error instanceof Error?error.message:"Design Agent request failed."}]);}finally{setBusy(false);}};
 
  if(!open)return null;
 
