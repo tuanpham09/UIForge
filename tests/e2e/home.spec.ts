@@ -78,6 +78,25 @@ test("project-first production flow starts from real product intent", async ({
           baseRevision: 1,
           commands: [
             {
+              type: "CreateScreen",
+              commandId: "command.e2e.expenses",
+              screen: {
+                id: "screen.e2e.expenses",
+                name: "Expenses",
+                route: "/expenses",
+                rootNodeId: "node.e2e.expenses.root",
+                nodeIds: ["node.e2e.expenses.root"],
+              },
+              rootNode: {
+                id: "node.e2e.expenses.root",
+                screenId: "screen.e2e.expenses",
+                parentId: null,
+                childrenIds: [],
+                type: "screen-root",
+                layout: { mode: "stack", direction: "column" },
+              },
+            },
+            {
               type: "CreateNode",
               commandId: "command.e2e.hero",
               node: {
@@ -90,8 +109,21 @@ test("project-first production flow starts from real product intent", async ({
                 content: { label: "Expense overview" },
               },
             },
+            {
+              type: "CreateNode",
+              commandId: "command.e2e.expense-list",
+              node: {
+                id: "node.e2e.expense-list",
+                screenId: "screen.e2e.expenses",
+                parentId: "node.e2e.expenses.root",
+                childrenIds: [],
+                type: "section",
+                layout: { mode: "stack", direction: "column" },
+                content: { label: "Expense list" },
+              },
+            },
           ],
-          summary: "Create the initial expense overview wireframe.",
+          summary: "Create the initial expense overview and expense list flow.",
           preview: ["Create section node.e2e.hero"],
           risk: "safe",
           status: "pending",
