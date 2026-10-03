@@ -3,6 +3,8 @@
 import { AgentBrain, compactAgentMessages, createAgentModelProvider, createFullAgentToolRegistry, createProposal, type AgentContext, type AgentEvent, type AgentMessage, type AgentPlan, type AgentProviderConfig, type AgentToolResult } from "@uiforge/agent-runtime";
 import type { NodeId, UIDocument } from "@uiforge/ui-schema";
 import { NextResponse } from "next/server";
+
+type Body = { prompt?: unknown; document?: unknown; screenId?: unknown; nodeIds?: unknown; frameIds?: unknown; sessionId?: unknown; history?: unknown; provider?: unknown };
 const isDocument=(value:unknown):value is UIDocument=>typeof value==="object"&&value!==null&&"nodes" in value&&"screens" in value&&"revision" in value;
 const isHistory=(value:unknown):value is AgentMessage[]=>Array.isArray(value)&&value.every((item)=>typeof item==="object"&&item!==null&&["user","assistant","system","tool"].includes((item as {role?:unknown}).role as string)&&typeof (item as {content?:unknown}).content==="string");
 const commandsFromResults=(results:readonly AgentToolResult[])=>results.filter((result)=>result.ok&&typeof result.output==="object"&&result.output!==null&&"proposal" in result.output).flatMap((result)=>{const proposal=(result.output as {proposal?:{commands?:unknown}}).proposal;return Array.isArray(proposal?.commands)?proposal.commands:[];});
