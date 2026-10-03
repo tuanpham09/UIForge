@@ -38,7 +38,7 @@ export default function AgentDesignChat({ document, screenId, nodeIds, frameIds,
   if(!mcpToken)return;
   const timer=window.setTimeout(()=>{void fetch("/api/mcp/session",{method:"PUT",headers:{"Content-Type":"application/json",Authorization:`Bearer ${mcpToken}`},body:JSON.stringify({document,selection:{screenId,nodeIds,frameIds}})}).catch(()=>undefined);},250);
   return()=>window.clearTimeout(timer);
- },[document.revision.revision,mcpToken,selectionKey]);
+ },[document,mcpToken,screenId,nodeIds,frameIds]);
 
  const createMcpBridge=async()=>{
   setMcpBusy(true);
