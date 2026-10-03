@@ -184,6 +184,10 @@ export default function EditorCanvas({ initialDocument, onDocumentChange, autoOp
   const [designChatOpen, setDesignChatOpen] = useState(autoOpenAgentChat);
 
   useEffect(() => {
+    if (autoOpenAgentChat) setDesignChatOpen(true);
+  }, [autoOpenAgentChat]);
+
+  useEffect(() => {
     onDocumentChange?.(structuredClone(document));
   }, [document, onDocumentChange]);
 
