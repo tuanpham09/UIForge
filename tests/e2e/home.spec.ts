@@ -23,7 +23,9 @@ test("project-first production flow starts from real product intent", async ({
   await page.getByTestId("create-project-submit").click();
   await expect(page).toHaveURL(/\/project\//);
 
-  await expect(page.getByTestId("project-bootstrap")).toBeVisible({ timeout: 15000 });
+  await expect(page.getByTestId("project-bootstrap")).toBeVisible({
+    timeout: 15000,
+  });
   await expect(page.getByTestId("project-bootstrap")).toContainText(
     "E2E Expense App",
   );
