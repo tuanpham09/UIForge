@@ -11,7 +11,7 @@ import {
   type UICommand,
   type UIDocument,
   type UINode,
-from "@uiforge/ui-schema";
+} from "@uiforge/ui-schema";
 import type { AgentToolDefinition } from "./contracts";
 import { AgentToolRegistry } from "./registry";
 
