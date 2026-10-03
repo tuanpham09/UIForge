@@ -112,10 +112,18 @@ export function applyCommand(
       if (document.screens.some((screen) => screen.id === command.screen.id)) {
         throw new UICommandError(`screen already exists: ${command.screen.id}`);
       }
-      if (command.rootNode.type !== "screen-root" || command.rootNode.parentId !== null) {
-        throw new UICommandError("created screen root must be a parentless screen-root node");
+      if (
+        command.rootNode.type !== "screen-root" ||
+        command.rootNode.parentId !== null
+      ) {
+        throw new UICommandError(
+          "created screen root must be a parentless screen-root node",
+        );
       }
-      if (command.rootNode.id !== command.screen.rootNodeId || command.rootNode.screenId !== command.screen.id) {
+      if (
+        command.rootNode.id !== command.screen.rootNodeId ||
+        command.rootNode.screenId !== command.screen.id
+      ) {
         throw new UICommandError("screen root does not match screen metadata");
       }
       if (document.nodes[command.rootNode.id]) {
