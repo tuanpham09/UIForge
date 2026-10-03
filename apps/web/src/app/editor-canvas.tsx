@@ -489,22 +489,30 @@ export default function EditorCanvas({ initialDocument, onDocumentChange, autoOp
   };
 
   const selectSemanticLayer = (layer: SemanticLayer) => {
+    if (layer.kind === "screen") {
+      selectScreen(layer.id);
+      return;
+    }
+
     const id = layer.nodeId ?? layer.frameId;
     if (!id || !editorRef.current) return;
+
     editorRef.current.select(`shape:${id}` as never);
     if (layer.kind === "frame") {
+      setSelectedScreenId(layer.parentId ?? selectedScreenId);
       setSelectedFrameId(id as FrameId);
       setSelectedFrameIds([id as FrameId]);
       syncViewportToFrame(id as FrameId);
       setSelectedNodeId(null);
       setSelectedNodeIds([]);
+      return;
     }
-    if (layer.kind === "node") {
-      setSelectedNodeId(id as NodeId);
-      setSelectedNodeIds([id as NodeId]);
-      setSelectedFrameId(null);
-      setSelectedFrameIds([]);
-    }
+
+    setSelectedScreenId(document.nodes[id as NodeId]?.screenId ?? selectedScreenId);
+    setSelectedNodeId(id as NodeId);
+    setSelectedNodeIds([id as NodeId]);
+    setSelectedFrameId(null);
+    setSelectedFrameIds([]);
   };
 
   const updateNode = (nodeId: NodeId, patch: NodePatch) => {
@@ -595,6 +603,10 @@ export default function EditorCanvas({ initialDocument, onDocumentChange, autoOp
         >
           <button
             type="button"
+            data-testid={`layer-${layer.kind}-${layer.id}`}
+            data-layer-id={layer.id}
+            data-layer-kind={layer.kind}
+            aria-current={selected ? "true" : undefined}
             className="min-w-0 flex-1 truncate text-left"
             onClick={() => selectSemanticLayer(layer)}
             title={layer.name}
@@ -606,6 +618,7 @@ export default function EditorCanvas({ initialDocument, onDocumentChange, autoOp
             <>
               <button
                 type="button"
+                data-testid={`layer-rename-${layer.id}`}
                 title="Rename"
                 className="opacity-0 group-hover:opacity-100"
                 onClick={() => renameLayer(layer)}
@@ -614,6 +627,7 @@ export default function EditorCanvas({ initialDocument, onDocumentChange, autoOp
               </button>
               <button
                 type="button"
+                data-testid={`layer-move-up-${layer.id}`}
                 title="Move up"
                 className="opacity-0 group-hover:opacity-100"
                 onClick={() => moveLayer(layer, -1)}
@@ -622,6 +636,7 @@ export default function EditorCanvas({ initialDocument, onDocumentChange, autoOp
               </button>
               <button
                 type="button"
+                data-testid={`layer-move-down-${layer.id}`}
                 title="Move down"
                 className="opacity-0 group-hover:opacity-100"
                 onClick={() => moveLayer(layer, 1)}
@@ -630,6 +645,7 @@ export default function EditorCanvas({ initialDocument, onDocumentChange, autoOp
               </button>
               <button
                 type="button"
+                data-testid={`layer-visibility-${layer.id}`}
                 title="Toggle visibility"
                 className="opacity-70"
                 onClick={() => toggleLayerVisibility(layer)}
@@ -638,6 +654,7 @@ export default function EditorCanvas({ initialDocument, onDocumentChange, autoOp
               </button>
               <button
                 type="button"
+                data-testid={`layer-lock-${layer.id}`}
                 title="Toggle lock"
                 className="opacity-70"
                 onClick={() => toggleLayerLock(layer)}
