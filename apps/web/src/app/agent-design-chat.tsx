@@ -4,7 +4,7 @@
 
 import { AGENT_PROVIDER_PRESETS, getAgentProviderPreset, runDesignChat, type AgentMessage, type AgentProviderConfig, type DesignChatResult, type DesignProposal } from "@uiforge/agent-runtime";
 import type { NodeId, ScreenId, UIDocument } from "@uiforge/ui-schema";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 type Message = { id:string; role:"user"|"assistant"; text:string };
 type Props = { document:UIDocument; screenId:ScreenId; nodeIds:NodeId[]; frameIds:string[]; open:boolean; onClose:()=>void; onApply:(proposal:DesignProposal)=>void; };
 
@@ -18,11 +18,11 @@ export default function AgentDesignChat({ document, screenId, nodeIds, frameIds,
  const [result,setResult]=useState<DesignChatResult|null>(null);
  const [appliedId,setAppliedId]=useState<string|null>(null);
  const [showSettings,setShowSettings]=useState(false);
+ const [mcpToken,setMcpToken]=useState("");
+ const [mcpBusy,setMcpBusy]=useState(false);
  const [_session,setSession]=useState(sessionId);
  const [provider,setProvider]=useState<AgentProviderConfig>(()=>{const preset=AGENT_PROVIDER_PRESETS[0];if(!preset)throw new Error("No agent provider presets configured");return{id:preset.id,name:preset.name,protocol:preset.protocol,baseUrl:preset.baseUrl,model:preset.defaultModel,apiKey:""};});
  const contextLabel=useMemo(()=>nodeIds.length?`${nodeIds.length} selected node${nodeIds.length>1?"s":""}`:"No node selected",[nodeIds]);
-
- if(!open)return null;
 
  const selectProvider=(id:string)=>{
   const preset=getAgentProviderPreset(id); if(!preset)return;
@@ -30,6 +30,21 @@ export default function AgentDesignChat({ document, screenId, nodeIds, frameIds,
  };
 
  const resetSession=()=>{setSession(sessionId());setMemory([]);setMessages([]);setResult(null);setAppliedId(null);};
+
+ useEffect(()=>{
+  if(!mcpToken)return;
+  const timer=window.setTimeout(()=>{void fetch("/api/mcp/session",{method:"PUT",headers:{"Content-Type":"application/json",Authorization:`Bearer ${mcpToken}`},body:JSON.stringify({document,selection:{screenId,nodeIds,frameIds}})}).catch(()=>undefined);},250);
+  return()=>window.clearTimeout(timer);
+ },[document,mcpToken,screenId,nodeIds,frameIds]);
+
+ const createMcpBridge=async()=>{
+  setMcpBusy(true);
+  try{
+   const response=await fetch("/api/mcp/session",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({document,selection:{screenId,nodeIds,frameIds}})});
+   if(response.ok){const data=await response.json() as {token?:string};if(data.token)setMcpToken(data.token);}
+  }finally{setMcpBusy(false);}
+ };
+ const mcpConfig=typeof window==="undefined"?"":JSON.stringify({mcp:{servers:{uiforge:{type:"remote",url:`${window.location.origin}/api/mcp`,oauth:false,headers:{Authorization:mcpToken?`Bearer ${mcpToken}`:"Bearer <TOKEN>"}}}}},null,2);
 
  const runServerAgent=async(request:string):Promise<DesignChatResult|null>=>{
   if(!provider.apiKey.trim())return null;
@@ -53,6 +68,8 @@ export default function AgentDesignChat({ document, screenId, nodeIds, frameIds,
   }finally{setBusy(false);}
  };
 
+ if(!open)return null;
+
  return <aside className="flex h-full min-w-0 flex-col border-l border-slate-800 bg-slate-950" data-testid="agent-design-chat">
   <header className="border-b border-slate-800 px-3 py-2.5">
    <div className="flex items-center justify-between">
@@ -66,6 +83,12 @@ export default function AgentDesignChat({ document, screenId, nodeIds, frameIds,
     <label className="block text-[10px] text-slate-500">Endpoint / Base URL<input value={provider.baseUrl??""} onChange={(event)=>setProvider((current)=>({...current,baseUrl:event.target.value}))} className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-[11px] text-white"/></label>
     <p className="text-[9px] leading-4 text-slate-600">API keys are not written to the UI document or local storage. Custom endpoints support OpenAI-compatible APIs.</p>
     <button type="button" onClick={resetSession} className="rounded border border-slate-700 px-2 py-1 text-[10px] text-slate-300 hover:bg-slate-800">New agent session</button>
+    <div className="mt-2 border-t border-slate-800 pt-2">
+      <div className="flex items-center justify-between"><span className="text-[10px] font-medium text-slate-300">MCP Bridge</span><span className={mcpToken?"text-emerald-400":"text-slate-600"}>{mcpToken?"Connected":"Not connected"}</span></div>
+      <p className="mt-1 text-[9px] leading-4 text-slate-600">Connect OpenCode/Codex/Claude or another MCP client to inspect this UI and request proposal-only changes.</p>
+      <button type="button" disabled={mcpBusy} onClick={()=>void createMcpBridge()} className="mt-2 rounded border border-cyan-500/40 px-2 py-1 text-[10px] text-cyan-300 disabled:opacity-40">{mcpBusy?"Creating…":mcpToken?"Regenerate bridge":"Create MCP bridge"}</button>
+      {mcpToken?<textarea readOnly value={mcpConfig} className="mt-2 h-28 w-full resize-none rounded border border-slate-800 bg-slate-950 p-2 font-mono text-[8px] text-slate-500" aria-label="MCP configuration"/>:null}
+    </div>
    </div>:null}
   </header>
   <div className="flex-1 space-y-3 overflow-auto p-3">
