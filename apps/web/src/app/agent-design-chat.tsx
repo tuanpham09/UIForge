@@ -5,11 +5,6 @@
 import { AGENT_PROVIDER_PRESETS, getAgentProviderPreset, runDesignChat, type AgentMessage, type AgentProviderConfig, type DesignChatResult, type DesignProposal } from "@uiforge/agent-runtime";
 import type { NodeId, ScreenId, UIDocument } from "@uiforge/ui-schema";
 import { useMemo, useState } from "react";
-"use client";
-
-import { type DesignChatResult, type DesignProposal, runDesignChat, type AgentMessage, type AgentProviderConfig, AGENT_PROVIDER_PRESETS, getAgentProviderPreset } from "@uiforge/agent-runtime";
-import { useMemo, useState } from "react";
-
 type Message = { id:string; role:"user"|"assistant"; text:string };
 type Props = { document:UIDocument; screenId:ScreenId; nodeIds:NodeId[]; frameIds:string[]; open:boolean; onClose:()=>void; onApply:(proposal:DesignProposal)=>void; };
 
