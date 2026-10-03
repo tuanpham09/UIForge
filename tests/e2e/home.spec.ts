@@ -145,7 +145,7 @@ test("project-first production flow starts from real product intent", async ({
 
   await expect(page.getByTestId("agent-proposal")).toBeVisible();
   await expect(page.getByTestId("agent-proposal")).toContainText(
-    "Create the initial expense overview wireframe.",
+    "Create the initial expense overview and expense list flow.",
   );
   await expect(page.getByText(/deterministic mutation rule/i)).toHaveCount(0);
 });
