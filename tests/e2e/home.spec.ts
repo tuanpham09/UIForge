@@ -218,7 +218,9 @@ test("project-first production flow starts from real product intent", async ({
     "true",
   );
   await expect(
-    page.getByText("Expense overview", { exact: true }),
+    page.getByTestId("semantic-inspector").getByText("Expense overview", {
+      exact: true,
+    }),
   ).toBeVisible();
 
   await page.getByRole("button", { name: "Expenses", exact: true }).click();
