@@ -97,12 +97,29 @@ test("project-first production flow starts from real product intent", async ({
               },
             },
             {
+              type: "CreateFrame",
+              commandId: "command.e2e.expenses.frame",
+              frame: {
+                id: "frame.screen.e2e.expenses",
+                screenId: "screen.e2e.expenses",
+                presetId: "iphone-16",
+                name: "Expenses · iPhone 16",
+                x: 80,
+                y: 80,
+                width: 390,
+                height: 844,
+                orientation: "portrait",
+                presetVersion: "uiforge.frame/v1",
+              },
+            },
+            {
               type: "CreateNode",
               commandId: "command.e2e.hero",
               node: {
                 id: "node.e2e.hero",
                 screenId: "screen.e2e.expenses",
                 parentId: "node.e2e.expenses.root",
+                frameId: "frame.screen.e2e.expenses",
                 childrenIds: [],
                 type: "card",
                 layout: { mode: "stack", direction: "column" },
@@ -116,6 +133,7 @@ test("project-first production flow starts from real product intent", async ({
                 id: "node.e2e.expense-list",
                 screenId: "screen.e2e.expenses",
                 parentId: "node.e2e.expenses.root",
+                frameId: "frame.screen.e2e.expenses",
                 childrenIds: [],
                 type: "list",
                 layout: { mode: "stack", direction: "column" },
@@ -129,6 +147,7 @@ test("project-first production flow starts from real product intent", async ({
                 id: "node.e2e.add-expense",
                 screenId: "screen.e2e.expenses",
                 parentId: "node.e2e.expenses.root",
+                frameId: "frame.screen.e2e.expenses",
                 childrenIds: [],
                 type: "button",
                 layout: { mode: "flex", direction: "row" },
@@ -169,6 +188,7 @@ test("project-first production flow starts from real product intent", async ({
   await expect(page.getByTestId("design-stage-status")).toContainText(
     "Structural wireframe",
   );
+  await expect(page.getByTestId("canvas").getByText("Expenses · iPhone 16")).toBeVisible();
   await expect(
     page.getByTestId("canvas").getByText("Expense overview"),
   ).toBeVisible();
