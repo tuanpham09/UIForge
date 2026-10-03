@@ -12,10 +12,10 @@ test("project dashboard creates an AI-first project and opens the workspace", as
   await page.getByTestId("project-name").fill("E2E Expense App");
   await page
     .getByTestId("project-description")
-    .fill("An expense management app for tracking spending and understanding monthly cash flow.");
+    .fill(\n      "An expense management app for tracking spending and understanding monthly cash flow.",\n    );
   await page
     .getByTestId("project-features")
-    .fill("Expenses, categories, monthly reports, dashboard and navigation flows.");
+    .fill(\n      "Expenses, categories, monthly reports, dashboard and navigation flows.",\n    );
   await page.getByTestId("create-project-submit").click();
   await expect(page.getByTestId("project-bootstrap")).toBeVisible();
   await expect(page.getByTestId("project-bootstrap")).toContainText(
