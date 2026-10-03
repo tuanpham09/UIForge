@@ -32,19 +32,53 @@ type CreateComponentInput = { nodeId: NodeId; registryId: string; variant?: stri
 
 const record = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
-const hasString = (value: Record<string, unknown>, key: string) => typeof value[key] === "string" && value[key].length > 0;
-const optionalDryRun = (value: Record<string, unknown>) => value.dryRun === undefined || typeof value.dryRun === "boolean";
-const valid = (value: unknown, required: string[]) => record(value) && required.every((key) => hasString(value, key)) && optionalDryRun(value);
+const hasString = (value: Record<string, unknown>, key: string) =>
+  typeof value[key] === "string" && value[key].length > 0;
+const optionalDryRun = (value: Record<string, unknown>) =>
+  value.dryRun === undefined || typeof value.dryRun === "boolean";
 
-const isCreateNode = (value: unknown): value is CreateNodeInput => record(value) && record(value.node) && hasString(value.node, "id") && hasString(value.node, "screenId") && hasString(value.node, "type") && Array.isArray(value.node.childrenIds) && optionalDryRun(value);
-const isUpdateNode = (value: unknown): value is UpdateNodeInput => valid(value, ["nodeId"]) && record(value.patch);
-const isDeleteNode = (value: unknown): value is DeleteNodeInput => valid(value, ["nodeId"]) && (value.recursive === undefined || typeof value.recursive === "boolean");
-const isMoveNode = (value: unknown): value is MoveNodeInput => valid(value, ["nodeId"]) && typeof value.toIndex === "number" && Number.isInteger(value.toIndex) && value.toIndex >= 0;
-const isSetStyle = (value: unknown): value is SetStyleInput => valid(value, ["nodeId"]) && record(value.style);
-const isSetToken = (value: unknown): value is SetTokenInput => valid(value, ["nodeId", "slot", "token"]);
-const isSetLayout = (value: unknown): value is SetLayoutInput => valid(value, ["nodeId"]) && record(value.layout) && hasString(value.layout, "mode");
-const isSetResponsiveRule = (value: unknown): value is SetResponsiveRuleInput => valid(value, ["nodeId"]) && record(value.rule) && hasString(value.rule, "breakpoint");
-const isCreateComponent = (value: unknown): value is CreateComponentInput => valid(value, ["nodeId", "registryId"]);
+const isCreateNode = (value: unknown): value is CreateNodeInput => {
+  if (!record(value) || !record(value.node)) return false;
+  return (
+    hasString(value.node, "id") &&
+    hasString(value.node, "screenId") &&
+    hasString(value.node, "type") &&
+    Array.isArray(value.node.childrenIds) &&
+    optionalDryRun(value)
+  );
+};
+const isUpdateNode = (value: unknown): value is UpdateNodeInput => {
+  if (!record(value)) return false;
+  return hasString(value, "nodeId") && record(value.patch) && optionalDryRun(value);
+};
+const isDeleteNode = (value: unknown): value is DeleteNodeInput => {
+  if (!record(value)) return false;
+  return hasString(value, "nodeId") && (value.recursive === undefined || typeof value.recursive === "boolean") && optionalDryRun(value);
+};
+const isMoveNode = (value: unknown): value is MoveNodeInput => {
+  if (!record(value)) return false;
+  return hasString(value, "nodeId") && typeof value.toIndex === "number" && Number.isInteger(value.toIndex) && value.toIndex >= 0 && optionalDryRun(value);
+};
+const isSetStyle = (value: unknown): value is SetStyleInput => {
+  if (!record(value)) return false;
+  return hasString(value, "nodeId") && record(value.style) && optionalDryRun(value);
+};
+const isSetToken = (value: unknown): value is SetTokenInput => {
+  if (!record(value)) return false;
+  return hasString(value, "nodeId") && hasString(value, "slot") && hasString(value, "token") && optionalDryRun(value);
+};
+const isSetLayout = (value: unknown): value is SetLayoutInput => {
+  if (!record(value) || !record(value.layout)) return false;
+  return hasString(value, "nodeId") && hasString(value.layout, "mode") && optionalDryRun(value);
+};
+const isSetResponsiveRule = (value: unknown): value is SetResponsiveRuleInput => {
+  if (!record(value) || !record(value.rule)) return false;
+  return hasString(value, "nodeId") && hasString(value.rule, "breakpoint") && optionalDryRun(value);
+};
+const isCreateComponent = (value: unknown): value is CreateComponentInput => {
+  if (!record(value)) return false;
+  return hasString(value, "nodeId") && hasString(value, "registryId") && optionalDryRun(value);
+};
 
 const commandId = (name: string) => `agent.${name}.${Date.now()}.${Math.random().toString(36).slice(2, 7)}`;
 
