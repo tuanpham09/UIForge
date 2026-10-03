@@ -1,7 +1,13 @@
 // biome-ignore-all format: agent brain tests remain compact for review
 import { workspaceFixture } from "@uiforge/ui-schema";
 import { describe, expect, it } from "vitest";
-import {\n  AgentBrain,\n  AgentRuntime,\n  createFullAgentToolRegistry,\n  type AgentModelProvider,\n  type AgentModelResponse,\n} from "../src";
+import {
+  AgentBrain,
+  AgentRuntime,
+  createFullAgentToolRegistry,
+  type AgentModelProvider,
+  type AgentModelResponse,
+} from "../src";
 
 const context = () => AgentRuntime.createContext(structuredClone(workspaceFixture), "session.brain", "run.brain");
 
