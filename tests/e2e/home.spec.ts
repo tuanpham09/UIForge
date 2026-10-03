@@ -48,4 +48,56 @@ test("project-first production flow starts from real product intent", async ({
 
   await page.keyboard.press("Escape");
   await expect(page.getByTestId("agent-settings-modal")).toBeHidden();
+
+  await page.route("**/api/agent/design", async (route) => {
+    const request = route.request().postDataJSON() as { document: { screens: Array<{ id: string; rootNodeId: string }> } };
+    const screen = request.document.screens[0];
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        reply: "Generated a semantic product flow proposal for review.",
+        plan: {
+          goal: "Bootstrap the initial product flow and wireframe.",
+          steps: ["Inspect project intent", "Create screens", "Create semantic wireframe", "Validate proposal"],
+        },
+        events: [],
+        proposal: {
+          id: "proposal.e2e.bootstrap",
+          baseRevision: 1,
+          commands: [{
+            type: "CreateNode",
+            commandId: "command.e2e.hero",
+            node: {
+              id: "node.e2e.hero",
+              screenId: screen.id,
+              parentId: screen.rootNodeId,
+              childrenIds: [],
+              type: "section",
+              layout: { mode: "stack", direction: "column" },
+              content: { label: "Expense overview" },
+            },
+          }],
+          summary: "Create the initial expense overview wireframe.",
+          preview: ["Create section node.e2e.hero"],
+          risk: "safe",
+          status: "pending",
+        },
+        status: "completed",
+        iterations: 3,
+        sessionId: "e2e.bootstrap",
+        memory: [],
+      }),
+    });
+  });
+
+  await page.getByTestId("generate-initial-wireframe").click();
+  await expect(page.getByTestId("agent-chat-input")).toHaveValue(/Build the initial product flow/);
+  await page.getByTestId("agent-chat-send").click();
+
+  await expect(page.getByTestId("agent-proposal")).toBeVisible();
+  await expect(page.getByTestId("agent-proposal")).toContainText(
+    "Create the initial expense overview wireframe.",
+  );
+  await expect(page.getByText(/deterministic mutation rule/i)).toHaveCount(0);
 });
