@@ -1,8 +1,9 @@
 // biome-ignore-all format: compact product UI surface
+// biome-ignore-all assist/source/organizeImports: compact product import surface
+
 "use client";
 
 import { type DesignChatResult, type DesignProposal, runDesignChat, type AgentMessage, type AgentProviderConfig, AGENT_PROVIDER_PRESETS, getAgentProviderPreset } from "@uiforge/agent-runtime";
-import type { NodeId, ScreenId, UIDocument } from "@uiforge/ui-schema";
 import { useMemo, useState } from "react";
 
 type Message = { id:string; role:"user"|"assistant"; text:string };
@@ -18,7 +19,7 @@ export default function AgentDesignChat({ document, screenId, nodeIds, frameIds,
  const [result,setResult]=useState<DesignChatResult|null>(null);
  const [appliedId,setAppliedId]=useState<string|null>(null);
  const [showSettings,setShowSettings]=useState(false);
- const [session,setSession]=useState(sessionId);
+ const [_session,setSession]=useState(sessionId);
  const [provider,setProvider]=useState<AgentProviderConfig>(()=>{const preset=AGENT_PROVIDER_PRESETS[0];return{id:preset.id,name:preset.name,protocol:preset.protocol,baseUrl:preset.baseUrl,model:preset.defaultModel,apiKey:""};});
  const contextLabel=useMemo(()=>nodeIds.length?`${nodeIds.length} selected node${nodeIds.length>1?"s":""}`:"No node selected",[nodeIds]);
 
