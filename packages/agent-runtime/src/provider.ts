@@ -10,10 +10,10 @@ type ChatMessage = {
   content: string | null;
   tool_call_id?: string;
   name?: string;
-  tool_calls?: Array<{ id: string; type: "function"; function: { name: string; arguments: string } }>;
+  tool_calls?: Array<{ id: string; type: "function"; function: { name: string; arguments: string }; extra_content?: { google?: { thought_signature?: string } } }>;
 };
 type ChatResponse = {
-  choices?: Array<{ message?: { role?: string; content?: string | null; tool_calls?: Array<{ id?: string; function?: { name?: string; arguments?: string } }> } }>;
+  choices?: Array<{ message?: { role?: string; content?: string | null; tool_calls?: Array<{ id?: string; function?: { name?: string; arguments?: string }; extra_content?: { google?: { thought_signature?: string } } }> } }>;
   error?: { message?: string; code?: string | number; status?: string; details?: unknown };
 };
 
@@ -32,6 +32,9 @@ function toChatMessages(request: AgentModelRequest): ChatMessage[] {
           id: call.id || call.toolName,
           type: "function",
           function: { name: call.toolName, arguments: JSON.stringify(call.input) },
+          ...(call.providerMetadata?.gemini?.thoughtSignature
+            ? { extra_content: { google: { thought_signature: call.providerMetadata.gemini.thoughtSignature } } }
+            : {}),
         })),
       };
     }
@@ -88,6 +91,9 @@ export class OpenAICompatibleProvider implements AgentModelProvider {
         id: call.id || (call.function?.name as string),
         toolName: call.function?.name as string,
         input: JSON.parse(call.function?.arguments ?? "{}"),
+        providerMetadata: call.extra_content?.google?.thought_signature
+          ? { gemini: { thoughtSignature: call.extra_content.google.thought_signature } }
+          : undefined,
       })) satisfies AgentToolCall[];
     const assistant: AgentMessage = {
       id: `provider.${Date.now()}`,
