@@ -14,6 +14,7 @@ export type McpSession = {
 
 const sessions = new Map<string, McpSession>();
 const mutationTools = new Set([
+  "create_screen",
   "create_node","update_node","delete_node","move_node","set_style","set_token",
   "set_layout","set_responsive_rule","create_component",
 ]);
