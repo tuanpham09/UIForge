@@ -1,7 +1,7 @@
 // biome-ignore-all format: dense editor workspace JSX is maintained as a product-layout surface
 "use client";
 
-import type { DesignProposal } from "@uiforge/agent-runtime";
+import { applyProposal, type DesignProposal } from "@uiforge/agent-runtime";
 import { buildVisualDesignProposal } from "@uiforge/design-intelligence";
 import {
   buildLayerTree,
@@ -1371,7 +1371,16 @@ export default function EditorCanvas() {
 
   const applyDesignChatProposal = (proposal: DesignProposal) => {
     try {
-      applySemantic((current) => applyCommands(current, proposal.commands));
+      const result = applyProposal(document, proposal);
+      if (result.status !== "applied" || !result.document) {
+        setInspectorError(result.error?.message ?? "Proposal could not be applied.");
+        return;
+      }
+      const next = result.document;
+      setHistoryPast((past) => [...past.slice(-49), structuredClone(document)]);
+      setHistoryFuture([]);
+      setDocument(next);
+      setInspectorError(null);
       setAiNotice(`Applied: ${proposal.summary}`);
     } catch (error) {
       setInspectorError(error instanceof Error ? error.message : String(error));
