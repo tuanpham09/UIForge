@@ -1,7 +1,6 @@
 // biome-ignore-all format: server-side provider adapter remains compact for review
-import type { AgentMessage, AgentModelProvider, AgentModelRequest, AgentModelResponse } from "./agent-brain";
-import type { AgentToolCall } from "./contracts";
-
+import { type AgentModelProvider, type AgentModelRequest, type AgentModelResponse } from "./agent-brain";
+import type { AgentMessage, AgentToolCall } from "./contracts";
 type ResponseItem={type?:string;id?:string;call_id?:string;name?:string;arguments?:string;content?:Array<{type?:string;text?:string}>};
 type OpenAIResponse={output?:ResponseItem[];output_text?:string;error?:{message?:string}};
 export interface OpenAIProviderOptions{apiKey:string;model?:string;baseUrl?:string;instructions?:string;}
@@ -9,7 +8,7 @@ export class OpenAIResponsesProvider implements AgentModelProvider{
  private readonly apiKey:string;private readonly model:string;private readonly baseUrl:string;private readonly instructions?:string;
  constructor(options:OpenAIProviderOptions){this.apiKey=options.apiKey;this.model=options.model??"gpt-5";this.baseUrl=(options.baseUrl??"https://api.openai.com").replace(/\/$/,"");this.instructions=options.instructions;}
  async complete(request:AgentModelRequest):Promise<AgentModelResponse>{
-  const input=request.messages.flatMap((message)=>{
+  const input: unknown[]=request.messages.flatMap((message)=>{
    if(message.role==="tool")return{type:"function_call_output",call_id:message.id.replace(/^tool-result\./,""),output:message.content};
    if(message.role==="assistant"&&message.toolCalls?.length)return message.toolCalls.map(call=>({type:"function_call",call_id:call.id,name:call.toolName,arguments:JSON.stringify(call.input)}));
    return{role:message.role==="system"?"system":message.role,content:message.content};
