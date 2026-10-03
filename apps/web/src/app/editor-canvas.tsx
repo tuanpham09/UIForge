@@ -19,7 +19,6 @@ import {
 } from "@uiforge/experience-graph";
 import {
   applyCommand,
-  applyCommands,
   createFrameFromPreset,
   FRAME_PRESETS,
   type Frame,
