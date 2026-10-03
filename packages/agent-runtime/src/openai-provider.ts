@@ -1,6 +1,7 @@
 // biome-ignore-all format: server-side provider adapter remains compact for review
-import { type AgentModelProvider, type AgentModelRequest, type AgentModelResponse } from "./agent-brain";
+import type { AgentModelProvider, AgentModelRequest, AgentModelResponse } from "./agent-brain";
 import type { AgentMessage, AgentToolCall } from "./contracts";
+
 type ResponseItem={type?:string;id?:string;call_id?:string;name?:string;arguments?:string;content?:Array<{type?:string;text?:string}>};
 type OpenAIResponse={output?:ResponseItem[];output_text?:string;error?:{message?:string}};
 export interface OpenAIProviderOptions{apiKey:string;model?:string;baseUrl?:string;instructions?:string;}
