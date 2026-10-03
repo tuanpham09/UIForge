@@ -337,6 +337,7 @@ export interface ApplyVisualDesignCommand {
 }
 
 export type UICommand =
+  | CreateScreenCommand
   | CreateFrameCommand
   | UpdateFrameCommand
   | DeleteFrameCommand
