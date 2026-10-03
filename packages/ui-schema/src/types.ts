@@ -233,7 +233,6 @@ export interface UIDocument {
 
 export type NodePatch = Partial<Omit<UINode, "id" | "screenId">>;
 
-
 export interface CreateScreenCommand {
   type: "CreateScreen";
   commandId: CommandId;
