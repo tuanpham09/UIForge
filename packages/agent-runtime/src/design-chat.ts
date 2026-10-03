@@ -6,7 +6,7 @@ import {
   type UIDocument,
 } from "@uiforge/ui-schema";
 import type { AgentContext, AgentEvent } from "./contracts";
-import { createProposal, type AgentProposal } from "./proposal";
+import { type AgentProposal, createProposal } from "./proposal";
 import { AgentRuntime } from "./runtime";
 import { createCoreAgentToolRegistry } from "./tools";
 
