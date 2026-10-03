@@ -2,7 +2,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { use, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import type { UIDocument } from "@uiforge/ui-schema";
 import EditorCanvas from "../../editor-canvas";
 import {
@@ -60,12 +60,12 @@ export default function ProjectPage({
     );
   }
 
-  const handleDocumentChange = (next: UIDocument) => {
+  const handleDocumentChange = useCallback((next: UIDocument) => {
     setDocument(next);
     writeProjectDocument(project.id, next);
     const stage = next.metadata.designStage === "visual" ? "visual" : "wireframe";
     updateProject(project.id, { stage });
-  };
+  }, [project.id]);
 
   return (
     <main className="relative min-h-screen bg-slate-950">
