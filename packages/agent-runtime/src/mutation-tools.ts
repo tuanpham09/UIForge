@@ -4,15 +4,14 @@ import {
   type ComponentInstance,
   type LayoutSpec,
   type NodeId,
-  type Screen,
-  type UINode,
   type NodeStyle,
   type ResponsiveRule,
+  type Screen,
   type TokenRef,
   type UICommand,
   type UIDocument,
   type UINode,
-} from "@uiforge/ui-schema";
+from "@uiforge/ui-schema";
 import type { AgentToolDefinition } from "./contracts";
 import { AgentToolRegistry } from "./registry";
 
