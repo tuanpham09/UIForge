@@ -18,6 +18,7 @@ import {
   type PrototypeSession,
   resolveTransition,
 } from "@uiforge/experience-graph";
+import { renderScreen } from "@uiforge/renderer";
 import {
   applyCommand,
   createFrameFromPreset,
