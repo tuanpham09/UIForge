@@ -49,6 +49,51 @@ describe("AgentBrain", () => {
     expect(result.message.content).toContain("proposal");
   });
 
+  it("maintains a virtual document across sequential bootstrap mutations", async () => {
+    const screenId = "screen.bootstrap.details";
+    const rootId = "node.bootstrap.details.root";
+    const cardId = "node.bootstrap.details.card";
+    const provider = fakeProvider([
+      assistant("Create the details screen.", [{
+        id: "call-create-screen",
+        toolName: "create_screen",
+        input: {
+          screen: { id: screenId, name: "Details", route: "/details", rootNodeId: rootId, nodeIds: [rootId] },
+          rootNode: { id: rootId, screenId, parentId: null, childrenIds: [], type: "screen-root", layout: { mode: "stack", direction: "column" } },
+          dryRun: true,
+        },
+      }]),
+      assistant("Add the first semantic card.", [{
+        id: "call-create-card",
+        toolName: "create_node",
+        input: {
+          node: { id: cardId, screenId, parentId: rootId, childrenIds: [], type: "card", layout: { mode: "stack", direction: "column" }, content: { label: "Details" } },
+          dryRun: true,
+        },
+      }]),
+      assistant("Verify the generated screen.", [{
+        id: "call-read-screen",
+        toolName: "read_screen",
+        input: { screenId },
+      }]),
+      assistant("The bootstrap proposal is ready for review."),
+    ]);
+    const result = await new AgentBrain(provider, createFullAgentToolRegistry()).run(
+      context(),
+      "Bootstrap the product details screen.",
+    );
+    expect(result.status).toBe("completed");
+    expect(result.toolResults.map((item) => item.toolName)).toEqual(["create_screen", "create_node", "read_screen"]);
+    const read = result.toolResults[2]?.output as { nodes?: Array<{ id: string }> } | undefined;
+    expect(read?.nodes?.some((node) => node.id === cardId)).toBe(true);
+    const commands = result.toolResults.flatMap((item) => {
+      if (!item.ok || typeof item.output !== "object" || item.output === null) return [];
+      const proposal = (item.output as { proposal?: { commands?: Array<{ type: string }> } }).proposal;
+      return proposal?.commands ?? [];
+    });
+    expect(commands.map((command) => command.type)).toEqual(["CreateScreen", "CreateNode"]);
+  });
+
   it("feeds tool failures back to the provider", async () => {
     let observed = "";
     const provider: AgentModelProvider = {
