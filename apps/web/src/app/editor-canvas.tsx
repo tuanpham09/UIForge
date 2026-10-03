@@ -864,21 +864,34 @@ export default function EditorCanvas({ initialDocument, onDocumentChange, autoOp
     : primaryFrame
       ? inspectFrame(primaryFrame)
       : [];
-  const tokenSelect = (slot: string, value?: string) => (
-    <select
-      aria-label={slot}
-      value={value ?? ""}
-      onChange={(event) => updateSelectedToken(slot, event.target.value)}
-      className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-[11px] text-slate-200"
-    >
-      <option value="">Unset</option>
-      {TOKEN_OPTIONS.map((token) => (
-        <option key={token.name} value={token.name}>
-          {token.name}
-        </option>
-      ))}
-    </select>
-  );
+  const tokenKindForSlot = (slot: string) =>
+    slot === "typography" ? "typography" :
+    slot === "fill" ? "color" :
+    slot === "border" ? "border" :
+    slot === "radius" ? "radius" :
+    slot === "shadow" ? "shadow" :
+    undefined;
+
+  const tokenSelect = (slot: string, value?: string, disabled = false) => {
+    const kind = tokenKindForSlot(slot);
+    const options = kind ? TOKEN_OPTIONS.filter((token) => token.kind === kind) : TOKEN_OPTIONS;
+    return (
+      <select
+        aria-label={slot}
+        value={value ?? ""}
+        disabled={disabled}
+        onChange={(event) => updateSelectedToken(slot, event.target.value)}
+        className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-[11px] text-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        <option value="">Unset</option>
+        {options.map((token) => (
+          <option key={token.name} value={token.name}>
+            {token.name}
+          </option>
+        ))}
+      </select>
+    );
+  };
   const layoutTokenSelect = (slot: "gap" | "padding", value?: string) => (
     <select
       aria-label={`layout.${slot}`}
@@ -949,8 +962,12 @@ export default function EditorCanvas({ initialDocument, onDocumentChange, autoOp
         <InspectorSection title="Layout">
           {isMultiNode ? (
             <>
-              <NumberPair label="W" value={primaryNode.editor?.width ?? 0} min={1} onCommit={(value) => updateSelectedEditor((editor) => ({ ...editor, width: value }))} />
-              <NumberPair label="H" value={primaryNode.editor?.height ?? 0} min={1} onCommit={(value) => updateSelectedEditor((editor) => ({ ...editor, height: value }))} />
+              {inspectorNodes.every((node) => node.editor?.width !== undefined) ? (
+                <NumberPair label="W" value={primaryNode.editor?.width ?? 0} min={1} onCommit={(value) => updateSelectedEditor((editor) => ({ ...editor, width: value }))} />
+              ) : null}
+              {inspectorNodes.every((node) => node.editor?.height !== undefined) ? (
+                <NumberPair label="H" value={primaryNode.editor?.height ?? 0} min={1} onCommit={(value) => updateSelectedEditor((editor) => ({ ...editor, height: value }))} />
+              ) : null}
             </>
           ) : (
             <div className="grid grid-cols-2 gap-2">
@@ -981,11 +998,21 @@ export default function EditorCanvas({ initialDocument, onDocumentChange, autoOp
         </InspectorSection>
 
         <InspectorSection title="Typography & Appearance">
-          <Field label="Typography">{tokenSelect("typography", token("typography"))}</Field>
-          <Field label="Fill">{tokenSelect("fill", token("fill"))}</Field>
-          <Field label="Border">{tokenSelect("border", token("border"))}</Field>
-          <Field label="Radius">{tokenSelect("radius", token("radius"))}</Field>
-          <Field label="Shadow">{tokenSelect("shadow", token("shadow"))}</Field>
+                    {isMultiNode ? (
+            commonSlots.map((slot) => (
+              <Field key={slot} label={slot}>
+                {tokenSelect(slot, primaryNode.style?.tokens?.[slot])}
+              </Field>
+            ))
+          ) : (
+            <>
+              <Field label="Typography">{tokenSelect("typography", token("typography"))}</Field>
+              <Field label="Fill">{tokenSelect("fill", token("fill"))}</Field>
+              <Field label="Border">{tokenSelect("border", token("border"))}</Field>
+              <Field label="Radius">{tokenSelect("radius", token("radius"))}</Field>
+              <Field label="Shadow">{tokenSelect("shadow", token("shadow"))}</Field>
+            </>
+          )}
         </InspectorSection>
 
         <InspectorSection title="Visibility">
@@ -1031,7 +1058,7 @@ export default function EditorCanvas({ initialDocument, onDocumentChange, autoOp
               {BREAKPOINTS.map((breakpoint) => {
                 const rule = findResponsiveRule(primaryNode, breakpoint);
                 return (
-                  <div key={breakpoint} className="grid grid-cols-[36px_1fr_auto] items-center gap-2">
+                  <div key={breakpoint} className="grid grid-cols-[36px_1fr_1fr_auto] items-center gap-2">
                     <span className="text-[10px] font-medium text-slate-300">{breakpoint}</span>
                     <input
                       aria-label={`${breakpoint} min width`}
@@ -1042,7 +1069,16 @@ export default function EditorCanvas({ initialDocument, onDocumentChange, autoOp
                       placeholder="min"
                       className="rounded border border-slate-700 bg-slate-950 px-2 py-1 text-[10px] text-slate-200"
                     />
-                    <label className="flex items-center gap-1 text-[10px] text-slate-500">
+                                         <input
+                       aria-label={`${breakpoint} max width`}
+                       type="number"
+                       min={0}
+                       value={rule?.maxWidth ?? ""}
+                       onChange={(event) => updateResponsiveRule(primaryNode.id, breakpoint, { maxWidth: event.target.value ? Number(event.target.value) : undefined })}
+                       placeholder="max"
+                       className="rounded border border-slate-700 bg-slate-950 px-2 py-1 text-[10px] text-slate-200"
+                     />
+<label className="flex items-center gap-1 text-[10px] text-slate-500">
                       <input
                         type="checkbox"
                         checked={rule?.hidden === true}
