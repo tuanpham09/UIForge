@@ -2,6 +2,7 @@
 
 import { type NodeId, type ScreenId, type UINode, validateUIDocument } from "@uiforge/ui-schema";
 import type { AgentToolDefinition } from "./contracts";
+import { registerMutationTools } from "./mutation-tools";
 import { AgentToolRegistry } from "./registry";
 
 type EmptyInput = Record<string, never>;
@@ -114,4 +115,8 @@ export function createCoreAgentToolRegistry(): AgentToolRegistry {
   registry.register(inspectSelection);
   registry.register(validateUi);
   return registry;
+}
+
+export function createFullAgentToolRegistry(): AgentToolRegistry {
+  return registerMutationTools(createCoreAgentToolRegistry());
 }
