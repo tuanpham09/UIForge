@@ -48,8 +48,9 @@ test("project-first production flow starts from real product intent", async ({
   await expect(page.getByTestId("agent-model")).toBeVisible();
   await expect(page.getByTestId("agent-base-url")).toBeVisible();
 
-  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Close AI settings" }).click();
   await expect(page.getByTestId("agent-settings-modal")).toBeHidden();
+  await expect(page.getByTestId("agent-design-chat")).toBeVisible();
 
   await page.route("**/api/agent/design", async (route) => {
     const request = route.request().postDataJSON() as {
