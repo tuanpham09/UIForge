@@ -10,7 +10,7 @@ import {
   readProjectDocument,
   writeProjectDocument,
 } from "../../project-document";
-import { getProject, updateProject, type UIForgeProject } from "../../project-store";
+import { type UIForgeProject, getProject, updateProject } from "../../project-store";
 
 export default function ProjectPage({
   params,
