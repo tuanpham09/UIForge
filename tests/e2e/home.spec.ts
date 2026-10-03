@@ -178,4 +178,22 @@ test("project-first production flow starts from real product intent", async ({
   await expect(
     page.getByTestId("canvas").getByText("Add expense"),
   ).toBeVisible();
+
+  // Visual design must render the same semantic schema through the real renderer,
+  // not merely recolor/project tldraw rectangles.
+  await page.getByTestId("design-ui").click();
+  await expect(page.getByTestId("design-stage-status")).toContainText(
+    "Editable visual design",
+  );
+  await expect(page.getByTestId("visual-design-canvas")).toBeVisible();
+  await expect(page.getByTestId("visual-design-frame")).toBeVisible();
+  await expect(
+    page.getByTestId("visual-design-canvas").getByText("Expense overview"),
+  ).toBeVisible();
+  await expect(
+    page.getByTestId("visual-design-canvas").locator('[data-semantic-type="card"]'),
+  ).toBeVisible();
+  await expect(
+    page.getByTestId("visual-design-canvas").locator('[data-component-id="uiforge.button"]'),
+  ).toHaveCount(1);
 });
