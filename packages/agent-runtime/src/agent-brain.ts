@@ -40,7 +40,7 @@ export class AgentBrain {
     const allowed=this.options.allowedTools;
     let result:AgentToolResult;
     if(allowed && !allowed.includes(call.toolName)){
-      result={callId:call.id,toolName:call.toolName,ok:false,error:{code:"TOOL_NOT_ALLOWED",message:"Tool "+call.toolName+" is not available in the current agent mode. Use one of the exposed tools instead."},durationMs:0};
+      result={callId:call.id,toolName:call.toolName,ok:false,error:{code:"TOOL_NOT_ALLOWED",message:`Tool ${call.toolName} is not available in the current agent mode. Use one of the exposed tools instead.`},durationMs:0};
     } else {
       result=await this.registry.execute(call.toolName,call.input,workingContext,call.id);
     }
