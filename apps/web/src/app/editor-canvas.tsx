@@ -1864,7 +1864,7 @@ export default function EditorCanvas({ initialDocument, onDocumentChange, autoOp
                   };
                 }}
               />
-            )}/>
+            )}
           </div>
           <div className="shrink-0 border-t border-slate-700 bg-slate-900/95 px-3 py-2 shadow-sm" data-testid="responsive-validation">
             <div className="flex flex-wrap items-center gap-2 text-[10px]">
