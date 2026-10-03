@@ -3,6 +3,7 @@ export * from "./agent-brain";
 export * from "./contracts";
 export * from "./design-chat";
 export * from "./mutation-tools";
+export * from "./proposal";
 export * from "./registry";
 export * from "./runtime";
 export * from "./tools";
