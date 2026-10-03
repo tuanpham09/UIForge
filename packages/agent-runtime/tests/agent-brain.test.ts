@@ -50,7 +50,6 @@ describe("AgentBrain", () => {
   });
 
   it("restricts empty-project bootstrap to create_flow and inspection tools", async () => {
-    const document = structuredClone(workspaceFixture);
     const provider = fakeProvider([
       assistant("Inspect first.", [{ id: "call-read", toolName: "read_project", input: {} }]),
       assistant("Create the complete flow.", [{
