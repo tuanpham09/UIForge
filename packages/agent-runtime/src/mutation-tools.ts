@@ -17,6 +17,7 @@ import type { AgentToolDefinition } from "./contracts";
 import { AgentToolRegistry } from "./registry";
 
 type CreateScreenInput = { screen: Screen; rootNode: UINode; dryRun?: boolean };
+type CreateFrameInput = { frame: Frame; dryRun?: boolean };
 type CreateFlowInput = {
   screens: Array<{ screen: Screen; rootNode: UINode }>;
   nodes: UINode[];
@@ -88,6 +89,20 @@ const validateCreateFlowContent = (input: CreateFlowInput): void => {
 const isCreateScreen = (value: unknown): value is CreateScreenInput => {
   if (!record(value) || !record(value.screen) || !record(value.rootNode)) return false;
   return hasString(value.screen, "id") && hasString(value.screen, "name") && hasString(value.screen, "rootNodeId") && hasString(value.rootNode, "id") && value.rootNode.type === "screen-root" && optionalDryRun(value);
+};
+
+const isCreateFrame = (value: unknown): value is CreateFrameInput => {
+  if (!record(value) || !record(value.frame)) return false;
+  const frame = value.frame;
+  return (
+    hasString(frame, "id") &&
+    hasString(frame, "screenId") &&
+    hasString(frame, "presetId") &&
+    hasString(frame, "name") &&
+    typeof frame.width === "number" &&
+    typeof frame.height === "number" &&
+    optionalDryRun(value)
+  );
 };
 
 const isCreateNode = (value: unknown): value is CreateNodeInput => {
@@ -230,6 +245,15 @@ const createScreen: AgentToolDefinition<CreateScreenInput, MutationResult> = {
     return mutation(command, input, context);
   },
 };
+const createFrame: AgentToolDefinition<CreateFrameInput, MutationResult> = {
+  name: "create_frame",
+  description: "Propose creation of a device/design frame for an existing screen. Nodes placed in the frame must use its frameId and belong to the same screen.",
+  validateInput: isCreateFrame,
+  execute: (input, context) => {
+    const command = { type: "CreateFrame", commandId: stableId("create-frame", input.frame), frame: input.frame } satisfies UICommand;
+    return mutation(command, input, context);
+  },
+};
 
 const createNode: AgentToolDefinition<CreateNodeInput, MutationResult> = {
   name: "create_node",
@@ -316,6 +340,7 @@ const createComponent: AgentToolDefinition<CreateComponentInput, MutationResult>
 export function registerMutationTools(registry: AgentToolRegistry): AgentToolRegistry {
   registry.register(createFlow);
   registry.register(createScreen);
+  registry.register(createFrame);
   registry.register(createNode);
   registry.register(updateNode);
   registry.register(deleteNode);
