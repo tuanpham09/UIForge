@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 
-test("project-first production flow starts from real product intent", async ({ page }) => {
+test("project-first production flow starts from real product intent", async ({
+  page,
+}) => {
   await page.goto("/");
 
   await expect(page.getByTestId("project-dashboard")).toBeVisible();
@@ -15,11 +17,15 @@ test("project-first production flow starts from real product intent", async ({ p
     );
   await page
     .getByTestId("project-features")
-    .fill("Expenses, categories, monthly reports, dashboard and navigation flows.");
+    .fill(
+      "Expenses, categories, monthly reports, dashboard and navigation flows.",
+    );
   await page.getByTestId("create-project-submit").click();
 
   await expect(page.getByTestId("project-bootstrap")).toBeVisible();
-  await expect(page.getByTestId("project-bootstrap")).toContainText("E2E Expense App");
+  await expect(page.getByTestId("project-bootstrap")).toContainText(
+    "E2E Expense App",
+  );
   await expect(page.getByTestId("project-bootstrap")).toContainText(
     "real empty semantic document",
   );
