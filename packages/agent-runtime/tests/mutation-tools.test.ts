@@ -76,7 +76,7 @@ describe("semantic mutation agent tools", () => {
             screenId: "screen.agent.dashboard",
             parentId: "node.agent.dashboard.root",
             childrenIds: [],
-            type: "section",
+            type: "card",
             content: { label: "Summary" },
           },
           {
@@ -85,8 +85,8 @@ describe("semantic mutation agent tools", () => {
             screenId: "screen.agent.expenses",
             parentId: "node.agent.expenses.root",
             childrenIds: [],
-            type: "section",
-            content: { label: "Expense list" },
+            type: "button",
+            content: { label: "Open expenses" },
           },
         ],
       },
@@ -99,7 +99,9 @@ describe("semantic mutation agent tools", () => {
     };
     expect(output.proposal.commands.map((command) => command.type)).toEqual([
       "CreateScreen",
+      "CreateFrame",
       "CreateScreen",
+      "CreateFrame",
       "CreateNode",
       "CreateNode",
     ]);
@@ -109,6 +111,21 @@ describe("semantic mutation agent tools", () => {
     expect(
       document.screens.some((screen) => screen.id === "screen.agent.expenses"),
     ).toBe(false);
+
+    const commands = output.proposal.commands;
+    const frames = commands.filter((command) => command.type === "CreateFrame") as Array<{
+      type: "CreateFrame";
+      frame: { id: string; screenId: string };
+    }>;
+    expect(frames).toHaveLength(2);
+    const generatedNodes = commands.filter((command) => command.type === "CreateNode") as Array<{
+      type: "CreateNode";
+      node: { screenId: string; frameId?: string };
+    }>;
+    expect(generatedNodes).toHaveLength(2);
+    for (const generated of generatedNodes) {
+      expect(generated.node.frameId).toBe(`frame.${generated.node.screenId}`);
+    }
   });
 
   it("rejects container-only bootstrap screens", async () => {
