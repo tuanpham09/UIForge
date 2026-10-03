@@ -2,6 +2,7 @@
 import {
   applyCommand,
   type ComponentInstance,
+  type Frame,
   type LayoutSpec,
   type NodeId,
   type NodeStyle,
@@ -16,7 +17,11 @@ import type { AgentToolDefinition } from "./contracts";
 import { AgentToolRegistry } from "./registry";
 
 type CreateScreenInput = { screen: Screen; rootNode: UINode; dryRun?: boolean };
-type CreateFlowInput = { screens: Array<{ screen: Screen; rootNode: UINode }>; nodes: UINode[]; dryRun?: boolean };
+type CreateFlowInput = {
+  screens: Array<{ screen: Screen; rootNode: UINode }>;
+  nodes: UINode[];
+  dryRun?: boolean;
+};
 
 type MutationResult = {
   proposal: { commands: UICommand[] };
@@ -151,13 +156,64 @@ const createFlow: AgentToolDefinition<CreateFlowInput, MutationResult> = {
     validateCreateFlowContent(input);
     let working = context.document;
     const commands: UICommand[] = [];
+    const frameByScreen = new Map<string, Frame>();
     for (const item of input.screens) {
-      const command = { type: "CreateScreen", commandId: stableId("create-flow-screen", item.screen), screen: item.screen, rootNode: item.rootNode } satisfies UICommand;
+      const command = {
+        type: "CreateScreen",
+        commandId: stableId("create-flow-screen", item.screen),
+        screen: item.screen,
+        rootNode: item.rootNode,
+      } satisfies UICommand;
       working = applyCommand(working, command);
       commands.push(command);
+
+      const frame: Frame = {
+        id: `frame.${item.screen.id}`,
+        screenId: item.screen.id,
+        presetId: "iphone-16",
+        name: item.screen.name,
+        x: 80,
+        y: 80,
+        width: 390,
+        height: 844,
+        orientation: "portrait",
+        presetVersion: "uiforge.frame/v1",
+      };
+      const frameCommand = {
+        type: "CreateFrame",
+        commandId: stableId("create-flow-frame", frame),
+        frame,
+      } satisfies UICommand;
+      working = applyCommand(working, frameCommand);
+      commands.push(frameCommand);
+      frameByScreen.set(item.screen.id, frame);
     }
+
+    const screenNodeIndexes = new Map<string, number>();
     for (const node of input.nodes) {
-      const command = { type: "CreateNode", commandId: stableId("create-flow-node", node), node } satisfies UICommand;
+      const frame = frameByScreen.get(node.screenId);
+      if (!frame) {
+        throw new Error(`CREATE_FLOW_FRAME_MISSING: no frame exists for screen ${node.screenId}`);
+      }
+      const index = screenNodeIndexes.get(node.screenId) ?? 0;
+      screenNodeIndexes.set(node.screenId, index + 1);
+      const editor = node.editor ?? {};
+      const framedNode: UINode = {
+        ...node,
+        frameId: frame.id,
+        editor: {
+          ...editor,
+          x: editor.x ?? frame.x + 24,
+          y: editor.y ?? frame.y + 24 + index * 112,
+          width: editor.width ?? frame.width - 48,
+          height: editor.height ?? 88,
+        },
+      };
+      const command = {
+        type: "CreateNode",
+        commandId: stableId("create-flow-node", framedNode),
+        node: framedNode,
+      } satisfies UICommand;
       working = applyCommand(working, command);
       commands.push(command);
     }
