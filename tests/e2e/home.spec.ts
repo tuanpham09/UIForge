@@ -181,7 +181,9 @@ test("project-first production flow starts from real product intent", async ({
 
   // Visual design must render the same semantic schema through the real renderer,
   // not merely recolor/project tldraw rectangles.
-  await page.getByTestId("design-ui").evaluate((element) => (element as HTMLButtonElement).click());
+  await page
+    .getByTestId("design-ui")
+    .evaluate((element) => (element as HTMLButtonElement).click());
   const designError = page.getByTestId("design-error");
   if (await designError.count()) {
     throw new Error(
