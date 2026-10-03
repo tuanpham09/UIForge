@@ -27,7 +27,7 @@ describe("OpenAICompatibleProvider", () => {
                       id: "call_1",
                       type: "function",
                       function: { name: "read_project", arguments: "{}" },
-                      extra_content: { google: { thought_signature: "sig-123" } },
+                      extra_content: {\n                        google: { thought_signature: "sig-123" },\n                      },
                     },
                   ],
                 },
