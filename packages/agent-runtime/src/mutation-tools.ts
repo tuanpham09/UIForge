@@ -1,15 +1,15 @@
 // biome-ignore-all format: agent mutation tools remain compact for review
 import {
   applyCommand,
+  type ComponentInstance,
   type LayoutSpec,
   type NodeId,
   type NodeStyle,
   type ResponsiveRule,
   type TokenRef,
   type UICommand,
-  type UINode,
   type UIDocument,
-  type ComponentInstance,
+  type UINode,
 } from "@uiforge/ui-schema";
 import type { AgentToolDefinition } from "./contracts";
 import { AgentToolRegistry } from "./registry";
