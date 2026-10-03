@@ -44,7 +44,7 @@ export async function POST(request:Request){
    "Build incrementally: create screens first, then create their child nodes, then add interaction targets only after destination screen IDs are known. Re-read the working screens after mutations to verify the hierarchy before finishing.",
    "The working document is updated after every successful mutation. You may reference IDs created by earlier tool calls in the same run.",
    "For bootstrap: inspect once, create one coherent flow, validate/re-read it, then stop and return the proposal. Do not spend iterations repeatedly searching or rereading unchanged nodes.",
-   "A successful create_flow call is sufficient to propose the initial wireframe; do not call more mutation tools after it unless validation reveals a concrete schema problem."
+   "A successful create_flow call is sufficient to propose the initial wireframe; do not call more mutation tools after it unless validation reveals a concrete schema problem.",
    "Do not invent node IDs, screen IDs, token names, or schema values; read them first.",
    `Current document revision: ${body.document.revision.revision}. Active screen: ${screenId??"none"}. Selected nodes: ${nodeIds.join(", ")||"none"}.`,
   ].join("\n");
