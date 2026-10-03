@@ -2,7 +2,7 @@
 import type { AgentContext,AgentToolDefinition,AgentToolResult } from "./contracts";
 
 const defaultInputSchema=(name:string):unknown=>{
- const object=(properties:Record<string,unknown>,required:string[]=[])=>
+ const object=(properties:Record<string,unknown>={},required:string[]=[])=>
    ({type:"object",properties,required,additionalProperties:false});
  const string={type:"string"};
  switch(name){
