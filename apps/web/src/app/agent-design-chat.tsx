@@ -24,8 +24,6 @@ export default function AgentDesignChat({ document, screenId, nodeIds, frameIds,
  const [provider,setProvider]=useState<AgentProviderConfig>(()=>{const preset=AGENT_PROVIDER_PRESETS[0];if(!preset)throw new Error("No agent provider presets configured");return{id:preset.id,name:preset.name,protocol:preset.protocol,baseUrl:preset.baseUrl,model:preset.defaultModel,apiKey:""};});
  const contextLabel=useMemo(()=>nodeIds.length?`${nodeIds.length} selected node${nodeIds.length>1?"s":""}`:"No node selected",[nodeIds]);
 
- if(!open)return null;
-
  const selectProvider=(id:string)=>{
   const preset=getAgentProviderPreset(id); if(!preset)return;
   setProvider((current)=>({...current,id:preset.id,name:preset.name,protocol:preset.protocol,baseUrl:preset.baseUrl,model:preset.defaultModel}));
@@ -69,6 +67,8 @@ export default function AgentDesignChat({ document, screenId, nodeIds, frameIds,
    setResult(next);setMessages((items)=>[...items,{id:`${Date.now()}-assistant`,role:"assistant",text:next.reply}]);
   }finally{setBusy(false);}
  };
+
+ if(!open)return null;
 
  return <aside className="flex h-full min-w-0 flex-col border-l border-slate-800 bg-slate-950" data-testid="agent-design-chat">
   <header className="border-b border-slate-800 px-3 py-2.5">
