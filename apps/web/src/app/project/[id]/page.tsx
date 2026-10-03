@@ -1,8 +1,8 @@
+// biome-ignore-all format: compact project bootstrap surface
 "use client";
 
-import { use } from "react";
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { use, useEffect, useState } from "react";
 import EditorCanvas from "../../editor-canvas";
 import { getProject, type UIForgeProject } from "../../project-store";
 
