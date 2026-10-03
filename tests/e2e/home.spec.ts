@@ -137,7 +137,11 @@ test("project-first production flow starts from real product intent", async ({
             },
           ],
           summary: "Create the initial expense overview and expense list flow.",
-          preview: ["Create card node.e2e.hero", "Create list node.e2e.expense-list", "Create button node.e2e.add-expense"],
+          preview: [
+            "Create card node.e2e.hero",
+            "Create list node.e2e.expense-list",
+            "Create button node.e2e.add-expense",
+          ],
           risk: "safe",
           status: "pending",
         },
@@ -162,7 +166,9 @@ test("project-first production flow starts from real product intent", async ({
   );
   await expect(page.getByText(/deterministic mutation rule/i)).toHaveCount(0);
   await page.getByTestId("agent-apply").click();
-  await expect(page.getByTestId("design-stage-status")).toContainText("Structural wireframe");
+  await expect(page.getByTestId("design-stage-status")).toContainText(
+    "Structural wireframe",
+  );
   await expect(page.getByText("Expense overview")).toBeVisible();
   await expect(page.getByText("Recent expenses")).toBeVisible();
   await expect(page.getByText("Add expense")).toBeVisible();
