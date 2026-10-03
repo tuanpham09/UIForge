@@ -1,6 +1,6 @@
 // biome-ignore-all format: MCP JSON-RPC adapter remains compact for review
 import { createFullAgentToolRegistry } from "./tools";
-import { getMcpSession, executeMcpTool, mcpResourceList, mcpServerInfo, mcpTextResult, mcpToolList, readMcpResource, type McpSession } from "./mcp-bridge";
+import { getMcpSession, executeMcpTool, mcpResourceList, mcpServerInfo, mcpTextResult, mcpToolList, readMcpResource } from "./mcp-bridge";
 
 type JsonRpcRequest = { jsonrpc?: string; id?: string | number | null; method?: string; params?: Record<string, unknown> };
 type JsonRpcResponse = { jsonrpc: "2.0"; id: string | number | null; result?: unknown; error?: { code: number; message: string; data?: unknown } };
