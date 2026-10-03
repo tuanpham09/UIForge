@@ -49,6 +49,36 @@ describe("AgentBrain", () => {
     expect(result.message.content).toContain("proposal");
   });
 
+  it("restricts empty-project bootstrap to create_flow and inspection tools", async () => {
+    const document = structuredClone(workspaceFixture);
+    const provider = fakeProvider([
+      assistant("Inspect first.", [{ id: "call-read", toolName: "read_project", input: {} }]),
+      assistant("Create the complete flow.", [{
+        id: "call-flow",
+        toolName: "create_flow",
+        input: {
+          screens: [{
+            screen: { id: "screen.bootstrap.home", name: "Home", route: "/", rootNodeId: "root.bootstrap.home", nodeIds: ["root.bootstrap.home"] },
+            rootNode: { id: "root.bootstrap.home", screenId: "screen.bootstrap.home", parentId: null, childrenIds: [], type: "screen-root", layout: { mode: "stack", direction: "column" } },
+          }],
+          nodes: [
+            { id: "node.bootstrap.title", screenId: "screen.bootstrap.home", parentId: "root.bootstrap.home", childrenIds: [], type: "text", layout: { mode: "stack", direction: "column" }, content: { text: "Home" } },
+            { id: "node.bootstrap.cta", screenId: "screen.bootstrap.home", parentId: "root.bootstrap.home", childrenIds: [], type: "button", layout: { mode: "stack", direction: "column" }, content: { label: "Start" } },
+          ],
+          dryRun: true,
+        },
+      }]),
+      assistant("The initial flow is ready for review."),
+    ]);
+    const result = await new AgentBrain(provider, createFullAgentToolRegistry(), {
+      maxIterations: 6,
+      allowedTools: ["read_project", "read_screen", "inspect_selection", "validate_ui", "create_flow"],
+    }).run(context(), "Build the initial product flow.");
+    expect(result.status).toBe("completed");
+    expect(result.toolResults.map((item) => item.toolName)).toEqual(["read_project", "create_flow"]);
+    expect(result.iterations).toBe(3);
+  });
+
   it("maintains a virtual document across sequential bootstrap mutations", async () => {
     const screenId = "screen.bootstrap.details";
     const rootId = "node.bootstrap.details.root";
