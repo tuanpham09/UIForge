@@ -5,14 +5,18 @@ import type { AgentMessage, AgentToolCall } from "./contracts";
 import { OpenAIResponsesProvider } from "./openai-provider";
 import type { AgentProviderConfig } from "./provider-config";
 
-type ChatMessage = { role: "system" | "user" | "assistant" | "tool"; content: string; tool_call_id?: string; tool_calls?: Array<{ id: string; type: "function"; function: { name: string; arguments: string } }> };
+type ChatMessage = { role: "system" | "user" | "assistant" | "tool"; content: string; tool_call_id?: string; name?: string; tool_calls?: Array<{ id: string; type: "function"; function: { name: string; arguments: string } }> };
 type ChatResponse = { choices?: Array<{ message?: { role?: string; content?: string; tool_calls?: Array<{ id?: string; function?: { name?: string; arguments?: string } }> } }>; error?: { message?: string } };
 
 function toChatMessages(request: AgentModelRequest): ChatMessage[] {
   return request.messages.map((message) => {
-    if (message.role === "tool") return { role: "tool", content: message.content, tool_call_id: message.id.replace(/^tool-result\./, "") };
+    if (message.role === "tool") {
+      const callId = message.id.replace(/^tool-result\./, "");
+      const toolCall = request.messages.flatMap((item) => item.toolCalls ?? []).find((call) => call.id === callId);
+      return { role: "tool", name: toolCall?.toolName ?? callId, content: message.content, tool_call_id: callId };
+    }
     if (message.role === "assistant" && message.toolCalls?.length) {
-      return { role: "assistant", content: message.content, tool_calls: message.toolCalls.map((call) => ({ id: call.id, type: "function", function: { name: call.toolName, arguments: JSON.stringify(call.input) } })) };
+      return { role: "assistant", content: message.content || "Calling tools...", tool_calls: message.toolCalls.map((call) => ({ id: call.id || call.toolName, type: "function", function: { name: call.toolName, arguments: JSON.stringify(call.input) } })) };
     }
     return { role: message.role, content: message.content };
   });
@@ -32,10 +36,13 @@ export class OpenAICompatibleProvider implements AgentModelProvider {
       body: JSON.stringify({ model: this.config.model, messages: toChatMessages(request), tools: toolsForChat(request), tool_choice: "auto" }),
     });
     const data = await response.json() as ChatResponse;
-    if (!response.ok) throw new Error(data.error?.message ?? `Provider request failed with HTTP ${response.status}`);
+    if (!response.ok) {
+      const detail = data.error?.message?.trim();
+      throw new Error(`OpenAI-compatible provider request failed with HTTP ${response.status}${detail ? `: ${detail}` : ""}`);
+    }
     const message = data.choices?.[0]?.message;
-    const calls = (message?.tool_calls ?? []).filter((call) => call.id && call.function?.name).map((call) => ({ id: call.id as string, toolName: call.function?.name as string, input: JSON.parse(call.function?.arguments ?? "{}") })) satisfies AgentToolCall[];
-    const assistant: AgentMessage = { id: `provider.${Date.now()}`, role: "assistant", content: message?.content ?? "", createdAt: new Date().toISOString(), toolCalls: calls };
+    const calls = (message?.tool_calls ?? []).filter((call) => call.id && call.function?.name).map((call) => ({ id: call.id || (call.function?.name as string), toolName: call.function?.name as string, input: JSON.parse(call.function?.arguments ?? "{}") })) satisfies AgentToolCall[];
+    const assistant: AgentMessage = { id: `provider.${Date.now()}`, role: "assistant", content: calls.length ? (message?.content || "Calling tools...") : (message?.content ?? ""), createdAt: new Date().toISOString(), toolCalls: calls };
     return { message: assistant, toolCalls: calls, stopReason: calls.length ? "tool_calls" : "stop" };
   }
 }
