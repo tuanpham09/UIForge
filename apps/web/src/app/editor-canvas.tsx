@@ -2,9 +2,8 @@
 "use client";
 
 import { applyProposal, type DesignProposal } from "@uiforge/agent-runtime";
-import { defaultTokenSet } from "@uiforge/design-tokens";
 import { buildVisualDesignProposal } from "@uiforge/design-intelligence";
-import { renderScreen } from "@uiforge/renderer";
+import { defaultTokenSet } from "@uiforge/design-tokens";
 import {
   buildLayerTree,
   filterLayers,
