@@ -1,14 +1,12 @@
 import {
-  createAgentModelProvider,
   type AgentProviderConfig,
+  createAgentModelProvider,
 } from "@uiforge/agent-runtime";
 import { NextResponse } from "next/server";
 
 type Body = { provider?: unknown };
 
-const isProvider = (
-  value: unknown,
-): value is AgentProviderConfig => {
+const isProvider = (value: unknown): value is AgentProviderConfig => {
   if (typeof value !== "object" || value === null) return false;
   const item = value as Record<string, unknown>;
   return (
