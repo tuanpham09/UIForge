@@ -1,9 +1,15 @@
+// biome-ignore-all format: dense dashboard product surface
 "use client";
 
-import { useMemo, useState } from "react";
-import { createProject, deleteProject, readProjects, stageLabel, type UIForgeProject } from "./project-store";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  createProject,
+  deleteProject,
+  readProjects,
+  stageLabel,
+  type UIForgeProject,
+} from "./project-store";
 
 type CreateDraft = {
   name: string;
@@ -53,12 +59,7 @@ export default function ProjectDashboard() {
             <p className="text-sm font-semibold tracking-tight">UIForge</p>
             <p className="text-[10px] text-slate-500">AI product design workspace</p>
           </div>
-          <button
-            type="button"
-            data-testid="create-project"
-            onClick={() => setCreateOpen(true)}
-            className="rounded-lg bg-cyan-400 px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-cyan-300"
-          >
+          <button type="button" data-testid="create-project" onClick={() => setCreateOpen(true)} className="rounded-lg bg-cyan-400 px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-cyan-300">
             + New project
           </button>
         </div>
@@ -74,13 +75,7 @@ export default function ProjectDashboard() {
         </div>
 
         <div className="mt-8 flex items-center gap-3">
-          <input
-            aria-label="Search projects"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search projects…"
-            className="w-full max-w-md rounded-lg border border-slate-800 bg-slate-900/80 px-3 py-2.5 text-xs text-white outline-none focus:border-cyan-500"
-          />
+          <input aria-label="Search projects" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search projects…" className="w-full max-w-md rounded-lg border border-slate-800 bg-slate-900/80 px-3 py-2.5 text-xs text-white outline-none focus:border-cyan-500" />
           <span className="text-[10px] text-slate-600">{filtered.length} project{filtered.length === 1 ? "" : "s"}</span>
         </div>
 
@@ -88,12 +83,8 @@ export default function ProjectDashboard() {
           <div className="mt-8 rounded-2xl border border-dashed border-slate-800 bg-slate-900/30 px-8 py-16 text-center">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 text-cyan-300">✦</div>
             <h2 className="mt-4 text-sm font-semibold">No projects yet</h2>
-            <p className="mx-auto mt-2 max-w-md text-xs leading-5 text-slate-500">
-              Describe your product in plain language. You do not need to know the screens or layout yet — the agents will structure that next.
-            </p>
-            <button type="button" onClick={() => setCreateOpen(true)} className="mt-5 rounded-lg border border-cyan-500/40 px-4 py-2 text-xs text-cyan-300 hover:bg-cyan-500/10">
-              Create your first project
-            </button>
+            <p className="mx-auto mt-2 max-w-md text-xs leading-5 text-slate-500">Describe your product in plain language. You do not need to know the screens or layout yet — the agents will structure that next.</p>
+            <button type="button" onClick={() => setCreateOpen(true)} className="mt-5 rounded-lg border border-cyan-500/40 px-4 py-2 text-xs text-cyan-300 hover:bg-cyan-500/10">Create your first project</button>
           </div>
         ) : (
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -131,7 +122,7 @@ export default function ProjectDashboard() {
             <div className="mt-6 grid gap-4">
               <label className="text-[10px] text-slate-500">
                 Project name
-                <input data-testid="project-name" autoFocus value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} placeholder="e.g. Cò Coffee Operations" className="mt-1 w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2.5 text-xs text-white outline-none focus:border-cyan-500" />
+                <input data-testid="project-name" value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} placeholder="e.g. Cò Coffee Operations" className="mt-1 w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2.5 text-xs text-white outline-none focus:border-cyan-500" />
               </label>
               <label className="text-[10px] text-slate-500">
                 What are you building?
@@ -155,9 +146,7 @@ export default function ProjectDashboard() {
 
             <div className="mt-6 flex items-center justify-between border-t border-slate-800 pt-4">
               <p className="text-[9px] text-slate-600">Next: AI agents structure the product flow and initial wireframe.</p>
-              <button type="button" data-testid="create-project-submit" disabled={!draft.name.trim() || !draft.description.trim()} onClick={submit} className="rounded-lg bg-cyan-400 px-4 py-2 text-xs font-semibold text-slate-950 disabled:opacity-40">
-                Create & continue →
-              </button>
+              <button type="button" data-testid="create-project-submit" disabled={!draft.name.trim() || !draft.description.trim()} onClick={submit} className="rounded-lg bg-cyan-400 px-4 py-2 text-xs font-semibold text-slate-950 disabled:opacity-40">Create & continue →</button>
             </div>
           </div>
         </div>
