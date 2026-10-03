@@ -6,7 +6,7 @@ export type ProposalRisk = "safe" | "destructive";
 export interface AgentProposal { id: string; baseRevision: number; commands: UICommand[]; summary: string; preview: string[]; risk: ProposalRisk; status: ProposalStatus; }
 export interface ProposalApplyResult { status: "applied" | "invalid"; document?: UIDocument; error?: { code: "STALE_PROPOSAL" | "INVALID_PROPOSAL"; message: string }; }
 const stableId=(prefix:string,value:unknown)=>{const input=JSON.stringify(value);let hash=2166136261;for(let i=0;i<input.length;i+=1){hash^=input.charCodeAt(i);hash=Math.imul(hash,16777619);}return `proposal.${prefix}.${(hash>>>0).toString(16)}`;};
-const commandNodeId=(command:UICommand):NodeId|undefined=>{"nodeId" in command&&typeof command.nodeId==="string"?command.nodeId:command.type==="CreateNode"?command.node.id:undefined};
+const commandNodeId=(command:UICommand):NodeId|undefined=>"nodeId" in command&&typeof command.nodeId==="string"?command.nodeId:command.type==="CreateNode"?command.node.id:undefined;
 const previewCommand = (command: UICommand): string => {
   const nodeId = commandNodeId(command);
   switch (command.type) {
