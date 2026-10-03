@@ -41,11 +41,43 @@ const hasString = (value: Record<string, unknown>, key: string) =>
 const optionalDryRun = (value: Record<string, unknown>) =>
   value.dryRun === undefined || typeof value.dryRun === "boolean";
 
+const WIREFRAME_LEAF_TYPES = new Set([
+  "text",
+  "button",
+  "input",
+  "card",
+  "list-item",
+  "image",
+  "icon",
+  "radio",
+  "checkbox",
+  "select",
+]);
+
 const isCreateFlow = (value: unknown): value is CreateFlowInput => {
   if (!record(value) || !Array.isArray(value.screens) || !Array.isArray(value.nodes) || value.screens.length === 0 || value.nodes.length === 0) return false;
   if (!value.screens.every((item) => record(item) && record(item.screen) && record(item.rootNode))) return false;
   if (!value.nodes.every((node) => record(node) && hasString(node, "id") && hasString(node, "screenId") && hasString(node, "type") && Array.isArray(node.childrenIds))) return false;
   return optionalDryRun(value);
+};
+
+const validateCreateFlowContent = (input: CreateFlowInput): void => {
+  const nodesByScreen = new Map<string, UINode[]>();
+  for (const node of input.nodes) {
+    const list = nodesByScreen.get(node.screenId) ?? [];
+    list.push(node);
+    nodesByScreen.set(node.screenId, list);
+  }
+
+  for (const item of input.screens) {
+    const nodes = nodesByScreen.get(item.screen.id) ?? [];
+    const concrete = nodes.filter((node) => WIREFRAME_LEAF_TYPES.has(node.type));
+    if (concrete.length < 2) {
+      throw new Error(
+        `CREATE_FLOW_WIREFRAME_TOO_THIN: screen ${item.screen.name} requires at least 2 concrete UI nodes (for example text, card, list-item, input or button), but received ${concrete.length}`,
+      );
+    }
+  }
 };
 
 const isCreateScreen = (value: unknown): value is CreateScreenInput => {
@@ -113,9 +145,10 @@ function mutation<T extends { dryRun?: boolean }>(command: UICommand, input: T, 
 
 const createFlow: AgentToolDefinition<CreateFlowInput, MutationResult> = {
   name: "create_flow",
-  description: "Propose a complete initial product flow in one operation: multiple screens followed by their semantic nodes. Prefer this for bootstrapping a new project.",
+  description: "Propose a complete initial product flow in one operation: multiple screens followed by concrete semantic UI nodes. Containers alone are not a valid bootstrap; each screen needs at least two concrete UI elements. Prefer this for bootstrapping a new project.",
   validateInput: isCreateFlow,
   execute: (input, context) => {
+    validateCreateFlowContent(input);
     let working = context.document;
     const commands: UICommand[] = [];
     for (const item of input.screens) {
