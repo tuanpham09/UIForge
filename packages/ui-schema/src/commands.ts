@@ -204,9 +204,7 @@ export function applyCommand(
           (candidate) => candidate.id === command.node.frameId,
         );
         if (!frame) {
-          throw new UICommandError(
-            `frame not found: ${command.node.frameId}`,
-          );
+          throw new UICommandError(`frame not found: ${command.node.frameId}`);
         }
         if (frame.screenId !== command.node.screenId) {
           throw new UICommandError("node frame must belong to the same screen");
