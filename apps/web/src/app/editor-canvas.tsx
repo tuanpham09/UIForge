@@ -60,6 +60,7 @@ type EditorCanvasProps = {
   initialDocument: UIDocument;
   onDocumentChange?: (document: UIDocument) => void;
   autoOpenAgentChat?: boolean;
+  projectIntent?: { name: string; description: string; features: string; platform: "web" | "mobile" | "both" };
 };
 
 type CustomFrameDraft = {
@@ -160,7 +161,7 @@ function ResetButton({ onClick }: { onClick: () => void }) {
   return <button type="button" onClick={onClick} className="w-full rounded border border-slate-700 px-2 py-1.5 text-[10px] text-slate-400 hover:bg-slate-800">Reset to snapshot</button>;
 }
 
-export default function EditorCanvas({ initialDocument, onDocumentChange, autoOpenAgentChat = false }: EditorCanvasProps) {
+export default function EditorCanvas({ initialDocument, onDocumentChange, autoOpenAgentChat = false, projectIntent }: EditorCanvasProps) {
   const initialDocumentRef = useRef<UIDocument>(structuredClone(initialDocument));
   const [document, setDocument] = useState<UIDocument>(() => structuredClone(initialDocumentRef.current));
   const [selectedFrameId, setSelectedFrameId] = useState<FrameId | null>(null);
@@ -1845,6 +1846,7 @@ export default function EditorCanvas({ initialDocument, onDocumentChange, autoOp
           open={designChatOpen}
           onClose={() => setDesignChatOpen(false)}
           onApply={applyDesignChatProposal}
+          projectIntent={projectIntent}
         />
       </div>
 
