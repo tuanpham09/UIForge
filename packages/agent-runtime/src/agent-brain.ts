@@ -1,8 +1,5 @@
 // biome-ignore-all format: agent brain contract remains compact for review
-import type { AgentContext, AgentMessage, AgentToolCall, AgentToolResult } from "./contracts";
-import type { AgentToolRegistry } from "./registry";
-import { compactAgentMessages } from "./context-memory";
-
+// biome-ignore-all assist/source/organizeImports: compact runtime imports
 export type AgentModelStopReason = "tool_calls" | "stop" | "max_iterations" | "error";
 export interface AgentModelTool { name:string; description:string; inputSchema?:unknown; }
 export interface AgentModelRequest { messages:readonly AgentMessage[]; tools:readonly AgentModelTool[]; }
