@@ -1,5 +1,4 @@
 // biome-ignore-all format: MCP bridge protocol adapter remains compact for review
-import { randomUUID } from "node:crypto";
 import type { AgentContext, AgentToolResult } from "./contracts";
 import type { AgentToolRegistry } from "./registry";
 
@@ -20,7 +19,7 @@ const mutationTools = new Set([
 ]);
 
 export function createMcpSession(document: McpSession["document"], selection: McpSession["selection"]): McpSession {
-  const session: McpSession = { id: randomUUID(), token: randomUUID().replaceAll("-", ""), createdAt: new Date().toISOString(), document, selection };
+  const session: McpSession = { id: crypto.randomUUID(), token: crypto.randomUUID().replaceAll("-", ""), createdAt: new Date().toISOString(), document, selection };
   sessions.set(session.token, session);
   return session;
 }
