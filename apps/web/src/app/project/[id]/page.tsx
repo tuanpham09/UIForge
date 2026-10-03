@@ -1,16 +1,16 @@
 // biome-ignore-all format: compact project workspace surface
 "use client";
 
+import type { UIDocument } from "@uiforge/ui-schema";
 import { useRouter } from "next/navigation";
 import { use, useCallback, useEffect, useState } from "react";
-import type { UIDocument } from "@uiforge/ui-schema";
 import EditorCanvas from "../../editor-canvas";
 import {
   createProjectDocument,
   readProjectDocument,
   writeProjectDocument,
 } from "../../project-document";
-import { type UIForgeProject, getProject, updateProject } from "../../project-store";
+import { getProject, type UIForgeProject, updateProject } from "../../project-store";
 
 export default function ProjectPage({
   params,
@@ -39,6 +39,14 @@ export default function ProjectPage({
     }
   }, [id]);
 
+  const handleDocumentChange = useCallback((next: UIDocument) => {
+    if (!project) return;
+    setDocument(next);
+    writeProjectDocument(project.id, next);
+    const stage = next.metadata.designStage === "visual" ? "visual" : "wireframe";
+    updateProject(project.id, { stage });
+  }, [project]);
+
   if (!project || !document) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
@@ -59,13 +67,6 @@ export default function ProjectPage({
       </main>
     );
   }
-
-  const handleDocumentChange = useCallback((next: UIDocument) => {
-    setDocument(next);
-    writeProjectDocument(project.id, next);
-    const stage = next.metadata.designStage === "visual" ? "visual" : "wireframe";
-    updateProject(project.id, { stage });
-  }, [project.id]);
 
   return (
     <main className="relative min-h-screen bg-slate-950">
