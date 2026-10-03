@@ -169,7 +169,7 @@ test("project-first production flow starts from real product intent", async ({
   await expect(page.getByTestId("design-stage-status")).toContainText(
     "Structural wireframe",
   );
-  await expect(page.getByText("Expense overview")).toBeVisible();
-  await expect(page.getByText("Recent expenses")).toBeVisible();
-  await expect(page.getByText("Add expense")).toBeVisible();
+  await expect(page.getByTestId("canvas").getByText("Expense overview")).toBeVisible();
+  await expect(page.getByTestId("canvas").getByText("Recent expenses")).toBeVisible();
+  await expect(page.getByTestId("canvas").getByText("Add expense")).toBeVisible();
 });
