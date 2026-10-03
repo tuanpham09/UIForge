@@ -1,3 +1,4 @@
+// biome-ignore-all format: compact project persistence model
 "use client";
 
 export type ProjectStage = "intent" | "wireframe" | "visual" | "prototype";
@@ -30,7 +31,9 @@ export const writeProjects = (projects: UIForgeProject[]) => {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
 };
 
-export const createProject = (input: Pick<UIForgeProject, "name" | "description" | "features" | "platform">): UIForgeProject => {
+export const createProject = (
+  input: Pick<UIForgeProject, "name" | "description" | "features" | "platform">,
+): UIForgeProject => {
   const now = new Date().toISOString();
   const project: UIForgeProject = {
     ...input,
