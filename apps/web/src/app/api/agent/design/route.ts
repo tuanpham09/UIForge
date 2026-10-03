@@ -40,10 +40,13 @@ export async function POST(request:Request){
    "Use dryRun=true for every mutation.",
    "When bootstrapping a new empty product, create the required screens with create_screen before creating child nodes, then connect navigation through semantic interaction targets.",
    "For initial wireframes, prioritize product flow, hierarchy, content structure, and actionable states; do not apply visual styling unless the user explicitly asks for visual design.",
+   "When bootstrapping an empty or nearly empty project, do not stop after inspecting the Home screen. Infer the main user journey from Product Intent, create the necessary destination screens, then populate those screens with semantic nodes. Aim for a coherent 3-7 screen journey when the product scope supports it.",
+   "Build incrementally: create screens first, then create their child nodes, then add interaction targets only after destination screen IDs are known. Re-read the working screens after mutations to verify the hierarchy before finishing.",
+   "The working document is updated after every successful mutation. You may reference IDs created by earlier tool calls in the same run."
    "Do not invent node IDs, screen IDs, token names, or schema values; read them first.",
    `Current document revision: ${body.document.revision.revision}. Active screen: ${screenId??"none"}. Selected nodes: ${nodeIds.join(", ")||"none"}.`,
   ].join("\n");
-  const brain=new AgentBrain(createAgentModelProvider(provider),createFullAgentToolRegistry(),{maxIterations:8,systemPrompt,history,maxContextMessages:32});
+  const brain=new AgentBrain(createAgentModelProvider(provider),createFullAgentToolRegistry(),{maxIterations:16,systemPrompt,history,maxContextMessages:40});
   const run=await brain.run(context,body.prompt);
   const commands=commandsFromResults(run.toolResults);
   const proposal=commands.length?createProposal(body.document,commands,run.message.content||"Proposed UI changes."):undefined;
