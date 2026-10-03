@@ -3,6 +3,8 @@
 import { compactAgentMessages } from "./context-memory";
 import type { AgentContext, AgentMessage, AgentToolCall, AgentToolResult } from "./contracts";
 import type { AgentToolRegistry } from "./registry";
+
+export type AgentModelStopReason = "tool_calls" | "stop" | "max_iterations" | "error";
 export interface AgentModelTool { name:string; description:string; inputSchema?:unknown; }
 export interface AgentModelRequest { messages:readonly AgentMessage[]; tools:readonly AgentModelTool[]; }
 export interface AgentModelResponse { message:AgentMessage; toolCalls?:readonly AgentToolCall[]; stopReason?:AgentModelStopReason; }
