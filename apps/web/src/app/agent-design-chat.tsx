@@ -19,7 +19,7 @@ export default function AgentDesignChat({ document, screenId, nodeIds, frameIds,
  const [appliedId,setAppliedId]=useState<string|null>(null);
  const [showSettings,setShowSettings]=useState(false);
  const [_session,setSession]=useState(sessionId);
- const [provider,setProvider]=useState<AgentProviderConfig>(()=>{const preset=AGENT_PROVIDER_PRESETS[0];return{id:preset.id,name:preset.name,protocol:preset.protocol,baseUrl:preset.baseUrl,model:preset.defaultModel,apiKey:""};});
+ const [provider,setProvider]=useState<AgentProviderConfig>(()=>{const preset=AGENT_PROVIDER_PRESETS[0];if(!preset)throw new Error("No agent provider presets configured");return{id:preset.id,name:preset.name,protocol:preset.protocol,baseUrl:preset.baseUrl,model:preset.defaultModel,apiKey:""};});
  const contextLabel=useMemo(()=>nodeIds.length?`${nodeIds.length} selected node${nodeIds.length>1?"s":""}`:"No node selected",[nodeIds]);
 
  if(!open)return null;
