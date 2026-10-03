@@ -26,6 +26,16 @@ export default function AgentDesignChat({ document, screenId, nodeIds, frameIds,
 
   if (!open) return null;
 
+  const runServerAgent = async (request: string): Promise<DesignChatResult | null> => {
+    const response = await fetch("/api/agent/design", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: request, document, screenId, nodeIds, frameIds }),
+    });
+    if (!response.ok) return null;
+    return (await response.json()) as DesignChatResult;
+  };
+
   const send = async () => {
     const request = draft.trim();
     if (!request || busy) return;
@@ -33,7 +43,7 @@ export default function AgentDesignChat({ document, screenId, nodeIds, frameIds,
     setMessages((items) => [...items, { id: `${Date.now()}`, role: "user", text: request }]);
     setBusy(true);
     try {
-      const next = await runDesignChat(document, request, { screenId, nodeIds, frameIds });
+      const next = (await runServerAgent(request)) ?? await runDesignChat(document, request, { screenId, nodeIds, frameIds });
       setResult(next);
       setMessages((items) => [...items, { id: `${Date.now()}-assistant`, role: "assistant", text: next.reply }]);
     } finally {
