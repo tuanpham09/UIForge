@@ -68,7 +68,7 @@ export default function AgentDesignChat({document,screenId,nodeIds,frameIds,open
   </div>
 
   {showSettings?<div className={`fixed inset-0 ${layer.modal} flex items-center justify-center bg-black/70 p-4`} role="dialog" aria-modal="true" aria-label="AI agent settings" data-testid="agent-settings-modal" onMouseDown={event=>{if(event.target===event.currentTarget)setShowSettings(false)}}>
-   <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-5 shadow-2xl" onMouseDown={event=>event.stopPropagation()}>
+   <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-5 shadow-2xl">
     <div className="flex items-start justify-between"><div><h2 className="text-sm font-semibold text-white">AI Agent Connection</h2><p className="mt-1 text-[10px] text-slate-500">Connect a real model provider. Credentials stay in this browser session.</p></div><button type="button" aria-label="Close AI settings" onClick={()=>setShowSettings(false)} className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800">✕</button></div>
     <div className="mt-4 grid gap-3">
      <label className="block text-[10px] text-slate-500">Provider<select data-testid="agent-provider" value={provider.id} onChange={event=>selectProvider(event.target.value)} className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-white">{AGENT_PROVIDER_PRESETS.map(item=><option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
