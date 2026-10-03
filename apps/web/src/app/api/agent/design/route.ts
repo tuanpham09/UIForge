@@ -1,7 +1,7 @@
 // biome-ignore-all format: route adapter remains compact for review
-import { AgentBrain, OpenAIResponsesProvider, createFullAgentToolRegistry, createProposal, type AgentEvent, type AgentToolResult } from "@uiforge/agent-runtime";
-import type { AgentContext, AgentPlan } from "@uiforge/agent-runtime";
-import type { NodeId, ScreenId, UIDocument } from "@uiforge/ui-schema";
+import type { AgentContext, AgentEvent, AgentPlan, AgentToolResult } from "@uiforge/agent-runtime";
+import { AgentBrain, OpenAIResponsesProvider, createFullAgentToolRegistry, createProposal } from "@uiforge/agent-runtime";
+import type { NodeId, UIDocument } from "@uiforge/ui-schema";
 import { NextResponse } from "next/server";
 
 type Body={prompt?:unknown;document?:unknown;screenId?:unknown;nodeIds?:unknown;frameIds?:unknown};
