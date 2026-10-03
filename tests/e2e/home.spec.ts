@@ -191,9 +191,13 @@ test("project-first production flow starts from real product intent", async ({
     page.getByTestId("visual-design-canvas").getByText("Expense overview"),
   ).toBeVisible();
   await expect(
-    page.getByTestId("visual-design-canvas").locator('[data-semantic-type="card"]'),
+    page
+      .getByTestId("visual-design-canvas")
+      .locator('[data-semantic-type="card"]'),
   ).toBeVisible();
   await expect(
-    page.getByTestId("visual-design-canvas").locator('[data-component-id="uiforge.button"]'),
+    page
+      .getByTestId("visual-design-canvas")
+      .locator('[data-component-id="uiforge.button"]'),
   ).toHaveCount(1);
 });
