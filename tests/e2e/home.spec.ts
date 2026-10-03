@@ -50,7 +50,9 @@ test("project-first production flow starts from real product intent", async ({
   await expect(page.getByTestId("agent-settings-modal")).toBeHidden();
 
   await page.route("**/api/agent/design", async (route) => {
-    const request = route.request().postDataJSON() as { document: { screens: Array<{ id: string; rootNodeId: string }> } };
+    const request = route.request().postDataJSON() as {
+      document: { screens: Array<{ id: string; rootNodeId: string }> };
+    };
     const screen = request.document.screens[0];
     await route.fulfill({
       status: 200,
@@ -59,25 +61,32 @@ test("project-first production flow starts from real product intent", async ({
         reply: "Generated a semantic product flow proposal for review.",
         plan: {
           goal: "Bootstrap the initial product flow and wireframe.",
-          steps: ["Inspect project intent", "Create screens", "Create semantic wireframe", "Validate proposal"],
+          steps: [
+            "Inspect project intent",
+            "Create screens",
+            "Create semantic wireframe",
+            "Validate proposal",
+          ],
         },
         events: [],
         proposal: {
           id: "proposal.e2e.bootstrap",
           baseRevision: 1,
-          commands: [{
-            type: "CreateNode",
-            commandId: "command.e2e.hero",
-            node: {
-              id: "node.e2e.hero",
-              screenId: screen.id,
-              parentId: screen.rootNodeId,
-              childrenIds: [],
-              type: "section",
-              layout: { mode: "stack", direction: "column" },
-              content: { label: "Expense overview" },
+          commands: [
+            {
+              type: "CreateNode",
+              commandId: "command.e2e.hero",
+              node: {
+                id: "node.e2e.hero",
+                screenId: screen.id,
+                parentId: screen.rootNodeId,
+                childrenIds: [],
+                type: "section",
+                layout: { mode: "stack", direction: "column" },
+                content: { label: "Expense overview" },
+              },
             },
-          }],
+          ],
           summary: "Create the initial expense overview wireframe.",
           preview: ["Create section node.e2e.hero"],
           risk: "safe",
@@ -92,7 +101,9 @@ test("project-first production flow starts from real product intent", async ({
   });
 
   await page.getByTestId("generate-initial-wireframe").click();
-  await expect(page.getByTestId("agent-chat-input")).toHaveValue(/Build the initial product flow/);
+  await expect(page.getByTestId("agent-chat-input")).toHaveValue(
+    /Build the initial product flow/,
+  );
   await page.getByTestId("agent-chat-send").click();
 
   await expect(page.getByTestId("agent-proposal")).toBeVisible();
