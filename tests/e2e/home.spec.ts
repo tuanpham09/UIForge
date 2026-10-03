@@ -178,7 +178,7 @@ test("project-first production flow starts from real product intent", async ({
   await expect(
     page.getByTestId("canvas").getByText("Add expense"),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Expenses" }).click();
+  await page.getByRole("button", { name: "Expenses", exact: true }).click();
 
   // Visual design must render the same semantic schema through the real renderer,
   // not merely recolor/project tldraw rectangles.
