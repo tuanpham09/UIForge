@@ -10,12 +10,20 @@ test("project dashboard creates an AI-first project and opens the workspace", as
   await page.getByTestId("create-project").click();
   await expect(page.getByTestId("create-project-modal")).toBeVisible();
   await page.getByTestId("project-name").fill("E2E Expense App");
-  await page.getByTestId("project-description").fill("An expense management app for tracking spending and understanding monthly cash flow.");
-  await page.getByTestId("project-features").fill("Expenses, categories, monthly reports, dashboard and navigation flows.");
+  await page
+    .getByTestId("project-description")
+    .fill("An expense management app for tracking spending and understanding monthly cash flow.");
+  await page
+    .getByTestId("project-features")
+    .fill("Expenses, categories, monthly reports, dashboard and navigation flows.");
   await page.getByTestId("create-project-submit").click();
   await expect(page.getByTestId("project-bootstrap")).toBeVisible();
-  await expect(page.getByTestId("project-bootstrap")).toContainText("E2E Expense App");
-  await expect(page.getByTestId("project-bootstrap")).toContainText("Understand intent");
+  await expect(page.getByTestId("project-bootstrap")).toContainText(
+    "E2E Expense App",
+  );
+  await expect(page.getByTestId("project-bootstrap")).toContainText(
+    "Understand intent",
+  );
   await page.getByTestId("start-agent-workspace").click();
 
   await expect(page.getByTestId("uiforge-editor-workspace")).toBeVisible();
