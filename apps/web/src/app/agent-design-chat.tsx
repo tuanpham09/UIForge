@@ -20,6 +20,7 @@ export default function AgentDesignChat({ document, screenId, nodeIds, frameIds,
  const [showSettings,setShowSettings]=useState(false);
  const [mcpToken,setMcpToken]=useState("");
  const [mcpBusy,setMcpBusy]=useState(false);
+ const selectionKey=`${screenId}|${nodeIds.join(",")}|${frameIds.join(",")}`;
  const [_session,setSession]=useState(sessionId);
  const [provider,setProvider]=useState<AgentProviderConfig>(()=>{const preset=AGENT_PROVIDER_PRESETS[0];if(!preset)throw new Error("No agent provider presets configured");return{id:preset.id,name:preset.name,protocol:preset.protocol,baseUrl:preset.baseUrl,model:preset.defaultModel,apiKey:""};});
  const contextLabel=useMemo(()=>nodeIds.length?`${nodeIds.length} selected node${nodeIds.length>1?"s":""}`:"No node selected",[nodeIds]);
@@ -37,7 +38,7 @@ export default function AgentDesignChat({ document, screenId, nodeIds, frameIds,
   if(!mcpToken)return;
   const timer=window.setTimeout(()=>{void fetch("/api/mcp/session",{method:"PUT",headers:{"Content-Type":"application/json",Authorization:`Bearer ${mcpToken}`},body:JSON.stringify({document,selection:{screenId,nodeIds,frameIds}})}).catch(()=>undefined);},250);
   return()=>window.clearTimeout(timer);
- },[document.revision.revision,mcpToken,screenId,nodeIds,frameIds]);
+ },[document.revision.revision,mcpToken,selectionKey]);
 
  const createMcpBridge=async()=>{
   setMcpBusy(true);
