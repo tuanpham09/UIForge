@@ -1,6 +1,11 @@
 // biome-ignore-all format: provider tests remain compact for review
 // biome-ignore-all assist/source/organizeImports: compact test imports
-describe("agent context memory", () => {
+import { AgentBrain } from "../src/agent-brain";
+import { compactAgentMessages } from "../src/context-memory";
+import { createAgentModelProvider, OpenAICompatibleProvider } from "../src/provider";
+import { AGENT_PROVIDER_PRESETS } from "../src/provider-config";
+import { AgentToolRegistry } from "../src/registry";
+import { describe, expect, it, vi } from "vitest";
   it("keeps system context and the latest messages within the bound", () => {
     const messages = Array.from({ length: 10 }, (_, index) => ({ id: String(index), role: index === 0 ? "system" as const : "user" as const, content: String(index), createdAt: new Date().toISOString() }));
     const compacted = compactAgentMessages(messages, 4);
