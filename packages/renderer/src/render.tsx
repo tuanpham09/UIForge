@@ -227,8 +227,16 @@ function renderNode(
     effectiveNode.type === "list-item" ||
     effectiveNode.type === "card"
   ) {
+    const label = effectiveNode.content?.label ?? effectiveNode.content?.text;
+    const description = effectiveNode.content?.description;
     return (
       <section {...dataProps} style={style}>
+        {effectiveNode.type !== "screen-root" && (label || description) ? (
+          <div data-node-content={effectiveNode.id}>
+            {label ? <div className="font-medium">{label}</div> : null}
+            {description ? <div className="text-sm">{description}</div> : null}
+          </div>
+        ) : null}
         {children.map((child) => (
           <React.Fragment key={child.id}>
             {renderNode(child, context, registry, responsiveNodes)}

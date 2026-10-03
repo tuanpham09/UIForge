@@ -101,8 +101,8 @@ test("project-first production flow starts from real product intent", async ({
               commandId: "command.e2e.hero",
               node: {
                 id: "node.e2e.hero",
-                screenId: screen.id,
-                parentId: screen.rootNodeId,
+                screenId: "screen.e2e.expenses",
+                parentId: "node.e2e.expenses.root",
                 childrenIds: [],
                 type: "card",
                 layout: { mode: "stack", direction: "column" },
@@ -114,8 +114,8 @@ test("project-first production flow starts from real product intent", async ({
               commandId: "command.e2e.expense-list",
               node: {
                 id: "node.e2e.expense-list",
-                screenId: screen.id,
-                parentId: screen.rootNodeId,
+                screenId: "screen.e2e.expenses",
+                parentId: "node.e2e.expenses.root",
                 childrenIds: [],
                 type: "list",
                 layout: { mode: "stack", direction: "column" },
@@ -127,8 +127,8 @@ test("project-first production flow starts from real product intent", async ({
               commandId: "command.e2e.add-expense",
               node: {
                 id: "node.e2e.add-expense",
-                screenId: screen.id,
-                parentId: screen.rootNodeId,
+                screenId: "screen.e2e.expenses",
+                parentId: "node.e2e.expenses.root",
                 childrenIds: [],
                 type: "button",
                 layout: { mode: "flex", direction: "row" },
@@ -178,4 +178,35 @@ test("project-first production flow starts from real product intent", async ({
   await expect(
     page.getByTestId("canvas").getByText("Add expense"),
   ).toBeVisible();
+  await page.getByRole("button", { name: "Expenses", exact: true }).click();
+
+  // Visual design must render the same semantic schema through the real renderer,
+  // not merely recolor/project tldraw rectangles.
+  await page
+    .getByTestId("design-ui")
+    .evaluate((element) => (element as HTMLButtonElement).click());
+  const designError = page.getByTestId("design-error");
+  if (await designError.count()) {
+    throw new Error(
+      `Design UI failed: ${await designError.first().innerText()}`,
+    );
+  }
+  await expect(page.getByTestId("design-stage-status")).toContainText(
+    "Editable visual design",
+  );
+  await expect(page.getByTestId("visual-design-canvas")).toBeVisible();
+  await expect(page.getByTestId("visual-design-frame")).toBeVisible();
+  await expect(page.getByTestId("visual-design-canvas")).toContainText(
+    "Expense overview",
+  );
+  await expect(
+    page
+      .getByTestId("visual-design-canvas")
+      .locator('[data-semantic-type="card"]'),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByTestId("visual-design-canvas")
+      .locator('[data-component-id="uiforge.button"]'),
+  ).toHaveCount(1);
 });

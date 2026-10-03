@@ -3,6 +3,7 @@
 
 import { applyProposal, type DesignProposal } from "@uiforge/agent-runtime";
 import { buildVisualDesignProposal } from "@uiforge/design-intelligence";
+import { defaultTokenSet } from "@uiforge/design-tokens";
 import {
   buildLayerTree,
   filterLayers,
@@ -17,6 +18,7 @@ import {
   type PrototypeSession,
   resolveTransition,
 } from "@uiforge/experience-graph";
+import { renderScreen } from "@uiforge/renderer";
 import {
   applyCommand,
   createFrameFromPreset,
@@ -68,6 +70,13 @@ type CustomFrameDraft = {
   width: string;
   height: string;
 };
+
+function rendererPresetForViewport(viewport: ViewportState): "wide" | "desktop" | "tablet" | "mobile" {
+  if (viewport.width <= 767) return "mobile";
+  if (viewport.width <= 1023) return "tablet";
+  if (viewport.width <= 1439) return "desktop";
+  return "wide";
+}
 
 type InspectorSectionProps = { title: string; children: React.ReactNode };
 function InspectorSection({ title, children }: InspectorSectionProps) {
@@ -293,6 +302,19 @@ export default function EditorCanvas({ initialDocument, onDocumentChange, autoOp
   };
 
   const projected = useMemo(() => projectDocument(document), [document]);
+
+  const visualRender = useMemo(() => {
+    if ((document.metadata.designStage ?? "wireframe") !== "visual" || !selectedScreenId) {
+      return null;
+    }
+    return renderScreen(document, selectedScreenId, defaultTokenSet, {
+      viewport: {
+        width: viewport.width,
+        height: viewport.height,
+        preset: rendererPresetForViewport(viewport),
+      },
+    });
+  }, [document, selectedScreenId, viewport]);
 
   useEffect(() => {
     const editor = editorRef.current;
@@ -1682,127 +1704,167 @@ export default function EditorCanvas({ initialDocument, onDocumentChange, autoOp
             </div>
           </div>
           <div className="relative min-h-0 flex-1">
-            <Tldraw
-            onMount={(editor) => {
-              editorRef.current = editor;
-              editor.setCurrentTool("select");
+            {(document.metadata.designStage ?? "wireframe") === "visual" ? (
+              <div
+                className="h-full overflow-auto bg-[#e5e7eb] p-8"
+                data-testid="visual-design-canvas"
+              >
+                <div className="flex min-h-full min-w-full items-start justify-center">
+                  <div
+                    className="relative shrink-0 transition-[width,height] duration-150"
+                    style={{
+                      width: viewport.width * (viewport.zoom / 100),
+                      height: viewport.height * (viewport.zoom / 100),
+                    }}
+                  >
+                    <div
+                      className="absolute left-0 top-0 overflow-hidden bg-white shadow-2xl ring-1 ring-black/10"
+                      data-testid="visual-design-frame"
+                      style={{
+                        width: viewport.width,
+                        height: viewport.height,
+                        transform: `scale(${viewport.zoom / 100})`,
+                        transformOrigin: "top left",
+                        borderRadius: viewport.width <= 767 ? 28 : 12,
+                      }}
+                    >
+                      {visualRender?.element}
+                    </div>
+                  </div>
+                </div>
+                {visualRender?.diagnostics.length ? (
+                  <div
+                    className="mx-auto mt-6 max-w-2xl rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900"
+                    data-testid="visual-design-diagnostics"
+                  >
+                    {visualRender.diagnostics.map((diagnostic) => (
+                      <div key={[diagnostic.code, diagnostic.nodeId ?? "document", diagnostic.message].join("-")}>
+                        {diagnostic.message}
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <Tldraw
+                onMount={(editor) => {
+                  editorRef.current = editor;
+                  editor.setCurrentTool("select");
 
-              const sync = () => syncCanvasSelection(editor);
-              const commitCanvasGeometry = () => {
-                const pending = Array.from(pendingCanvasGeometryRef.current.entries());
-                if (pending.length === 0) return;
+                  const sync = () => syncCanvasSelection(editor);
+                  const commitCanvasGeometry = () => {
+                    const pending = Array.from(pendingCanvasGeometryRef.current.entries());
+                    if (pending.length === 0) return;
 
-                pendingCanvasGeometryRef.current.clear();
-                applySemantic((current) => {
-                  let next = current;
-                  for (const [id, geometry] of pending) {
-                    if (geometry.semanticType === "frame") {
-                      const frame = next.frames?.find((item) => item.id === id);
-                      if (!frame) continue;
-                      next = applyCommand(next, {
-                        type: "UpdateFrame",
-                        commandId: `canvas.drag-end.frame.${id}`,
-                        frameId: id as FrameId,
-                        patch: {
-                          x: geometry.x,
-                          y: geometry.y,
-                          width: geometry.width,
-                          height: geometry.height,
-                        },
-                      });
-                    } else {
-                      const node = next.nodes[id];
-                      if (!node) continue;
-                      next = applyCommand(next, {
-                        type: "UpdateNode",
-                        commandId: `canvas.drag-end.node.${id}`,
-                        nodeId: id as NodeId,
-                        patch: {
-                          editor: {
-                            ...node.editor,
-                            x: geometry.x,
-                            y: geometry.y,
-                            width: geometry.width,
-                            height: geometry.height,
-                          },
-                        },
-                      });
-                    }
-                  }
-                  return next;
-                });
-              };
-
-              const unsubscribe = editor.store.listen(
-                (entry) => {
-                  for (const [, [, next]] of Object.entries(
-                    entry.changes.updated,
-                  )) {
-                    if (
-                      next.typeName !== "shape" ||
-                      next.type !== "geo" ||
-                      next.meta?.source !== "uiforge"
-                    ) {
-                      continue;
-                    }
-
-                    const meta = next.meta as {
-                      semanticType?: unknown;
-                      nodeId?: unknown;
-                    };
-                    if (
-                      (meta.semanticType !== "frame" &&
-                        meta.semanticType !== "node") ||
-                      typeof meta.nodeId !== "string"
-                    ) {
-                      continue;
-                    }
-
-                    pendingCanvasGeometryRef.current.set(meta.nodeId, {
-                      semanticType: meta.semanticType,
-                      x: next.x,
-                      y: next.y,
-                      width: next.props.w,
-                      height: next.props.h,
+                    pendingCanvasGeometryRef.current.clear();
+                    applySemantic((current) => {
+                      let next = current;
+                      for (const [id, geometry] of pending) {
+                        if (geometry.semanticType === "frame") {
+                          const frame = next.frames?.find((item) => item.id === id);
+                          if (!frame) continue;
+                          next = applyCommand(next, {
+                            type: "UpdateFrame",
+                            commandId: `canvas.drag-end.frame.${id}`,
+                            frameId: id as FrameId,
+                            patch: {
+                              x: geometry.x,
+                              y: geometry.y,
+                              width: geometry.width,
+                              height: geometry.height,
+                            },
+                          });
+                        } else {
+                          const node = next.nodes[id];
+                          if (!node) continue;
+                          next = applyCommand(next, {
+                            type: "UpdateNode",
+                            commandId: `canvas.drag-end.node.${id}`,
+                            nodeId: id as NodeId,
+                            patch: {
+                              editor: {
+                                ...node.editor,
+                                x: geometry.x,
+                                y: geometry.y,
+                                width: geometry.width,
+                                height: geometry.height,
+                              },
+                            },
+                          });
+                        }
+                      }
+                      return next;
                     });
+                  };
+
+                  const unsubscribe = editor.store.listen(
+                    (entry) => {
+                      for (const [, [, next]] of Object.entries(entry.changes.updated)) {
+                        if (
+                          next.typeName !== "shape" ||
+                          next.type !== "geo" ||
+                          next.meta?.source !== "uiforge"
+                        ) {
+                          continue;
+                        }
+
+                        const meta = next.meta as {
+                          semanticType?: unknown;
+                          nodeId?: unknown;
+                        };
+                        if (
+                          (meta.semanticType !== "frame" && meta.semanticType !== "node") ||
+                          typeof meta.nodeId !== "string"
+                        ) {
+                          continue;
+                        }
+
+                        pendingCanvasGeometryRef.current.set(meta.nodeId, {
+                          semanticType: meta.semanticType,
+                          x: next.x,
+                          y: next.y,
+                          width: next.props.w,
+                          height: next.props.h,
+                        });
+                      }
+
+                      sync();
+                    },
+                    { source: "user", scope: "document" },
+                  );
+
+                  const handlePointerUp = () => {
+                    commitCanvasGeometry();
+                  };
+                  window.addEventListener("pointerup", handlePointerUp);
+                  sync();
+
+                  if (projected) {
+                    editor.createShapes(
+                      projected.shapes.map((shape) => ({
+                        id: shape.id,
+                        type: shape.type,
+                        x: shape.x,
+                        y: shape.y,
+                        opacity: shape.opacity ?? 1,
+                        isLocked: shape.isLocked ?? false,
+                        props: {
+                          ...shape.props,
+                          richText: toRichText(shape.label),
+                        },
+                        meta: shape.meta,
+                      })),
+                    );
+                    editor.zoomToFit({ animation: { duration: 0 } });
                   }
 
-                  sync();
-                },
-                { source: "user", scope: "document" },
-              );
-
-              const handlePointerUp = () => {
-                commitCanvasGeometry();
-              };
-              window.addEventListener("pointerup", handlePointerUp);
-              sync();
-
-              if (projected) {
-                editor.createShapes(
-                  projected.shapes.map((shape) => ({
-                    id: shape.id,
-                    type: shape.type,
-                    x: shape.x,
-                    y: shape.y,
-                    opacity: shape.opacity ?? 1,
-                    isLocked: shape.isLocked ?? false,
-                    props: {
-                      ...shape.props,
-                      richText: toRichText(shape.label),
-                    },
-                    meta: shape.meta,
-                  })),
-                );
-                editor.zoomToFit({ animation: { duration: 0 } });
-              }
-
-              return () => {
-                unsubscribe();
-                window.removeEventListener("pointerup", handlePointerUp);
-              };
-            }}
-            />
+                  return () => {
+                    unsubscribe();
+                    window.removeEventListener("pointerup", handlePointerUp);
+                  };
+                }}
+              />
+            )}
           </div>
           <div className="shrink-0 border-t border-slate-700 bg-slate-900/95 px-3 py-2 shadow-sm" data-testid="responsive-validation">
             <div className="flex flex-wrap items-center gap-2 text-[10px]">
