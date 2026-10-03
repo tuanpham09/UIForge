@@ -172,7 +172,10 @@ const createFlow: AgentToolDefinition<CreateFlowInput, MutationResult> = {
     let working = context.document;
     const commands: UICommand[] = [];
     const frameByScreen = new Map<string, Frame>();
-    for (const item of input.screens) {
+    const frameGap = 96;
+    const frameWidth = 390;
+    const frameX = (index: number) => 80 + index * (frameWidth + frameGap);
+    for (const [screenIndex, item] of input.screens.entries()) {
       const command = {
         type: "CreateScreen",
         commandId: stableId("create-flow-screen", item.screen),
@@ -187,9 +190,9 @@ const createFlow: AgentToolDefinition<CreateFlowInput, MutationResult> = {
         screenId: item.screen.id,
         presetId: "iphone-16",
         name: item.screen.name,
-        x: 80,
+        x: frameX(screenIndex),
         y: 80,
-        width: 390,
+        width: frameWidth,
         height: 844,
         orientation: "portrait",
         presetVersion: "uiforge.frame/v1",
