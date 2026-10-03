@@ -1,3 +1,4 @@
+// biome-ignore-all format: proposal tests remain compact for review
 import { workspaceFixture } from "@uiforge/ui-schema";
 import { describe, expect, it } from "vitest";
 import { applyProposal, createProposal, rejectProposal } from "../src/proposal";
@@ -31,7 +32,8 @@ describe("proposal engine", () => {
     const proposal = createProposal(document, [{ type: "UpdateNode", commandId: "test.update", nodeId: node.id, patch: { content: { ...node.content, text: "Save" } } }], "Change text");
     const changed = applyProposal(document, createProposal(document, [{ type: "UpdateNode", commandId: "test.other", nodeId: node.id, patch: { content: { ...node.content, text: "Draft" } } }], "Other change"));
     expect(changed.status).toBe("applied");
-    const stale = applyProposal(changed.document!, proposal);
+    if (!changed.document) throw new Error("expected applied document");
+    const stale = applyProposal(changed.document, proposal);
     expect(stale.status).toBe("invalid");
     expect(stale.error?.code).toBe("STALE_PROPOSAL");
   });
