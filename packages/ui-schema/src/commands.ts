@@ -176,6 +176,15 @@ export function applyCommand(
       if (!frames.some((frame) => frame.id === command.frameId)) {
         throw new UICommandError(`frame not found: ${command.frameId}`);
       }
+      if (
+        Object.values(document.nodes).some(
+          (node) => node.frameId === command.frameId,
+        )
+      ) {
+        throw new UICommandError(
+          `frame ${command.frameId} contains nodes; detach or delete them first`,
+        );
+      }
       document.frames = frames.filter((frame) => frame.id !== command.frameId);
       break;
     }
@@ -190,6 +199,17 @@ export function applyCommand(
         throw new UICommandError("created nodes require a parent");
       }
       assertParent(document, command.node, command.node.parentId);
+      if (command.node.frameId) {
+        const frame = (document.frames ?? []).find(
+          (candidate) => candidate.id === command.node.frameId,
+        );
+        if (!frame) {
+          throw new UICommandError(`frame not found: ${command.node.frameId}`);
+        }
+        if (frame.screenId !== command.node.screenId) {
+          throw new UICommandError("node frame must belong to the same screen");
+        }
+      }
 
       const screen = document.screens.find(
         (candidate) => candidate.id === command.node.screenId,
@@ -216,6 +236,17 @@ export function applyCommand(
         id: node.id,
         screenId: node.screenId,
       };
+      if (next.frameId) {
+        const frame = (document.frames ?? []).find(
+          (candidate) => candidate.id === next.frameId,
+        );
+        if (!frame) {
+          throw new UICommandError(`frame not found: ${next.frameId}`);
+        }
+        if (frame.screenId !== next.screenId) {
+          throw new UICommandError("node frame must belong to the same screen");
+        }
+      }
       document.nodes[node.id] = next;
       break;
     }
