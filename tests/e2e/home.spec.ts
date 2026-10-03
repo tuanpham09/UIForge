@@ -54,6 +54,7 @@ test("project-first production flow starts from real product intent", async ({
       document: { screens: Array<{ id: string; rootNodeId: string }> };
     };
     const screen = request.document.screens[0];
+    if (!screen) throw new Error("E2E project screen missing");
     await route.fulfill({
       status: 200,
       contentType: "application/json",
