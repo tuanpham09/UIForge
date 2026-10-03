@@ -3,10 +3,10 @@ import {
   applyCommands,
   type NodeId,
   type ScreenId,
-  type UICommand,
   type UIDocument,
 } from "@uiforge/ui-schema";
 import type { AgentContext, AgentEvent } from "./contracts";
+import { createProposal, type AgentProposal } from "./proposal";
 import { AgentRuntime } from "./runtime";
 import { createCoreAgentToolRegistry } from "./tools";
 
@@ -16,12 +16,7 @@ export interface DesignChatSelection {
   frameIds: string[];
 }
 
-export interface DesignProposal {
-  id: string;
-  summary: string;
-  commands: UICommand[];
-  preview: string[];
-}
+export type DesignProposal = AgentProposal;
 
 export interface DesignChatResult {
   reply: string;
@@ -44,17 +39,14 @@ function interpretDesignRequest(document: UIDocument, request: string, selection
 
   if (textMatch?.[1] && selected && (selected.type === "button" || selected.type === "text" || selected.type === "link")) {
     const value = textMatch[1].trim().replace(/[."”']+$/, "");
-    return {
-      id: id("proposal"),
-      summary: `Change “${selected.content?.text ?? selected.content?.label ?? selected.type}” to “${value}”.`,
-      commands: [{
-        type: "UpdateNode",
-        commandId: id("chat.update-text"),
-        nodeId: selected.id,
-        patch: { content: { ...selected.content, text: value, label: value } },
-      }],
-      preview: [`Update ${selected.type} ${selected.id}: text/label → “${value}”`],
-    };
+    return createProposal(document, [{
+      type: "UpdateNode",
+      commandId: id("chat.update-text"),
+      nodeId: selected.id,
+      patch: { content: { ...selected.content, text: value, label: value } },
+    }], `Change “${selected.content?.text ?? selected.content?.label ?? selected.type}” to “${value}”.`, [
+      `Update ${selected.type} ${selected.id}: text/label → “${value}”`,
+    ]);
   }
 
   const addButton = lower.includes("add button") || lower.includes("thêm nút") || lower.includes("create button");
@@ -76,33 +68,25 @@ function interpretDesignRequest(document: UIDocument, request: string, selection
       accessibility: { role: "button", accessibleName: "New Button" },
       interaction: { interactive: true, trigger: "click" as const },
     };
-    return {
-      id: id("proposal"),
-      summary: `Add a button to “${screen.name}”.`,
-      commands: [{ type: "CreateNode", commandId: id("chat.create-button"), node }],
-      preview: [`Create button ${nodeId} under ${parentId}`],
-    };
+    return createProposal(document, [{ type: "CreateNode", commandId: id("chat.create-button"), node }], `Add a button to “${screen.name}”.`, [
+      `Create button ${nodeId} under ${parentId}`,
+    ]);
   }
 
   if (lower.includes("make visual") || lower.includes("design ui") || lower.includes("visual design")) {
     const source = structuredClone(document);
     const visual = applyCommands(source, []);
-    return {
-      id: id("proposal"),
-      summary: "Move the document into the visual-design stage.",
-      commands: [{
-        type: "ApplyVisualDesign",
-        commandId: id("chat.visual-design"),
-        patches: Object.values(visual.nodes).filter((node) => node.type !== "screen-root").map((node) => ({
-          nodeId: node.id,
-          style: node.style ?? { tokens: {} },
-          layout: node.layout,
-          editor: node.editor,
-        })),
-        stage: "visual",
-      }],
-      preview: ["Set document designStage → visual"],
-    };
+    return createProposal(document, [{
+      type: "ApplyVisualDesign",
+      commandId: id("chat.visual-design"),
+      patches: Object.values(visual.nodes).filter((node) => node.type !== "screen-root").map((node) => ({
+        nodeId: node.id,
+        style: node.style ?? { tokens: {} },
+        layout: node.layout,
+        editor: node.editor,
+      })),
+      stage: "visual",
+    }], "Move the document into the visual-design stage.", ["Set document designStage → visual"]);
   }
 
   return undefined;
