@@ -38,14 +38,14 @@ export default function AgentDesignChat({document,screenId,nodeIds,frameIds,open
 
  const testConnection=async()=>{setConnection("testing");setConnectionError("");try{const response=await fetch("/api/agent/test",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({provider:{...provider,apiKey:provider.apiKey.trim()}})});const data=await response.json() as {ok?:boolean;error?:{message?:string}};if(!response.ok||!data.ok)throw new Error(data.error?.message??"Connection test failed.");setConnection("connected");}catch(error){setConnection("error");setConnectionError(error instanceof Error?error.message:"Connection test failed.");}};
 
- const runServerAgent=async(request:string):Promise<DesignChatResult|null>=>{
-  if(!provider.apiKey.trim())return null;
-  const response=await fetch("/api/agent/design",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:request,document,screenId,nodeIds,frameIds,sessionId,history:memory.slice(-32),provider:{...provider,apiKey:provider.apiKey.trim()}})});
-  if(!response.ok)return null;
-  const next=await response.json() as DesignChatResult & {memory?:AgentMessage[];sessionId?:string};
+ const runServerAgent=async(request:string):Promise<DesignChatResult>=>{
+  const response=await fetch("/api/agent/design",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:request,document,screenId,nodeIds,frameIds,sessionId,history:memory.slice(-32),...(provider.apiKey.trim()?{provider:{...provider,apiKey:provider.apiKey.trim()}}:{})})});
+  const data=await response.json().catch(()=>null) as (DesignChatResult & {memory?:AgentMessage[];sessionId?:string;error?:{message?:string;code?:string}})|null;
+  if(!response.ok)throw new Error(data?.error?.message??`Design Agent request failed with HTTP ${response.status}.`);
+  if(!data)throw new Error("Design Agent returned an empty response.");
+  const next=data;
   if(next.memory)setMemory(next.memory);if(next.sessionId)setSession(next.sessionId);return next;
  };
-
  const send=async()=>{const request=draft.trim();if(!request||busy)return;setDraft("");setMessages(items=>[...items,{id:`${Date.now()}`,role:"user",text:request}]);setBusy(true);try{const next=await runServerAgent(request);setResult(next);setMessages(items=>[...items,{id:`${Date.now()}-assistant`,role:"assistant",text:next.reply}]);}catch(error){setResult(null);setMessages(items=>[...items,{id:`${Date.now()}-assistant-error`,role:"assistant",text:error instanceof Error?error.message:"Design Agent request failed."}]);}finally{setBusy(false);}};
 
  if(!open)return null;
