@@ -140,7 +140,9 @@ describe("semantic layers", () => {
 
   it("does not leak nodes from another screen into a frame", () => {
     const document = fixture();
-    document.nodes.cta!.frameId = "frame.settings";
+    const cta = document.nodes.cta;
+    if (!cta) throw new Error("cta node missing");
+    cta.frameId = "frame.settings";
     expect(() => buildLayerTree(document)).not.toThrow();
 
     const homeFrame = buildLayerTree(document)[0]?.children[0];
