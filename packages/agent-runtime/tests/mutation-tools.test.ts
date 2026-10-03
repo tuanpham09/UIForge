@@ -113,12 +113,16 @@ describe("semantic mutation agent tools", () => {
     ).toBe(false);
 
     const commands = output.proposal.commands;
-    const frames = commands.filter((command) => command.type === "CreateFrame") as Array<{
+    const frames = commands.filter(
+      (command) => command.type === "CreateFrame",
+    ) as Array<{
       type: "CreateFrame";
       frame: { id: string; screenId: string };
     }>;
     expect(frames).toHaveLength(2);
-    const generatedNodes = commands.filter((command) => command.type === "CreateNode") as Array<{
+    const generatedNodes = commands.filter(
+      (command) => command.type === "CreateNode",
+    ) as Array<{
       type: "CreateNode";
       node: { screenId: string; frameId?: string };
     }>;
