@@ -205,9 +205,7 @@ test("project-first production flow starts from real product intent", async ({
   await expect(
     page.getByTestId("layer-frame-frame.screen.e2e.expenses"),
   ).toBeVisible();
-  await expect(
-    page.getByTestId("layer-node-node.e2e.hero"),
-  ).toBeVisible();
+  await expect(page.getByTestId("layer-node-node.e2e.hero")).toBeVisible();
 
   await page.getByTestId("layer-frame-frame.screen.e2e.expenses").click();
   await expect(
@@ -215,10 +213,13 @@ test("project-first production flow starts from real product intent", async ({
   ).toHaveAttribute("aria-current", "true");
 
   await page.getByTestId("layer-node-node.e2e.hero").click();
+  await expect(page.getByTestId("layer-node-node.e2e.hero")).toHaveAttribute(
+    "aria-current",
+    "true",
+  );
   await expect(
-    page.getByTestId("layer-node-node.e2e.hero"),
-  ).toHaveAttribute("aria-current", "true");
-  await expect(page.getByText("Expense overview", { exact: true })).toBeVisible();
+    page.getByText("Expense overview", { exact: true }),
+  ).toBeVisible();
 
   await page.getByRole("button", { name: "Expenses", exact: true }).click();
 
