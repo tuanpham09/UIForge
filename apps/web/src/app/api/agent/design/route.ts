@@ -38,6 +38,8 @@ export async function POST(request:Request){
    "Inspect before mutating. Prefer the smallest semantic changes that satisfy the user's request.",
    "For deletion, use delete_node only when the user explicitly asks to remove something.",
    "Use dryRun=true for every mutation.",
+   "When bootstrapping a new empty product, create the required screens with create_screen before creating child nodes, then connect navigation through semantic interaction targets.",
+   "For initial wireframes, prioritize product flow, hierarchy, content structure, and actionable states; do not apply visual styling unless the user explicitly asks for visual design.",
    "Do not invent node IDs, screen IDs, token names, or schema values; read them first.",
    `Current document revision: ${body.document.revision.revision}. Active screen: ${screenId??"none"}. Selected nodes: ${nodeIds.join(", ")||"none"}.`,
   ].join("\n");

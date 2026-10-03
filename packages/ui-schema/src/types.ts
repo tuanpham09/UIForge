@@ -233,6 +233,13 @@ export interface UIDocument {
 
 export type NodePatch = Partial<Omit<UINode, "id" | "screenId">>;
 
+export interface CreateScreenCommand {
+  type: "CreateScreen";
+  commandId: CommandId;
+  screen: Screen;
+  rootNode: UINode;
+}
+
 export interface CreateFrameCommand {
   type: "CreateFrame";
   commandId: CommandId;
@@ -330,6 +337,7 @@ export interface ApplyVisualDesignCommand {
 }
 
 export type UICommand =
+  | CreateScreenCommand
   | CreateFrameCommand
   | UpdateFrameCommand
   | DeleteFrameCommand

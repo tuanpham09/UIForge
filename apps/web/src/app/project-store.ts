@@ -48,6 +48,18 @@ export const createProject = (
 
 export const getProject = (id: string) => readProjects().find((project) => project.id === id) ?? null;
 
+export const updateProject = (id: string, patch: Partial<UIForgeProject>) => {
+  const projects = readProjects();
+  const index = projects.findIndex((project) => project.id === id);
+  if (index < 0) return null;
+  const current = projects[index];
+  if (!current) return null;
+  const next = { ...current, ...patch, updatedAt: new Date().toISOString() };
+  projects[index] = next;
+  writeProjects(projects);
+  return next;
+};
+
 export const deleteProject = (id: string) => writeProjects(readProjects().filter((project) => project.id !== id));
 
 export const stageLabel = (stage: ProjectStage) =>
